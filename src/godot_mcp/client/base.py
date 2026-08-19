@@ -1,0 +1,279 @@
+"""Abstract base client for communicating with the Godot Engine."""
+
+from abc import ABC, abstractmethod
+from typing import Any
+
+from godot_mcp.models.common import EngineMode, StandardResult
+
+
+class GodotClient(ABC):
+    """Abstract interface for Godot client implementations."""
+
+    @property
+    @abstractmethod
+    def mode(self) -> EngineMode:
+        """The communication mode of this client."""
+        ...
+
+    @abstractmethod
+    async def is_available(self) -> bool:
+        """Check if this client backend is reachable and usable."""
+        ...
+
+    @abstractmethod
+    async def get_version(self) -> StandardResult:
+        """Retrieve engine version and project info."""
+        ...
+
+    @abstractmethod
+    async def list_nodes(
+        self,
+        root_path: str = ".",
+        max_depth: int = 4,
+        include_properties: bool = False,
+    ) -> StandardResult:
+        """List nodes in the active scene tree."""
+        ...
+
+    @abstractmethod
+    async def get_node(
+        self,
+        node_path: str,
+        include_inherited_properties: bool = False,
+    ) -> StandardResult:
+        """Inspect a specific node's details and properties."""
+        ...
+
+    @abstractmethod
+    async def create_node(
+        self,
+        type_name: str,
+        name: str,
+        parent_path: str = ".",
+        properties: dict[str, Any] | None = None,
+        script_path: str | None = None,
+    ) -> StandardResult:
+        """Create and add a new node to the active scene."""
+        ...
+
+    @abstractmethod
+    async def modify_node(
+        self,
+        node_path: str,
+        properties: dict[str, Any],
+    ) -> StandardResult:
+        """Modify properties of an existing node."""
+        ...
+
+    @abstractmethod
+    async def delete_node(
+        self,
+        node_path: str,
+    ) -> StandardResult:
+        """Delete a node from the scene."""
+        ...
+
+    @abstractmethod
+    async def connect_signal(
+        self,
+        source_node_path: str,
+        signal_name: str,
+        target_node_path: str,
+        method_name: str,
+        flags: int = 0,
+    ) -> StandardResult:
+        """Connect a signal to a target method."""
+        ...
+
+    @abstractmethod
+    async def instantiate_scene(
+        self,
+        scene_path: str,
+        parent_path: str = ".",
+        name: str | None = None,
+        properties: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        """Instantiate a .tscn scene file under a parent node."""
+        ...
+
+    @abstractmethod
+    async def save_scene(
+        self,
+        scene_path: str | None = None,
+    ) -> StandardResult:
+        """Save the active scene or save as new path."""
+        ...
+
+    @abstractmethod
+    async def open_scene(
+        self,
+        scene_path: str,
+    ) -> StandardResult:
+        """Open a scene in the Godot Editor."""
+        ...
+
+    @abstractmethod
+    async def create_scene(
+        self,
+        scene_path: str,
+        root_type: str = "Node2D",
+        root_name: str = "Root",
+        properties: dict[str, Any] | None = None,
+        open_in_editor: bool = True,
+    ) -> StandardResult:
+        """Create a new scene file with its own dedicated root node."""
+        ...
+
+    @abstractmethod
+    async def validate_script(
+        self,
+        script_path: str | None = None,
+        code_content: str | None = None,
+    ) -> StandardResult:
+        """Validate GDScript syntax and check compilation errors."""
+        ...
+
+    @abstractmethod
+    async def validate_shader(
+        self,
+        shader_path: str | None = None,
+        shader_code: str | None = None,
+    ) -> StandardResult:
+        """Validate GDShader code syntax and compilation."""
+        ...
+
+    @abstractmethod
+    async def get_class_info(
+        self,
+        class_name: str,
+        include_inherited: bool = True,
+        category: str = "all",
+    ) -> StandardResult:
+        """Query ClassDB for Godot engine class inheritance, properties, methods, and signals."""
+        ...
+
+    @abstractmethod
+    async def get_documentation(
+        self,
+        query: str,
+        category: str = "all",
+    ) -> StandardResult:
+        """Retrieve official Godot API documentation and signatures for classes, methods, and properties."""
+        ...
+
+    @abstractmethod
+    async def create_script(
+        self,
+        path: str,
+        content: str,
+        inherits: str = "Node",
+        attach_to_node: str | None = None,
+    ) -> StandardResult:
+        """Create or write a GDScript file."""
+        ...
+
+    @abstractmethod
+    async def get_project_settings(
+        self,
+        section: str | None = None,
+    ) -> StandardResult:
+        """Read project.godot settings."""
+        ...
+
+    @abstractmethod
+    async def set_project_setting(
+        self,
+        name: str,
+        value: Any,
+    ) -> StandardResult:
+        """Set a project configuration setting."""
+        ...
+
+    @abstractmethod
+    async def list_project_files(
+        self,
+        directory: str = "res://",
+        extension_filter: list[str] | None = None,
+        recursive: bool = True,
+    ) -> StandardResult:
+        """List files and resources in the project."""
+        ...
+
+    @abstractmethod
+    async def run_project(
+        self,
+        scene_path: str | None = None,
+        extra_arguments: list[str] | None = None,
+        timeout_seconds: int = 10,
+    ) -> StandardResult:
+        """Run the project in debug mode and capture logs."""
+        ...
+
+    @abstractmethod
+    async def run_tests(
+        self,
+        test_path: str | None = None,
+        extra_arguments: list[str] | None = None,
+        timeout_seconds: int = 30,
+    ) -> StandardResult:
+        """Run headless tests and parse results."""
+        ...
+
+    @abstractmethod
+    async def take_screenshot(
+        self,
+        viewport_type: str = "main_2d_3d",
+        output_path: str | None = None,
+    ) -> StandardResult:
+        """Capture a screenshot of the active viewport or editor."""
+        ...
+
+    @abstractmethod
+    async def create_material(
+        self,
+        material_path: str,
+        material_type: str = "StandardMaterial3D",
+        properties: dict[str, Any] | None = None,
+        shader_path: str | None = None,
+        shader_code: str | None = None,
+        assign_to_node_path: str | None = None,
+    ) -> StandardResult:
+        """Create and configure a Godot Material resource (.tres) and optionally attach to node."""
+        ...
+
+    @abstractmethod
+    async def reimport_asset(
+        self,
+        asset_path: str,
+        preset: str | None = None,
+        custom_params: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        """Reimport an asset in Godot and optionally apply import preset parameters."""
+        ...
+
+    @abstractmethod
+    async def create_collision_polygon(
+        self,
+        points: list[list[float]],
+        polygon_type: str = "2D",
+        parent_node_path: str = ".",
+        node_name: str = "CollisionPolygon",
+        depth: float = 1.0,
+        disabled: bool = False,
+    ) -> StandardResult:
+        """Generate a 2D or 3D collision polygon from vertex coordinates and attach to scene node."""
+        ...
+
+    @abstractmethod
+    async def create_animation(
+        self,
+        animation_name: str,
+        length: float = 1.0,
+        loop_mode: str = "none",
+        step: float = 0.1,
+        tracks: list[dict[str, Any]] | None = None,
+        animation_player_path: str | None = None,
+        save_path: str | None = None,
+    ) -> StandardResult:
+        """Create and configure an Animation resource with tracks and keyframes."""
+        ...
