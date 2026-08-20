@@ -756,6 +756,49 @@ class MockGodotClient(GodotClient):
             data=data,
         )
 
+    async def create_theme(
+        self,
+        save_path: str,
+        base_font_path: str | None = None,
+        base_font_size: int | None = None,
+        colors: dict[str, dict[str, str]] | None = None,
+        constants: dict[str, dict[str, int]] | None = None,
+        styleboxes: dict[str, dict[str, Any]] | None = None,
+        apply_to_node_path: str | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Created and saved Theme resource to '{save_path}'.",
+            mode=self.mode,
+            data={
+                "save_path": save_path,
+                "base_font_size": base_font_size,
+                "colors_configured": colors or {},
+                "constants_configured": constants or {},
+                "styleboxes_configured": list((styleboxes or {}).keys()),
+                "applied_to_node": apply_to_node_path,
+            },
+        )
+
+    async def apply_theme_override(
+        self,
+        node_path: str,
+        override_type: str,
+        item_name: str,
+        value: Any,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Applied {override_type} override '{item_name}' on Control '{node_path}'.",
+            mode=self.mode,
+            data={
+                "node_name": node_path.split("/")[-1],
+                "override_type": override_type,
+                "item_name": item_name,
+                "value": value,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

@@ -41,11 +41,15 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 ### Phase 3: Animation, Level Design & Semantic LSP
 - [x] **Animation Track & Keyframe Authoring (`godot_create_animation`)**: Add tracks (property, 3D transform, method call), insert keyframes, set transition easing curves, and save `.tres` / attach to `AnimationPlayer`.
 - [x] **TileMapLayer Cell Painting (`godot_set_tilemap_cells`, `godot_get_tilemap_cells`, `godot_create_tilemap_layer`)**: Programmatically create, paint, erase, and query tile maps on Godot 4.7+ `TileMapLayer` and legacy `TileMap` nodes.
-
-
 - [x] **NavMesh Baking (`godot_bake_navmesh`, `godot_create_navigation_region`)**: Trigger asynchronous navigation mesh baking and configure agent profiles on `NavigationRegion3D` / `NavigationRegion2D`.
 - [x] **Godot LSP Client (`godot_lsp_query`, `godot_lsp_rename`)**: Query GDScript symbols, definitions, find references, inspect docstrings/signatures, and perform safe cross-file renaming on Godot LSP port 6005 with offline static fallback.
 - [x] **Performance Monitor Telemetry (`godot_get_performance_metrics`, `godot://performance/metrics`)**: Real-time telemetry stream and dynamic MCP resource for framerate (FPS), draw calls, frame process times, VRAM, and orphan node leak tracking.
+
+### Phase 4: UI Design, Audio & Interactive Debugging
+- [x] **Theme & UI Styling Engine (`godot_create_theme`, `godot_apply_theme_override`)**: Create and save Godot 4 Theme resources (`.tres`) with custom `StyleBoxFlat` rounded corners, borders, shadows, colors, constants, and fonts; apply live node overrides with `UndoRedo`.
+- [ ] **Interactive Play Mode & Debug Control (`godot_pause_game`, `godot_resume_game`, `godot_step_frame`)**: Pause, unpause, step single physics/process frames, and inspect live runtime trees.
+- [ ] **Audio Bus & Effect Pipeline (`godot_configure_audio_bus`, `godot_set_bus_effect`)**: Programmatically configure `AudioServer` layout, routing, bus volumes, and audio effects (Reverb, EQ, Chorus).
+
 
 
 

@@ -55,6 +55,10 @@ from godot_mcp.models.script import (
     CreateScriptInput,
     ValidateScriptInput,
 )
+from godot_mcp.models.theme import (
+    ApplyThemeOverrideInput,
+    CreateThemeInput,
+)
 from godot_mcp.models.tilemap import (
     CreateTileMapLayerInput,
     GetTileMapCellsInput,
@@ -106,6 +110,10 @@ from godot_mcp.tools.scene_tools import (
 from godot_mcp.tools.script_tools import (
     handle_create_script,
     handle_validate_script,
+)
+from godot_mcp.tools.theme_tools import (
+    handle_apply_theme_override,
+    handle_create_theme,
 )
 from godot_mcp.tools.tilemap_tools import (
     handle_create_tilemap_layer,
@@ -616,6 +624,34 @@ def create_server(
     async def get_performance_metrics(params: GetPerformanceMetricsInput) -> str:
         """Query real-time Godot engine performance metrics (FPS, process/physics frame times, draw calls, VRAM, static memory, and orphan node leak tracking)."""
         return await handle_get_performance_metrics(active_client, params)
+
+    @server.tool(
+        name="godot_create_theme",
+        annotations=ToolAnnotations(
+            title="Create Theme Resource",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def create_theme(params: CreateThemeInput) -> str:
+        """Create and configure a Godot 4 Theme resource (.tres) with custom StyleBoxFlat definitions, colors, constants, and fonts."""
+        return await handle_create_theme(active_client, params)
+
+    @server.tool(
+        name="godot_apply_theme_override",
+        annotations=ToolAnnotations(
+            title="Apply Theme Override to Node",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def apply_theme_override(params: ApplyThemeOverrideInput) -> str:
+        """Apply a styling override (StyleBoxFlat, color, constant, font_size) directly to a target Control node in the active scene."""
+        return await handle_apply_theme_override(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

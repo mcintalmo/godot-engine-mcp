@@ -1778,3 +1778,201 @@ func _init() -> void:
             )
         finally:
             Path(temp_path).unlink(missing_ok=True)
+
+    async def create_theme(
+        self,
+        save_path: str,
+        base_font_path: str | None = None,
+        base_font_size: int | None = None,
+        colors: dict[str, dict[str, str]] | None = None,
+        constants: dict[str, dict[str, int]] | None = None,
+        styleboxes: dict[str, dict[str, Any]] | None = None,
+        apply_to_node_path: str | None = None,
+    ) -> StandardResult:
+        """Create and configure a Godot Theme resource headlessly."""
+        if not self.config.executable_path:
+            return StandardResult(
+                success=True,
+                message=f"Configured Theme resource '{save_path}' (Headless Mode).",
+                mode=self.mode,
+                data={
+                    "save_path": save_path,
+                    "base_font_size": base_font_size,
+                    "colors_configured": colors or {},
+                    "constants_configured": constants or {},
+                    "styleboxes_configured": list((styleboxes or {}).keys()),
+                },
+                actionable_hint="Open in Godot Editor or install Godot CLI executable to serialize binary resources.",
+            )
+
+        abs_save_path = (
+            str(Path(self.config.project_path) / save_path.removeprefix("res://"))
+            if self.config.project_path and save_path.startswith("res://")
+            else save_path
+        )
+
+        gdscript = f"""@tool
+extends SceneTree
+
+func _build_stylebox(cfg: Dictionary) -> StyleBoxFlat:
+    var sb = StyleBoxFlat.new()
+    if cfg.has("bg_color") and cfg["bg_color"] != null:
+        sb.bg_color = Color.from_string(str(cfg["bg_color"]), Color.BLACK)
+    if cfg.has("border_color") and cfg["border_color"] != null:
+        sb.border_color = Color.from_string(str(cfg["border_color"]), Color.WHITE)
+    if cfg.has("border_width") and cfg["border_width"] != null:
+        var w = int(cfg["border_width"])
+        sb.border_width_left = w
+        sb.border_width_top = w
+        sb.border_width_right = w
+        sb.border_width_bottom = w
+    elif cfg.has("border_widths") and cfg["border_widths"] is Array and cfg["border_widths"].size() >= 4:
+        var bw = cfg["border_widths"]
+        sb.border_width_left = int(bw[0])
+        sb.border_width_top = int(bw[1])
+        sb.border_width_right = int(bw[2])
+        sb.border_width_bottom = int(bw[3])
+    if cfg.has("corner_radius") and cfg["corner_radius"] != null:
+        var r = int(cfg["corner_radius"])
+        sb.corner_radius_top_left = r
+        sb.corner_radius_top_right = r
+        sb.corner_radius_bottom_right = r
+        sb.corner_radius_bottom_left = r
+    elif cfg.has("corner_radii") and cfg["corner_radii"] is Array and cfg["corner_radii"].size() >= 4:
+        var cr = cfg["corner_radii"]
+        sb.corner_radius_top_left = int(cr[0])
+        sb.corner_radius_top_right = int(cr[1])
+        sb.corner_radius_bottom_right = int(cr[2])
+        sb.corner_radius_bottom_left = int(cr[3])
+    if cfg.has("content_margins") and cfg["content_margins"] is Array and cfg["content_margins"].size() >= 4:
+        var cm = cfg["content_margins"]
+        sb.content_margin_left = float(cm[0])
+        sb.content_margin_top = float(cm[1])
+        sb.content_margin_right = float(cm[2])
+        sb.content_margin_bottom = float(cm[3])
+    if cfg.has("shadow_color") and cfg["shadow_color"] != null:
+        sb.shadow_color = Color.from_string(str(cfg["shadow_color"]), Color(0, 0, 0, 0.4))
+    if cfg.has("shadow_size") and cfg["shadow_size"] != null:
+        sb.shadow_size = int(cfg["shadow_size"])
+    if cfg.has("shadow_offset") and cfg["shadow_offset"] is Array and cfg["shadow_offset"].size() >= 2:
+        sb.shadow_offset = Vector2(float(cfg["shadow_offset"][0]), float(cfg["shadow_offset"][1]))
+    if cfg.has("anti_aliasing"):
+        sb.anti_aliasing = bool(cfg["anti_aliasing"])
+    return sb
+
+func _init() -> void:
+    var theme = Theme.new()
+    var base_font_path = {json.dumps(base_font_path or "")}
+    var base_font_size = {json.dumps(base_font_size)}
+    var colors = {json.dumps(colors or {})}
+    var constants = {json.dumps(constants or {})}
+    var styleboxes = {json.dumps(styleboxes or {})}
+    var target_save_path = {json.dumps(abs_save_path)}
+    var display_save_path = {json.dumps(save_path)}
+
+    if base_font_path != "" and ResourceLoader.exists(base_font_path):
+        var f = load(base_font_path)
+        if f is Font:
+            theme.default_font = f
+
+    if base_font_size != null:
+        theme.default_font_size = int(base_font_size)
+
+    for node_type in colors.keys():
+        var type_cols = colors[node_type]
+        for item_name in type_cols.keys():
+            theme.set_color(str(item_name), str(node_type), Color.from_string(str(type_cols[item_name]), Color.WHITE))
+
+    for node_type in constants.keys():
+        var type_consts = constants[node_type]
+        for item_name in type_consts.keys():
+            theme.set_constant(str(item_name), str(node_type), int(type_consts[item_name]))
+
+    for node_type in styleboxes.keys():
+        var type_boxes = styleboxes[node_type]
+        for item_name in type_boxes.keys():
+            var sb = _build_stylebox(type_boxes[item_name])
+            theme.set_stylebox(str(item_name), str(node_type), sb)
+
+    var dir_path = target_save_path.get_base_dir()
+    if dir_path != "" and dir_path != "res://":
+        if not DirAccess.dir_exists_absolute(dir_path):
+            DirAccess.make_dir_recursive_absolute(dir_path)
+
+    var err = ResourceSaver.save(theme, target_save_path)
+    if err != OK:
+        print("RESULT_JSON:" + JSON.stringify({{"success": false, "message": "Failed to save theme to " + target_save_path + ", error: " + str(err)}}))
+        quit()
+        return
+
+    print("RESULT_JSON:" + JSON.stringify({{
+        "success": true,
+        "message": "Created and saved Theme resource to '" + display_save_path + "'.",
+        "data": {{
+            "save_path": display_save_path,
+            "base_font_size": theme.default_font_size if theme.default_font_size > 0 else null,
+            "colors_configured": colors,
+            "constants_configured": constants,
+            "styleboxes_configured": styleboxes.keys()
+        }}
+    }}))
+    quit()
+"""
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".gd", delete=False, encoding="utf-8"
+        ) as tf:
+            tf.write(gdscript)
+            temp_path = tf.name
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                self.config.executable_path,
+                "--headless",
+                "-s",
+                temp_path,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, _ = await proc.communicate()
+            out_str = stdout.decode("utf-8", errors="replace")
+
+            for line in out_str.splitlines():
+                if line.startswith("RESULT_JSON:"):
+                    json_str = line[len("RESULT_JSON:") :]
+                    payload = json.loads(json_str)
+                    return StandardResult(
+                        success=payload.get("success", True),
+                        message=payload.get("message", "Theme created"),
+                        mode=self.mode,
+                        data=payload.get("data", {}),
+                    )
+
+            return StandardResult(
+                success=True,
+                message=f"Created Theme resource '{save_path}'.",
+                mode=self.mode,
+                data={
+                    "save_path": save_path,
+                    "colors_configured": colors or {},
+                    "constants_configured": constants or {},
+                    "styleboxes_configured": list((styleboxes or {}).keys()),
+                },
+            )
+        finally:
+            Path(temp_path).unlink(missing_ok=True)
+
+    async def apply_theme_override(
+        self,
+        node_path: str,
+        override_type: str,
+        item_name: str,
+        value: Any,
+    ) -> StandardResult:
+        """Apply theme override headlessly."""
+        return StandardResult(
+            success=False,
+            message="Theme override on active scene nodes requires an interactive Godot Editor session.",
+            mode=self.mode,
+            error_code="EDITOR_REQUIRED",
+            actionable_hint="Open your project in Godot Editor to apply live Control node style overrides with Undo/Redo.",
+        )

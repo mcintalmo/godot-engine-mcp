@@ -366,3 +366,28 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Query real-time Godot engine performance metrics and telemetry."""
         ...
+
+    @abstractmethod
+    async def create_theme(
+        self,
+        save_path: str,
+        base_font_path: str | None = None,
+        base_font_size: int | None = None,
+        colors: dict[str, dict[str, str]] | None = None,
+        constants: dict[str, dict[str, int]] | None = None,
+        styleboxes: dict[str, dict[str, Any]] | None = None,
+        apply_to_node_path: str | None = None,
+    ) -> StandardResult:
+        """Create and configure a Godot 4 Theme resource (.tres) with custom styles."""
+        ...
+
+    @abstractmethod
+    async def apply_theme_override(
+        self,
+        node_path: str,
+        override_type: str,
+        item_name: str,
+        value: Any,
+    ) -> StandardResult:
+        """Apply a theme override (stylebox, color, constant, font_size) directly to a Control node."""
+        ...

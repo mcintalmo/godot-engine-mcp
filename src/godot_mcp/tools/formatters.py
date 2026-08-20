@@ -306,6 +306,45 @@ def format_result(
                 for k, v in result.data["custom"].items():
                     lines.append(f"- **{k}**: `{v}`")
 
+        elif "save_path" in result.data and (
+            "styleboxes_configured" in result.data or "colors_configured" in result.data
+        ):
+            lines.append(f"**Theme Resource**: `{result.data.get('save_path')}`")
+            if result.data.get("base_font_size"):
+                lines.append(
+                    f"**Base Font Size**: `{result.data.get('base_font_size')} px`"
+                )
+            if result.data.get("applied_to_node"):
+                lines.append(
+                    f"**Applied to Node**: `{result.data.get('applied_to_node')}`"
+                )
+            if result.data.get("colors_configured"):
+                lines.append("\n**Colors Configured**:")
+                for nt, cols in result.data["colors_configured"].items():
+                    col_items = ", ".join(f"`{k}`: {v}" for k, v in cols.items())
+                    lines.append(f"- **{nt}**: {col_items}")
+            if result.data.get("constants_configured"):
+                lines.append("\n**Constants Configured**:")
+                for nt, consts in result.data["constants_configured"].items():
+                    const_items = ", ".join(f"`{k}`: {v}" for k, v in consts.items())
+                    lines.append(f"- **{nt}**: {const_items}")
+            if result.data.get("styleboxes_configured"):
+                lines.append(
+                    f"\n**StyleBoxes Configured**: {', '.join(f'`{s}`' for s in result.data['styleboxes_configured'])}"
+                )
+
+        elif "override_type" in result.data and "item_name" in result.data:
+            lines.append(f"**Target Node**: `{result.data.get('node_name')}`")
+            lines.append(f"**Override Type**: `{result.data.get('override_type')}`")
+            lines.append(f"**Item Name**: `{result.data.get('item_name')}`")
+            val = result.data.get("value")
+            if isinstance(val, dict):
+                lines.append("\n**StyleBox Properties**:")
+                for k, v in val.items():
+                    lines.append(f"- `{k}` = `{v}`")
+            else:
+                lines.append(f"**Value**: `{val}`")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

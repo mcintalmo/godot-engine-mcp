@@ -14,6 +14,7 @@ const AnimationOps = preload("res://addons/godot_mcp/operations/animation_ops.gd
 const TileMapOps = preload("res://addons/godot_mcp/operations/tilemap_ops.gd")
 const NavigationOps = preload("res://addons/godot_mcp/operations/navigation_ops.gd")
 const PerformanceOps = preload("res://addons/godot_mcp/operations/performance_ops.gd")
+const ThemeOps = preload("res://addons/godot_mcp/operations/theme_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -29,6 +30,7 @@ var _animation_ops: RefCounted
 var _tilemap_ops: RefCounted
 var _navigation_ops: RefCounted
 var _performance_ops: RefCounted
+var _theme_ops: RefCounted
 
 var _port: int = PORT
 
@@ -45,6 +47,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_tilemap_ops = TileMapOps.new(_plugin)
 	_navigation_ops = NavigationOps.new(_plugin)
 	_performance_ops = PerformanceOps.new(_plugin)
+	_theme_ops = ThemeOps.new(_plugin)
+
 
 
 
@@ -177,6 +181,11 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _navigation_ops.create_navigation_region(params)
 		"get_performance_metrics":
 			result = _performance_ops.get_metrics(params)
+		"create_theme":
+			result = _theme_ops.create_theme(params)
+		"apply_theme_override":
+			result = _theme_ops.apply_theme_override(params)
+
 
 
 
