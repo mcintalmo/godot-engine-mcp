@@ -80,9 +80,12 @@ class GodotClient(ABC):
         signal_name: str,
         target_node_path: str,
         method_name: str,
-        flags: int = 0,
+        disconnect: bool = False,
+        persist: bool = True,
+        one_shot: bool = False,
+        deferred: bool = False,
     ) -> StandardResult:
-        """Connect a signal to a target method."""
+        """Connect or disconnect a signal between two nodes."""
         ...
 
     @abstractmethod
@@ -641,4 +644,50 @@ class GodotClient(ABC):
         debug: bool = False,
     ) -> StandardResult:
         """Export project binary headlessly for specified preset target."""
+        ...
+
+    @abstractmethod
+    async def get_autoloads(self) -> StandardResult:
+        """Query all autoload singletons from project.godot."""
+        ...
+
+    @abstractmethod
+    async def set_autoload(
+        self,
+        name: str,
+        path: str | None = None,
+        is_singleton: bool = True,
+        remove: bool = False,
+    ) -> StandardResult:
+        """Add, update, or remove an autoload singleton in project.godot."""
+        ...
+
+    @abstractmethod
+    async def get_node_signals(
+        self,
+        node_path: str,
+        include_inherited: bool = True,
+    ) -> StandardResult:
+        """Introspect signal definitions on a target node."""
+        ...
+
+    @abstractmethod
+    async def get_signal_connections(
+        self,
+        node_path: str,
+        signal_name: str | None = None,
+        incoming: bool = True,
+        outgoing: bool = True,
+    ) -> StandardResult:
+        """Query incoming and outgoing signal connections for a node."""
+        ...
+
+    @abstractmethod
+    async def evaluate_expression(
+        self,
+        expression: str,
+        node_path: str | None = None,
+        input_variables: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        """Safely evaluate a runtime GDScript expression."""
         ...

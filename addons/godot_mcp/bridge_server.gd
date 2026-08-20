@@ -24,6 +24,9 @@ const EditorOps = preload("res://addons/godot_mcp/operations/editor_ops.gd")
 const DCCOps = preload("res://addons/godot_mcp/operations/dcc_ops.gd")
 const ParticleOps = preload("res://addons/godot_mcp/operations/particle_ops.gd")
 const BuildOps = preload("res://addons/godot_mcp/operations/build_ops.gd")
+const AutoloadOps = preload("res://addons/godot_mcp/operations/autoload_ops.gd")
+const SignalOps = preload("res://addons/godot_mcp/operations/signal_ops.gd")
+const EvalOps = preload("res://addons/godot_mcp/operations/eval_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -49,6 +52,9 @@ var _editor_ops: RefCounted
 var _dcc_ops: RefCounted
 var _particle_ops: RefCounted
 var _build_ops: RefCounted
+var _autoload_ops: RefCounted
+var _signal_ops: RefCounted
+var _eval_ops: RefCounted
 
 var _port: int = PORT
 
@@ -75,6 +81,10 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_dcc_ops = DCCOps.new(_plugin)
 	_particle_ops = ParticleOps.new(_plugin)
 	_build_ops = BuildOps.new(_plugin)
+	_autoload_ops = AutoloadOps.new(_plugin)
+	_signal_ops = SignalOps.new(_plugin)
+	_eval_ops = EvalOps.new(_plugin)
+
 
 
 
@@ -257,6 +267,19 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _particle_ops.configure_particles(params)
 		"get_export_presets":
 			result = _build_ops.get_export_presets(params)
+		"get_autoloads":
+			result = _autoload_ops.get_autoloads(params)
+		"set_autoload":
+			result = _autoload_ops.set_autoload(params)
+		"get_node_signals":
+			result = _signal_ops.get_node_signals(params)
+		"connect_signal":
+			result = _signal_ops.connect_signal(params)
+		"get_signal_connections":
+			result = _signal_ops.get_signal_connections(params)
+		"evaluate_expression":
+			result = _eval_ops.evaluate_expression(params)
+
 
 
 

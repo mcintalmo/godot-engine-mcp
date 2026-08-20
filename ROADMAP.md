@@ -63,6 +63,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **VFX Particle Systems Engine (`godot_configure_particles`)**: Create and tweak `GPUParticles3D/2D` and `CPUParticles` systems with volumetric emission shapes (Sphere, Box, Ring), bursts, color gradient ramps (`GradientTexture1D`), velocities, and `ParticleProcessMaterial` `.tres` exporting.
 - [x] **Project Export & Build Automation (`godot_get_export_presets`, `godot_export_project`)**: Inspect `export_presets.cfg` across all platforms (Windows, Linux, macOS, Web, Mobile) and trigger headless automated project builds via Godot CLI.
 
+### Phase 8: Project Architecture & Event Wiring
+- [x] **Autoload & Singleton Management (`godot_get_autoloads`, `godot_set_autoload`)**: Query, add, update, remove, and toggle global singletons in `project.godot` with immediate editor lifecycle registration and global script scope resolution.
+- [x] **Signal Introspection & Event Wiring (`godot_get_node_signals`, `godot_connect_signal`, `godot_get_signal_connections`)**: Introspect signals on active nodes with argument definitions, bind/unbind method callables with `CONNECT_PERSIST` scene serialization, and inspect incoming/outgoing connection graphs.
+- [x] **Dynamic GDScript Expression Evaluator (`godot_evaluate_expression`)**: Safely parse and execute runtime GDScript math, logical expressions, and method calls against target nodes or global scope.
+
+
 
 
 

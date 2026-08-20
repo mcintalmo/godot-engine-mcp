@@ -24,7 +24,6 @@ from godot_mcp.models.reflection import (
     ValidateShaderInput,
 )
 from godot_mcp.models.scene import (
-    ConnectSignalInput,
     CreateNodeInput,
     CreateSceneInput,
     DeleteNodeInput,
@@ -39,6 +38,7 @@ from godot_mcp.models.script import (
     CreateScriptInput,
     ValidateScriptInput,
 )
+from godot_mcp.models.signal_wire import ConnectSignalInput
 from godot_mcp.tools.debug_tools import (
     handle_run_project,
     handle_run_tests,
@@ -57,7 +57,6 @@ from godot_mcp.tools.reflection_tools import (
     handle_validate_shader,
 )
 from godot_mcp.tools.scene_tools import (
-    handle_connect_signal,
     handle_create_node,
     handle_create_scene,
     handle_delete_node,
@@ -72,6 +71,7 @@ from godot_mcp.tools.script_tools import (
     handle_create_script,
     handle_validate_script,
 )
+from godot_mcp.tools.signal_tools import handle_connect_signal
 
 
 class MockGodotClient(GodotClient):
@@ -169,12 +169,24 @@ class MockGodotClient(GodotClient):
         signal_name: str,
         target_node_path: str,
         method_name: str,
-        flags: int = 0,
+        disconnect: bool = False,
+        persist: bool = True,
+        one_shot: bool = False,
+        deferred: bool = False,
     ) -> StandardResult:
+        action = "Disconnected" if disconnect else "Connected"
         return StandardResult(
             success=True,
-            message=f"Connected {signal_name}",
+            message=f"{action} signal '{signal_name}' from '{source_node_path}' to '{target_node_path}.{method_name}'.",
             mode=self.mode,
+            data={
+                "source_node": source_node_path,
+                "signal_name": signal_name,
+                "target_node": target_node_path,
+                "method_name": method_name,
+                "connected": not disconnect,
+                "flags": 1 if persist else 0,
+            },
         )
 
     async def instantiate_scene(
@@ -1317,6 +1329,126 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def get_autoloads(self) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Found 2 autoload singletons in project.godot.",
+            mode=self.mode,
+            data={
+                "autoload_count": 2,
+                "autoloads": [
+                    {
+                        "name": "GameManager",
+                        "path": "res://scripts/game_manager.gd",
+                        "is_singleton": True,
+                        "exists": True,
+                    },
+                    {
+                        "name": "GlobalAudio",
+                        "path": "res://scenes/audio_bus.tscn",
+                        "is_singleton": True,
+                        "exists": True,
+                    },
+                ],
+            },
+        )
+
+    async def set_autoload(
+        self,
+        name: str,
+        path: str | None = None,
+        is_singleton: bool = True,
+        remove: bool = False,
+    ) -> StandardResult:
+        if remove:
+            return StandardResult(
+                success=True,
+                message=f"Removed autoload singleton '{name}'.",
+                mode=self.mode,
+                data={"name": name, "removed": True},
+            )
+        return StandardResult(
+            success=True,
+            message=f"Configured autoload '{name}' -> '{path}' (Singleton: {is_singleton}).",
+            mode=self.mode,
+            data={
+                "name": name,
+                "path": path,
+                "is_singleton": is_singleton,
+                "setting_key": f"autoload/{name}",
+            },
+        )
+
+    async def get_node_signals(
+        self,
+        node_path: str,
+        include_inherited: bool = True,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Found 2 signals on node 'Button' (Button).",
+            mode=self.mode,
+            data={
+                "node_name": "Button",
+                "node_path": node_path,
+                "node_class": "Button",
+                "signal_count": 2,
+                "signals": [
+                    {"name": "pressed", "argument_count": 0, "arguments": []},
+                    {
+                        "name": "toggled",
+                        "argument_count": 1,
+                        "arguments": [{"name": "toggled_on", "type": "bool"}],
+                    },
+                ],
+            },
+        )
+
+    async def get_signal_connections(
+        self,
+        node_path: str,
+        signal_name: str | None = None,
+        incoming: bool = True,
+        outgoing: bool = True,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Found 1 outgoing and 0 incoming signal connections for 'Button'.",
+            mode=self.mode,
+            data={
+                "node_path": node_path,
+                "outgoing_connections": [
+                    {
+                        "signal_name": signal_name or "pressed",
+                        "target_node": "/root/Main/GameManager",
+                        "method_name": "_on_button_pressed",
+                        "flags": 1,
+                    }
+                ]
+                if outgoing
+                else [],
+                "incoming_connections": [],
+            },
+        )
+
+    async def evaluate_expression(
+        self,
+        expression: str,
+        node_path: str | None = None,
+        input_variables: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Evaluated expression successfully: 42",
+            mode=self.mode,
+            data={
+                "expression": expression,
+                "result": 42,
+                "result_type": "int",
+                "context_node": node_path or "/root/Main",
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:
@@ -1351,7 +1483,8 @@ async def test_all_scene_tools() -> None:
             method_name="_on_click",
         ),
     )
-    assert "Connected pressed" in res
+    assert "Signal Connected" in res
+    assert "pressed" in res
 
     res = await handle_instantiate_scene(
         client, InstantiateSceneInput(scene_path="res://player.tscn")

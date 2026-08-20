@@ -13,7 +13,6 @@ from godot_mcp.tools.project_tools import (
     handle_set_project_setting,
 )
 from godot_mcp.tools.scene_tools import (
-    handle_connect_signal,
     handle_create_node,
     handle_delete_node,
     handle_get_node,
@@ -26,6 +25,7 @@ from godot_mcp.tools.script_tools import (
     handle_create_script,
     handle_validate_script,
 )
+from godot_mcp.tools.signal_tools import handle_connect_signal
 
 __all__ = [
     "format_result",

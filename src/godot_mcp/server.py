@@ -18,6 +18,10 @@ from godot_mcp.models.audio import (
     GetAudioLayoutInput,
     SetBusEffectInput,
 )
+from godot_mcp.models.autoload import (
+    GetAutoloadsInput,
+    SetAutoloadInput,
+)
 from godot_mcp.models.dcc_asset import (
     ConfigureGLTFImportInput,
     InstantiateModelInput,
@@ -74,8 +78,8 @@ from godot_mcp.models.reflection import (
     GetDocumentationInput,
     ValidateShaderInput,
 )
+from godot_mcp.models.runtime_eval import EvaluateExpressionInput
 from godot_mcp.models.scene import (
-    ConnectSignalInput,
     CreateNodeInput,
     CreateSceneInput,
     DeleteNodeInput,
@@ -89,6 +93,11 @@ from godot_mcp.models.scene import (
 from godot_mcp.models.script import (
     CreateScriptInput,
     ValidateScriptInput,
+)
+from godot_mcp.models.signal_wire import (
+    ConnectSignalInput,
+    GetNodeSignalsInput,
+    GetSignalConnectionsInput,
 )
 from godot_mcp.models.theme import (
     ApplyThemeOverrideInput,
@@ -109,6 +118,10 @@ from godot_mcp.tools.audio_tools import (
     handle_get_audio_layout,
     handle_set_bus_effect,
 )
+from godot_mcp.tools.autoload_tools import (
+    handle_get_autoloads,
+    handle_set_autoload,
+)
 from godot_mcp.tools.build_tools import (
     handle_export_project,
     handle_get_export_presets,
@@ -127,6 +140,7 @@ from godot_mcp.tools.editor_tools import (
     handle_set_editor_selection,
 )
 from godot_mcp.tools.environment_tools import handle_configure_environment
+from godot_mcp.tools.eval_tools import handle_evaluate_expression
 from godot_mcp.tools.input_tools import (
     handle_configure_input_action,
     handle_get_input_actions,
@@ -166,7 +180,6 @@ from godot_mcp.tools.reflection_tools import (
     handle_validate_shader,
 )
 from godot_mcp.tools.scene_tools import (
-    handle_connect_signal,
     handle_create_node,
     handle_create_scene,
     handle_delete_node,
@@ -180,6 +193,11 @@ from godot_mcp.tools.scene_tools import (
 from godot_mcp.tools.script_tools import (
     handle_create_script,
     handle_validate_script,
+)
+from godot_mcp.tools.signal_tools import (
+    handle_connect_signal,
+    handle_get_node_signals,
+    handle_get_signal_connections,
 )
 from godot_mcp.tools.theme_tools import (
     handle_apply_theme_override,
@@ -1016,6 +1034,76 @@ def create_server(
     async def export_project(params: ExportProjectInput) -> str:
         """Export project binary headlessly for specified preset target."""
         return await handle_export_project(active_client, params)
+
+    @server.tool(
+        name="godot_get_autoloads",
+        annotations=ToolAnnotations(
+            title="Get Autoload Singletons",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_autoloads(params: GetAutoloadsInput) -> str:
+        """Query all global autoload singletons configured in project.godot."""
+        return await handle_get_autoloads(active_client, params)
+
+    @server.tool(
+        name="godot_set_autoload",
+        annotations=ToolAnnotations(
+            title="Configure Autoload Singleton",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def set_autoload(params: SetAutoloadInput) -> str:
+        """Add, update, remove, or toggle autoload singletons in project.godot."""
+        return await handle_set_autoload(active_client, params)
+
+    @server.tool(
+        name="godot_get_node_signals",
+        annotations=ToolAnnotations(
+            title="Get Node Signals",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_node_signals(params: GetNodeSignalsInput) -> str:
+        """Introspect all signals and argument definitions on a node in the active scene."""
+        return await handle_get_node_signals(active_client, params)
+
+    @server.tool(
+        name="godot_get_signal_connections",
+        annotations=ToolAnnotations(
+            title="Get Signal Connections",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_signal_connections(params: GetSignalConnectionsInput) -> str:
+        """Query incoming and outgoing signal connection graphs for a target node."""
+        return await handle_get_signal_connections(active_client, params)
+
+    @server.tool(
+        name="godot_evaluate_expression",
+        annotations=ToolAnnotations(
+            title="Evaluate GDScript Expression",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def evaluate_expression(params: EvaluateExpressionInput) -> str:
+        """Safely parse and evaluate runtime GDScript math, logical expressions, or method calls."""
+        return await handle_evaluate_expression(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

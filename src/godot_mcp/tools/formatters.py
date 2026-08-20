@@ -548,6 +548,20 @@ def format_result(
                     f"- **Saved Scene**: `{result.data.get('saved_scene_path')}`"
                 )
 
+        elif "signals" in result.data and "signal_count" in result.data:
+            lines.append(
+                f"**Signals on `{result.data.get('node_name')}` ({result.data.get('node_class')})** - Total: {result.data.get('signal_count')}:\n"
+            )
+            lines.append("| Signal Name | Arguments |")
+            lines.append("|---|---|")
+            for s in result.data.get("signals", []):
+                args_strs = [
+                    f"{arg.get('name')}: {arg.get('type')}"
+                    for arg in s.get("arguments", [])
+                ]
+                arg_summary = ", ".join(args_strs) if args_strs else "*None*"
+                lines.append(f"| **{s.get('name')}** | `{arg_summary}` |")
+
         elif "node_name" in result.data and "node_class" in result.data:
             lines.append(
                 f"**Focused Node**: `{result.data.get('node_name')}` (`{result.data.get('node_class')}`)"
@@ -594,6 +608,66 @@ def format_result(
             lines.append(f"- **Debug**: `{result.data.get('debug')}`")
             if "returncode" in result.data:
                 lines.append(f"- **Return Code**: `{result.data.get('returncode')}`")
+
+        elif "autoloads" in result.data:
+            lines.append(
+                f"**Autoload Singletons ({result.data.get('autoload_count', len(result.data['autoloads']))})**:\n"
+            )
+            lines.append("| Name | Resource Path | Singleton | Exists |")
+            lines.append("|---|---|---|---|")
+            for a in result.data.get("autoloads", []):
+                lines.append(
+                    f"| **{a.get('name')}** | `{a.get('path')}` | `{a.get('is_singleton')}` | `{a.get('exists', True)}` |"
+                )
+
+        elif (
+            "outgoing_connections" in result.data
+            or "incoming_connections" in result.data
+        ):
+            lines.append(
+                f"**Signal Connection Graph for `{result.data.get('node_path')}`**:\n"
+            )
+            out_list = result.data.get("outgoing_connections", [])
+            in_list = result.data.get("incoming_connections", [])
+            if out_list:
+                lines.append(f"**Outgoing ({len(out_list)})**:")
+                for c in out_list:
+                    lines.append(
+                        f"- Signal `{c.get('signal_name')}` -> `{c.get('target_node')}.{c.get('method_name')}()` (Flags: `{c.get('flags')}`)"
+                    )
+            if in_list:
+                lines.append(f"\n**Incoming ({len(in_list)})**:")
+                for c in in_list:
+                    lines.append(
+                        f"- From `{c.get('source_node')}` (Signal `{c.get('signal_name')}`) -> `.{c.get('method_name')}()`"
+                    )
+
+        elif (
+            "source_node" in result.data
+            and "signal_name" in result.data
+            and "target_node" in result.data
+        ):
+            status_word = (
+                "Connected" if result.data.get("connected", True) else "Disconnected"
+            )
+            lines.append(f"**Signal {status_word}**:")
+            lines.append(f"- **Source Node**: `{result.data.get('source_node')}`")
+            lines.append(f"- **Signal**: `{result.data.get('signal_name')}`")
+            lines.append(f"- **Target Node**: `{result.data.get('target_node')}`")
+            lines.append(
+                f"- **Method / Callable**: `.{result.data.get('method_name')}()`"
+            )
+            if "flags" in result.data:
+                lines.append(f"- **Flags**: `{result.data.get('flags')}`")
+
+        elif "expression" in result.data and "result_type" in result.data:
+            lines.append(
+                f"**Expression Evaluation**: `{result.data.get('expression')}`"
+            )
+            lines.append(f"- **Result**: `{result.data.get('result')}`")
+            lines.append(f"- **Type**: `{result.data.get('result_type')}`")
+            if result.data.get("context_node"):
+                lines.append(f"- **Context Node**: `{result.data.get('context_node')}`")
 
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")

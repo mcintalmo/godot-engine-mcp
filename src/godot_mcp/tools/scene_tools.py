@@ -1,8 +1,5 @@
-"""Scene and node tools implementation for Godot MCP."""
-
 from godot_mcp.client.base import GodotClient
 from godot_mcp.models.scene import (
-    ConnectSignalInput,
     CreateNodeInput,
     CreateSceneInput,
     DeleteNodeInput,
@@ -59,18 +56,6 @@ async def handle_modify_node(client: GodotClient, params: ModifyNodeInput) -> st
 async def handle_delete_node(client: GodotClient, params: DeleteNodeInput) -> str:
     """Delete a node from the scene."""
     result = await client.delete_node(node_path=params.node_path)
-    return format_result(result, params.response_format)
-
-
-async def handle_connect_signal(client: GodotClient, params: ConnectSignalInput) -> str:
-    """Connect a node signal to a target method."""
-    result = await client.connect_signal(
-        source_node_path=params.source_node_path,
-        signal_name=params.signal_name,
-        target_node_path=params.target_node_path,
-        method_name=params.method_name,
-        flags=params.flags,
-    )
     return format_result(result, params.response_format)
 
 

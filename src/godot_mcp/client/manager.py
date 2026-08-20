@@ -88,11 +88,21 @@ class ClientManager(GodotClient):
         signal_name: str,
         target_node_path: str,
         method_name: str,
-        flags: int = 0,
+        disconnect: bool = False,
+        persist: bool = True,
+        one_shot: bool = False,
+        deferred: bool = False,
     ) -> StandardResult:
         client = await self.get_active_client()
         return await client.connect_signal(
-            source_node_path, signal_name, target_node_path, method_name, flags
+            source_node_path=source_node_path,
+            signal_name=signal_name,
+            target_node_path=target_node_path,
+            method_name=method_name,
+            disconnect=disconnect,
+            persist=persist,
+            one_shot=one_shot,
+            deferred=deferred,
         )
 
     async def instantiate_scene(
@@ -818,4 +828,62 @@ class ClientManager(GodotClient):
             preset_name=preset_name,
             output_path=output_path,
             debug=debug,
+        )
+
+    async def get_autoloads(self) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_autoloads()
+
+    async def set_autoload(
+        self,
+        name: str,
+        path: str | None = None,
+        is_singleton: bool = True,
+        remove: bool = False,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.set_autoload(
+            name=name,
+            path=path,
+            is_singleton=is_singleton,
+            remove=remove,
+        )
+
+    async def get_node_signals(
+        self,
+        node_path: str,
+        include_inherited: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_node_signals(
+            node_path=node_path,
+            include_inherited=include_inherited,
+        )
+
+    async def get_signal_connections(
+        self,
+        node_path: str,
+        signal_name: str | None = None,
+        incoming: bool = True,
+        outgoing: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_signal_connections(
+            node_path=node_path,
+            signal_name=signal_name,
+            incoming=incoming,
+            outgoing=outgoing,
+        )
+
+    async def evaluate_expression(
+        self,
+        expression: str,
+        node_path: str | None = None,
+        input_variables: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.evaluate_expression(
+            expression=expression,
+            node_path=node_path,
+            input_variables=input_variables,
         )
