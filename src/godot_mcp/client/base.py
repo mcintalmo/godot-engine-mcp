@@ -457,3 +457,49 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Set pause state, simulation speed, or step frames."""
         ...
+
+    @abstractmethod
+    async def cast_ray_3d(
+        self,
+        from_pos: tuple[float, float, float],
+        to_pos: tuple[float, float, float],
+        collision_mask: int = 0xFFFFFFFF,
+        collide_with_bodies: bool = True,
+        collide_with_areas: bool = False,
+        hit_from_inside: bool = False,
+        exclude_nodes: list[str] | None = None,
+    ) -> StandardResult:
+        """Execute a 3D raycast in the active physics world."""
+        ...
+
+    @abstractmethod
+    async def cast_shape_3d(
+        self,
+        shape_type: str,
+        shape_params: dict[str, float],
+        origin: tuple[float, float, float],
+        motion: tuple[float, float, float] | None = None,
+        collision_mask: int = 0xFFFFFFFF,
+        max_results: int = 32,
+    ) -> StandardResult:
+        """Execute a 3D shape sweep or overlap query."""
+        ...
+
+    @abstractmethod
+    async def get_body_physics_state_3d(
+        self,
+        node_path: str,
+    ) -> StandardResult:
+        """Retrieve live physics body telemetry (velocity, mass, contacts, sleeping)."""
+        ...
+
+    @abstractmethod
+    async def set_physics_debug_mode(
+        self,
+        visible_collision_shapes: bool | None = None,
+        visible_paths: bool | None = None,
+        visible_navigation: bool | None = None,
+        collision_debug_color: str | None = None,
+    ) -> StandardResult:
+        """Toggle physics debug rendering and wireframe collision shapes."""
+        ...

@@ -954,6 +954,117 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def cast_ray_3d(
+        self,
+        from_pos: tuple[float, float, float],
+        to_pos: tuple[float, float, float],
+        collision_mask: int = 0xFFFFFFFF,
+        collide_with_bodies: bool = True,
+        collide_with_areas: bool = False,
+        hit_from_inside: bool = False,
+        exclude_nodes: list[str] | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Raycast HIT 'StaticFloor' at (0, 0, 0) (Distance: 10.00m).",
+            mode=self.mode,
+            data={
+                "has_hit": True,
+                "hit_position": [0.0, 0.0, 0.0],
+                "hit_normal": [0.0, 1.0, 0.0],
+                "distance": 10.0,
+                "collider_name": "StaticFloor",
+                "collider_path": "/root/Main/StaticFloor",
+                "collider_class": "StaticBody3D",
+                "shape_index": 0,
+                "from_pos": list(from_pos),
+                "to_pos": list(to_pos),
+            },
+        )
+
+    async def cast_shape_3d(
+        self,
+        shape_type: str,
+        shape_params: dict[str, float],
+        origin: tuple[float, float, float],
+        motion: tuple[float, float, float] | None = None,
+        collision_mask: int = 0xFFFFFFFF,
+        max_results: int = 32,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Shape cast ({shape_type}) found 1 overlapping colliders.",
+            mode=self.mode,
+            data={
+                "shape_type": shape_type,
+                "origin": list(origin),
+                "overlap_count": 1,
+                "overlaps": [
+                    {
+                        "collider_name": "Enemy",
+                        "collider_path": "/root/Main/Enemy",
+                        "collider_class": "CharacterBody3D",
+                        "shape_index": 0,
+                    }
+                ],
+                "motion_cast": {"safe_fraction": 0.8, "unsafe_fraction": 0.85}
+                if motion
+                else None,
+            },
+        )
+
+    async def get_body_physics_state_3d(
+        self,
+        node_path: str,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Physics state for '{node_path.split('/')[-1]}' (RigidBody3D).",
+            mode=self.mode,
+            data={
+                "node_name": node_path.split("/")[-1],
+                "node_path": node_path,
+                "class": "RigidBody3D",
+                "collision_layer": 1,
+                "collision_mask": 1,
+                "linear_velocity": [0.0, -4.5, 0.0],
+                "angular_velocity": [0.0, 0.0, 0.0],
+                "mass": 5.0,
+                "is_sleeping": False,
+                "center_of_mass": [0.0, 0.0, 0.0],
+                "total_gravity": [0.0, -9.8, 0.0],
+                "contact_count": 1,
+                "contacts": [
+                    {
+                        "index": 0,
+                        "position": [0.0, 0.0, 0.0],
+                        "normal": [0.0, 1.0, 0.0],
+                        "impulse": [0.0, 15.0, 0.0],
+                    }
+                ],
+            },
+        )
+
+    async def set_physics_debug_mode(
+        self,
+        visible_collision_shapes: bool | None = None,
+        visible_paths: bool | None = None,
+        visible_navigation: bool | None = None,
+        collision_debug_color: str | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Updated physics debug visualization (visible_collision_shapes = true).",
+            mode=self.mode,
+            data={
+                "visible_collision_shapes": visible_collision_shapes
+                if visible_collision_shapes is not None
+                else True,
+                "visible_paths": visible_paths or False,
+                "visible_navigation": visible_navigation or False,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

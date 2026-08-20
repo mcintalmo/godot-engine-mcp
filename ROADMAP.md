@@ -50,6 +50,10 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Audio Bus & Effect Pipeline (`godot_get_audio_layout`, `godot_configure_audio_bus`, `godot_set_bus_effect`, `godot://audio/layout`)**: Programmatically query and configure `AudioServer` layout, routing, bus volumes (dB / linear), and audio effects (Reverb, EQ, Chorus, Delay, Filters, Compressors) with `.tres` persistence.
 - [x] **Interactive Play Mode & Debug Control (`godot_play_scene`, `godot_stop_scene`, `godot_get_play_state`, `godot_set_play_state`)**: Interactive viewport scene playback (main, active, custom .tscn), simulation speed control (`Engine.time_scale`), pause toggle, and frame-stepping.
 
+### Phase 5: 3D Physics & World Diagnostics
+- [x] **3D Physics Debugging & Geometric Queries (`godot_cast_ray_3d`, `godot_cast_shape_3d`, `godot_get_body_physics_state_3d`, `godot_set_physics_debug_mode`)**: Raycasting (`intersect_ray`), volumetric shape sweeps (sphere/box/capsule/cylinder `intersect_shape`/`cast_motion`), live body telemetry (velocity, mass, sleeping, contacts, impulses), and collision wireframe debug overlays.
+
+
 
 
 

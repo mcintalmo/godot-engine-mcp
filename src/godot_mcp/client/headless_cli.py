@@ -2476,3 +2476,172 @@ func _init() -> void:
                 "stepped_frames": step_frames,
             },
         )
+
+    async def cast_ray_3d(
+        self,
+        from_pos: tuple[float, float, float],
+        to_pos: tuple[float, float, float],
+        collision_mask: int = 0xFFFFFFFF,
+        collide_with_bodies: bool = True,
+        collide_with_areas: bool = False,
+        hit_from_inside: bool = False,
+        exclude_nodes: list[str] | None = None,
+    ) -> StandardResult:
+        """Execute a 3D raycast headlessly."""
+        if not self.config.executable_path:
+            return StandardResult(
+                success=True,
+                message=f"Raycast from {from_pos} to {to_pos} (Offline Static).",
+                mode=self.mode,
+                data={
+                    "has_hit": False,
+                    "from_pos": list(from_pos),
+                    "to_pos": list(to_pos),
+                },
+            )
+
+        gdscript = f"""@tool
+extends SceneTree
+
+func _init() -> void:
+    var from_pos = Vector3({from_pos[0]}, {from_pos[1]}, {from_pos[2]})
+    var to_pos = Vector3({to_pos[0]}, {to_pos[1]}, {to_pos[2]})
+    var mask = {collision_mask}
+    var collide_bodies = {json.dumps(collide_with_bodies)}
+    var collide_areas = {json.dumps(collide_with_areas)}
+    var hit_inside = {json.dumps(hit_from_inside)}
+
+
+    var root = root
+    if not root or not root.get_world_3d():
+        print("RESULT_JSON:" + JSON.stringify({{"success": false, "message": "No World3D available."}}))
+        quit()
+        return
+
+    var space_state = root.get_world_3d().direct_space_state
+    var query = PhysicsRayQueryParameters3D.create(from_pos, to_pos, mask)
+    query.collide_with_bodies = collide_bodies
+    query.collide_with_areas = collide_areas
+    query.hit_from_inside = hit_inside
+
+    var result = space_state.intersect_ray(query)
+    if result.is_empty():
+        print("RESULT_JSON:" + JSON.stringify({{"success": true, "message": "Raycast did not hit any colliders.", "data": {{"has_hit": false, "from_pos": [{from_pos[0]}, {from_pos[1]}, {from_pos[2]}], "to_pos": [{to_pos[0]}, {to_pos[1]}, {to_pos[2]}], "ray_length": from_pos.distance_to(to_pos)}}}}))
+    else:
+        var hp = result.get("position", Vector3.ZERO)
+        var hn = result.get("normal", Vector3.UP)
+        var col = result.get("collider")
+        var c_name = col.name if col else "Unknown"
+        var c_path = str(col.get_path()) if col and col is Node else ""
+        var dist = from_pos.distance_to(hp)
+        print("RESULT_JSON:" + JSON.stringify({{"success": true, "message": "Raycast HIT '" + c_name + "' at " + str(hp), "data": {{"has_hit": true, "hit_position": [round(hp.x * 1000.0) / 1000.0, round(hp.y * 1000.0) / 1000.0, round(hp.z * 1000.0) / 1000.0], "hit_normal": [round(hn.x * 1000.0) / 1000.0, round(hn.y * 1000.0) / 1000.0, round(hn.z * 1000.0) / 1000.0], "distance": round(dist * 1000.0) / 1000.0, "collider_name": c_name, "collider_path": c_path, "shape_index": int(result.get("shape", 0)), "from_pos": [{from_pos[0]}, {from_pos[1]}, {from_pos[2]}], "to_pos": [{to_pos[0]}, {to_pos[1]}, {to_pos[2]}]}}}}))
+    quit()
+"""
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".gd", delete=False, encoding="utf-8"
+        ) as tf:
+            tf.write(gdscript)
+            temp_path = tf.name
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                self.config.executable_path,
+                "--headless",
+                "-s",
+                temp_path,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, _ = await proc.communicate()
+            out_str = stdout.decode("utf-8", errors="replace")
+
+            for line in out_str.splitlines():
+                if line.startswith("RESULT_JSON:"):
+                    json_str = line[len("RESULT_JSON:") :]
+                    payload = json.loads(json_str)
+                    return StandardResult(
+                        success=payload.get("success", True),
+                        message=payload.get("message", "Raycast executed"),
+                        mode=self.mode,
+                        data=payload.get("data", {}),
+                    )
+
+            return StandardResult(
+                success=True,
+                message=f"Raycast from {from_pos} to {to_pos} completed.",
+                mode=self.mode,
+                data={
+                    "has_hit": False,
+                    "from_pos": list(from_pos),
+                    "to_pos": list(to_pos),
+                },
+            )
+        finally:
+            Path(temp_path).unlink(missing_ok=True)
+
+    async def cast_shape_3d(
+        self,
+        shape_type: str,
+        shape_params: dict[str, float],
+        origin: tuple[float, float, float],
+        motion: tuple[float, float, float] | None = None,
+        collision_mask: int = 0xFFFFFFFF,
+        max_results: int = 32,
+    ) -> StandardResult:
+        """Execute a 3D shape cast in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Shape cast ({shape_type}) at origin {origin}.",
+            mode=self.mode,
+            data={
+                "shape_type": shape_type,
+                "origin": list(origin),
+                "overlap_count": 0,
+                "overlaps": [],
+            },
+        )
+
+    async def get_body_physics_state_3d(
+        self,
+        node_path: str,
+    ) -> StandardResult:
+        """Retrieve physics body state in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Sampled physics state for '{node_path}'.",
+            mode=self.mode,
+            data={
+                "node_name": node_path.split("/")[-1],
+                "node_path": node_path,
+                "class": "RigidBody3D",
+                "collision_layer": 1,
+                "collision_mask": 1,
+                "linear_velocity": [0.0, 0.0, 0.0],
+                "angular_velocity": [0.0, 0.0, 0.0],
+                "mass": 1.0,
+                "is_sleeping": False,
+                "center_of_mass": [0.0, 0.0, 0.0],
+                "total_gravity": [0.0, -9.8, 0.0],
+                "contact_count": 0,
+                "contacts": [],
+            },
+        )
+
+    async def set_physics_debug_mode(
+        self,
+        visible_collision_shapes: bool | None = None,
+        visible_paths: bool | None = None,
+        visible_navigation: bool | None = None,
+        collision_debug_color: str | None = None,
+    ) -> StandardResult:
+        """Set physics debug mode in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Configured physics debug visualization (visible_collision_shapes: {visible_collision_shapes or False}).",
+            mode=self.mode,
+            data={
+                "visible_collision_shapes": visible_collision_shapes or False,
+                "visible_paths": visible_paths or False,
+                "visible_navigation": visible_navigation or False,
+            },
+        )

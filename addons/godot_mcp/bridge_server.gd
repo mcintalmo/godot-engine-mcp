@@ -17,6 +17,7 @@ const PerformanceOps = preload("res://addons/godot_mcp/operations/performance_op
 const ThemeOps = preload("res://addons/godot_mcp/operations/theme_ops.gd")
 const AudioOps = preload("res://addons/godot_mcp/operations/audio_ops.gd")
 const PlayOps = preload("res://addons/godot_mcp/operations/play_ops.gd")
+const PhysicsOps = preload("res://addons/godot_mcp/operations/physics_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -35,6 +36,7 @@ var _performance_ops: RefCounted
 var _theme_ops: RefCounted
 var _audio_ops: RefCounted
 var _play_ops: RefCounted
+var _physics_ops: RefCounted
 
 var _port: int = PORT
 
@@ -54,6 +56,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_theme_ops = ThemeOps.new(_plugin)
 	_audio_ops = AudioOps.new(_plugin)
 	_play_ops = PlayOps.new(_plugin)
+	_physics_ops = PhysicsOps.new(_plugin)
+
 
 
 
@@ -207,6 +211,15 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _play_ops.get_play_state(params)
 		"set_play_state":
 			result = _play_ops.set_play_state(params)
+		"cast_ray_3d":
+			result = _physics_ops.cast_ray_3d(params)
+		"cast_shape_3d":
+			result = _physics_ops.cast_shape_3d(params)
+		"get_body_physics_state_3d":
+			result = _physics_ops.get_body_physics_state_3d(params)
+		"set_physics_debug_mode":
+			result = _physics_ops.set_physics_debug_mode(params)
+
 
 
 

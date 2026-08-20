@@ -33,6 +33,12 @@ from godot_mcp.models.navigation import (
     CreateNavigationRegionInput,
 )
 from godot_mcp.models.performance import GetPerformanceMetricsInput
+from godot_mcp.models.physics import (
+    CastRay3DInput,
+    CastShape3DInput,
+    GetBodyPhysicsState3DInput,
+    SetPhysicsDebugModeInput,
+)
 from godot_mcp.models.play import (
     GetPlayStateInput,
     PlaySceneInput,
@@ -100,6 +106,12 @@ from godot_mcp.tools.navigation_tools import (
     handle_create_navigation_region,
 )
 from godot_mcp.tools.performance_tools import handle_get_performance_metrics
+from godot_mcp.tools.physics_tools import (
+    handle_cast_ray_3d,
+    handle_cast_shape_3d,
+    handle_get_body_physics_state_3d,
+    handle_set_physics_debug_mode,
+)
 from godot_mcp.tools.play_tools import (
     handle_get_play_state,
     handle_play_scene,
@@ -772,6 +784,62 @@ def create_server(
     async def set_play_state(params: SetPlayStateInput) -> str:
         """Control pause state, simulation speed (Engine.time_scale), or step game physics/process frames."""
         return await handle_set_play_state(active_client, params)
+
+    @server.tool(
+        name="godot_cast_ray_3d",
+        annotations=ToolAnnotations(
+            title="Cast 3D Physics Ray",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def cast_ray_3d(params: CastRay3DInput) -> str:
+        """Query 3D physics world by casting a ray from start to target position with collision layer masks and exclude lists."""
+        return await handle_cast_ray_3d(active_client, params)
+
+    @server.tool(
+        name="godot_cast_shape_3d",
+        annotations=ToolAnnotations(
+            title="Cast 3D Physics Shape",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def cast_shape_3d(params: CastShape3DInput) -> str:
+        """Query 3D physics world with a shape volume (Sphere, Box, Capsule, Cylinder) overlap or motion sweep."""
+        return await handle_cast_shape_3d(active_client, params)
+
+    @server.tool(
+        name="godot_get_body_physics_state_3d",
+        annotations=ToolAnnotations(
+            title="Get 3D Body Physics State",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_body_physics_state_3d(params: GetBodyPhysicsState3DInput) -> str:
+        """Retrieve live physics body telemetry (linear/angular velocities, mass, sleeping, contacts, collision layers)."""
+        return await handle_get_body_physics_state_3d(active_client, params)
+
+    @server.tool(
+        name="godot_set_physics_debug_mode",
+        annotations=ToolAnnotations(
+            title="Set Physics Debug Visualization",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def set_physics_debug_mode(params: SetPhysicsDebugModeInput) -> str:
+        """Toggle visible collision wireframe shapes, paths, and navigation meshes in editor / runtime preview."""
+        return await handle_set_physics_debug_mode(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

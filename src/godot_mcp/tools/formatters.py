@@ -418,6 +418,65 @@ def format_result(
             if result.data.get("mode"):
                 lines.append(f"**Launch Mode**: `{result.data.get('mode')}`")
 
+        elif "has_hit" in result.data:
+            hit = result.data.get("has_hit", False)
+            lines.append(f"**Hit Status**: `{'HIT' if hit else 'NO INTERSECTION'}`")
+            lines.append(f"- **From**: `{result.data.get('from_pos')}`")
+            lines.append(f"- **To**: `{result.data.get('to_pos')}`")
+            if hit:
+                lines.append(
+                    f"- **Collider**: `{result.data.get('collider_name')}` (`{result.data.get('collider_path')}`)"
+                )
+                lines.append(f"- **Hit Position**: `{result.data.get('hit_position')}`")
+                lines.append(f"- **Hit Normal**: `{result.data.get('hit_normal')}`")
+                lines.append(f"- **Distance**: `{result.data.get('distance')}m`")
+                lines.append(f"- **Shape Index**: `{result.data.get('shape_index')}`")
+
+        elif "overlaps" in result.data and "shape_type" in result.data:
+            stype = result.data.get("shape_type", "unknown")
+            count = result.data.get("overlap_count", 0)
+            lines.append(
+                f"**Shape Cast ({stype.upper()})**: `{count} overlapping colliders`\n"
+            )
+            if count > 0:
+                lines.append("| Index | Collider Name | Path | Class | Shape Index |")
+                lines.append("|---|---|---|---|---|")
+                for i, o in enumerate(result.data.get("overlaps", [])):
+                    lines.append(
+                        f"| {i} | **{o.get('collider_name')}** | `{o.get('collider_path')}` | `{o.get('collider_class')}` | `{o.get('shape_index')}` |"
+                    )
+            if result.data.get("motion_cast"):
+                mc = result.data["motion_cast"]
+                lines.append(
+                    f"\n**Motion Sweep**: Safe Fraction: `{mc.get('safe_fraction')}`, Unsafe Fraction: `{mc.get('unsafe_fraction')}`"
+                )
+
+        elif "linear_velocity" in result.data and "node_name" in result.data:
+            lines.append(
+                f"**Physics Body**: `{result.data.get('node_name')}` (`{result.data.get('class')}`)"
+            )
+            lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+            lines.append(
+                f"- **Linear Velocity**: `{result.data.get('linear_velocity')} m/s`"
+            )
+            lines.append(
+                f"- **Angular Velocity**: `{result.data.get('angular_velocity')} rad/s`"
+            )
+            lines.append(
+                f"- **Mass**: `{result.data.get('mass')} kg` | **Sleeping**: `{result.data.get('is_sleeping')}`"
+            )
+            lines.append(
+                f"- **Layers / Masks**: Layer `{result.data.get('collision_layer')}` | Mask `{result.data.get('collision_mask')}`"
+            )
+            if result.data.get("contact_count", 0) > 0:
+                lines.append(
+                    f"\n**Active Contacts ({result.data.get('contact_count')})**:"
+                )
+                for c in result.data.get("contacts", []):
+                    lines.append(
+                        f"- Contact {c.get('index')}: Pos `{c.get('position')}` | Norm `{c.get('normal')}` | Impulse `{c.get('impulse')}`"
+                    )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

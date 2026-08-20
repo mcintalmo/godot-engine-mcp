@@ -720,3 +720,73 @@ class LiveBridgeClient(GodotClient):
                 "step_frames": step_frames,
             },
         )
+
+    async def cast_ray_3d(
+        self,
+        from_pos: tuple[float, float, float],
+        to_pos: tuple[float, float, float],
+        collision_mask: int = 0xFFFFFFFF,
+        collide_with_bodies: bool = True,
+        collide_with_areas: bool = False,
+        hit_from_inside: bool = False,
+        exclude_nodes: list[str] | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "cast_ray_3d",
+            {
+                "from_pos": list(from_pos),
+                "to_pos": list(to_pos),
+                "collision_mask": collision_mask,
+                "collide_with_bodies": collide_with_bodies,
+                "collide_with_areas": collide_with_areas,
+                "hit_from_inside": hit_from_inside,
+                "exclude_nodes": exclude_nodes or [],
+            },
+        )
+
+    async def cast_shape_3d(
+        self,
+        shape_type: str,
+        shape_params: dict[str, float],
+        origin: tuple[float, float, float],
+        motion: tuple[float, float, float] | None = None,
+        collision_mask: int = 0xFFFFFFFF,
+        max_results: int = 32,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "cast_shape_3d",
+            {
+                "shape_type": shape_type,
+                "shape_params": shape_params,
+                "origin": list(origin),
+                "motion": list(motion) if motion is not None else None,
+                "collision_mask": collision_mask,
+                "max_results": max_results,
+            },
+        )
+
+    async def get_body_physics_state_3d(
+        self,
+        node_path: str,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_body_physics_state_3d",
+            {"node_path": node_path},
+        )
+
+    async def set_physics_debug_mode(
+        self,
+        visible_collision_shapes: bool | None = None,
+        visible_paths: bool | None = None,
+        visible_navigation: bool | None = None,
+        collision_debug_color: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "set_physics_debug_mode",
+            {
+                "visible_collision_shapes": visible_collision_shapes,
+                "visible_paths": visible_paths,
+                "visible_navigation": visible_navigation,
+                "collision_debug_color": collision_debug_color,
+            },
+        )
