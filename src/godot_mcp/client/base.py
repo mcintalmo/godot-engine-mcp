@@ -391,3 +391,40 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Apply a theme override (stylebox, color, constant, font_size) directly to a Control node."""
         ...
+
+    @abstractmethod
+    async def get_audio_layout(
+        self,
+        include_effects: bool = True,
+    ) -> StandardResult:
+        """Query all buses, volume levels, routing, and effects in AudioServer."""
+        ...
+
+    @abstractmethod
+    async def configure_audio_bus(
+        self,
+        bus_name: str,
+        create_if_missing: bool = True,
+        volume_db: float | None = None,
+        volume_linear: float | None = None,
+        send_to_bus: str | None = None,
+        mute: bool | None = None,
+        solo: bool | None = None,
+        bypass_effects: bool | None = None,
+        save_layout_path: str | None = None,
+    ) -> StandardResult:
+        """Create or configure an audio bus in AudioServer."""
+        ...
+
+    @abstractmethod
+    async def set_bus_effect(
+        self,
+        bus_name: str,
+        effect_type: str,
+        effect_index: int | None = None,
+        enabled: bool = True,
+        properties: dict[str, Any] | None = None,
+        save_layout_path: str | None = None,
+    ) -> StandardResult:
+        """Add or modify an AudioEffect on an AudioServer bus."""
+        ...

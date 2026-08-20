@@ -345,6 +345,58 @@ def format_result(
             else:
                 lines.append(f"**Value**: `{val}`")
 
+        elif "buses" in result.data:
+            lines.append(
+                f"**Audio Buses ({result.data.get('bus_count', len(result.data['buses']))})**:\n"
+            )
+            lines.append(
+                "| Index | Bus Name | Volume (dB) | Linear | Send To | Mute | Solo | Bypass | Effects |"
+            )
+            lines.append("|---|---|---|---|---|---|---|---|---|")
+            for b in result.data["buses"]:
+                eff_summary = f"{len(b.get('effects', []))} effects"
+                if b.get("effects"):
+                    eff_names = ", ".join(
+                        e.get("type", "").removeprefix("AudioEffect")
+                        for e in b["effects"]
+                    )
+                    eff_summary = f"`{eff_names}`"
+                lines.append(
+                    f"| {b.get('index')} | **{b.get('name')}** | `{b.get('volume_db')} dB` | `{b.get('volume_linear')}` | `{b.get('send_to') or 'None'}` | `{b.get('mute')}` | `{b.get('solo')}` | `{b.get('bypass_effects')}` | {eff_summary} |"
+                )
+
+        elif "effect_type" in result.data and "bus_name" in result.data:
+            lines.append(
+                f"**Audio Bus**: `{result.data.get('bus_name')}` (Slot `{result.data.get('effect_index')}`)"
+            )
+            lines.append(
+                f"**Effect**: `{result.data.get('effect_type')}` (Enabled: `{result.data.get('enabled')}`)"
+            )
+            if result.data.get("properties_set"):
+                lines.append("\n**Properties**:")
+                for k, v in result.data["properties_set"].items():
+                    lines.append(f"- `{k}` = `{v}`")
+            if result.data.get("saved_layout_path"):
+                lines.append(
+                    f"\n**Saved Layout**: `{result.data.get('saved_layout_path')}`"
+                )
+
+        elif "bus_name" in result.data and "volume_db" in result.data:
+            lines.append(
+                f"**Audio Bus**: `{result.data.get('bus_name')}` (Index `{result.data.get('index')}`)"
+            )
+            lines.append(
+                f"- **Volume**: `{result.data.get('volume_db')} dB` (`{result.data.get('volume_linear')}` linear)"
+            )
+            lines.append(f"- **Send Target**: `{result.data.get('send_to')}`")
+            lines.append(
+                f"- **Mute**: `{result.data.get('mute')}` | **Solo**: `{result.data.get('solo')}` | **Bypass Effects**: `{result.data.get('bypass_effects')}`"
+            )
+            if result.data.get("saved_layout_path"):
+                lines.append(
+                    f"- **Saved Layout**: `{result.data.get('saved_layout_path')}`"
+                )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

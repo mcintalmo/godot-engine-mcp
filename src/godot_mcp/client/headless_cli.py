@@ -1976,3 +1976,441 @@ func _init() -> void:
             error_code="EDITOR_REQUIRED",
             actionable_hint="Open your project in Godot Editor to apply live Control node style overrides with Undo/Redo.",
         )
+
+    async def get_audio_layout(
+        self,
+        include_effects: bool = True,
+    ) -> StandardResult:
+        """Query AudioServer layout headlessly."""
+        if not self.config.executable_path:
+            return StandardResult(
+                success=True,
+                message="Sampled AudioServer bus layout (Offline Static).",
+                mode=self.mode,
+                data={
+                    "bus_count": 1,
+                    "buses": [
+                        {
+                            "index": 0,
+                            "name": "Master",
+                            "volume_db": 0.0,
+                            "volume_linear": 1.0,
+                            "send_to": "",
+                            "mute": False,
+                            "solo": False,
+                            "bypass_effects": False,
+                            "effect_count": 0,
+                            "effects": [],
+                        }
+                    ],
+                },
+            )
+
+        abs_default_layout = (
+            str(Path(self.config.project_path) / "default_bus_layout.tres")
+            if self.config.project_path
+            else ""
+        )
+
+        gdscript = f"""@tool
+extends SceneTree
+
+func _init() -> void:
+    var default_path = {json.dumps(abs_default_layout)}
+    if default_path != "" and FileAccess.file_exists(default_path):
+        var existing = ResourceLoader.load(default_path)
+        if existing is AudioBusLayout:
+            AudioServer.set_bus_layout(existing)
+
+    var include_effects = {json.dumps(include_effects)}
+    var buses = []
+
+
+
+    for i in range(AudioServer.bus_count):
+        var b_name = AudioServer.get_bus_name(i)
+        var vol_db = AudioServer.get_bus_volume_db(i)
+        var vol_linear = db_to_linear(vol_db)
+        var send_target = AudioServer.get_bus_send(i)
+        var is_muted = AudioServer.is_bus_mute(i)
+        var is_solo = AudioServer.is_bus_solo(i)
+        var is_bypass = AudioServer.is_bus_bypassing_effects(i)
+
+        var bus_info = {{
+            "index": i,
+            "name": b_name,
+            "volume_db": round(vol_db * 100.0) / 100.0,
+            "volume_linear": round(vol_linear * 100.0) / 100.0,
+            "send_to": send_target,
+            "mute": is_muted,
+            "solo": is_solo,
+            "bypass_effects": is_bypass,
+            "effect_count": AudioServer.get_bus_effect_count(i)
+        }}
+
+        if include_effects:
+            var effect_list = []
+            for e in range(AudioServer.get_bus_effect_count(i)):
+                var eff = AudioServer.get_bus_effect(i, e)
+                if eff:
+                    effect_list.append({{
+                        "index": e,
+                        "type": eff.get_class(),
+                        "resource_name": eff.resource_name if eff.resource_name != "" else eff.get_class(),
+                        "enabled": AudioServer.is_bus_effect_enabled(i, e)
+                    }})
+            bus_info["effects"] = effect_list
+
+        buses.append(bus_info)
+
+    print("RESULT_JSON:" + JSON.stringify({{
+        "success": true,
+        "message": "Found " + str(buses.size()) + " audio buses in layout.",
+        "data": {{
+            "bus_count": buses.size(),
+            "buses": buses
+        }}
+    }}))
+    quit()
+"""
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".gd", delete=False, encoding="utf-8"
+        ) as tf:
+            tf.write(gdscript)
+            temp_path = tf.name
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                self.config.executable_path,
+                "--headless",
+                "-s",
+                temp_path,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, _ = await proc.communicate()
+            out_str = stdout.decode("utf-8", errors="replace")
+
+            for line in out_str.splitlines():
+                if line.startswith("RESULT_JSON:"):
+                    json_str = line[len("RESULT_JSON:") :]
+                    payload = json.loads(json_str)
+                    return StandardResult(
+                        success=payload.get("success", True),
+                        message=payload.get("message", "Audio layout query complete"),
+                        mode=self.mode,
+                        data=payload.get("data", {}),
+                    )
+
+            return StandardResult(
+                success=True,
+                message="Audio layout sampled headlessly",
+                mode=self.mode,
+                data={"bus_count": 1},
+            )
+        finally:
+            Path(temp_path).unlink(missing_ok=True)
+
+    async def configure_audio_bus(
+        self,
+        bus_name: str,
+        create_if_missing: bool = True,
+        volume_db: float | None = None,
+        volume_linear: float | None = None,
+        send_to_bus: str | None = None,
+        mute: bool | None = None,
+        solo: bool | None = None,
+        bypass_effects: bool | None = None,
+        save_layout_path: str | None = None,
+    ) -> StandardResult:
+        """Create or configure an audio bus headlessly."""
+        if not self.config.executable_path:
+            return StandardResult(
+                success=True,
+                message=f"Configured audio bus '{bus_name}' (Offline Static).",
+                mode=self.mode,
+                data={
+                    "bus_name": bus_name,
+                    "volume_db": volume_db or 0.0,
+                    "send_to": send_to_bus or "Master",
+                },
+            )
+
+        abs_save_path = (
+            str(
+                Path(self.config.project_path) / save_layout_path.removeprefix("res://")
+            )
+            if self.config.project_path
+            and save_layout_path
+            and save_layout_path.startswith("res://")
+            else save_layout_path or ""
+        )
+
+        gdscript = f"""@tool
+extends SceneTree
+
+func _init() -> void:
+    var target_save_path = {json.dumps(abs_save_path)}
+    var display_save_path = {json.dumps(save_layout_path or "")}
+
+    if target_save_path != "" and FileAccess.file_exists(target_save_path):
+        var existing = ResourceLoader.load(target_save_path)
+        if existing is AudioBusLayout:
+            AudioServer.set_bus_layout(existing)
+
+    var bus_name = {json.dumps(bus_name)}
+    var create_if_missing = {json.dumps(create_if_missing)}
+
+    var volume_db = {json.dumps(volume_db)}
+    var volume_linear = {json.dumps(volume_linear)}
+    var send_to_bus = {json.dumps(send_to_bus or "")}
+    var mute_val = {json.dumps(mute)}
+    var solo_val = {json.dumps(solo)}
+    var bypass_val = {json.dumps(bypass_effects)}
+
+    var idx = AudioServer.get_bus_index(bus_name)
+    var was_created = false
+
+    if idx == -1:
+        if not create_if_missing:
+            print("RESULT_JSON:" + JSON.stringify({{"success": false, "message": "Audio bus '" + bus_name + "' not found and create_if_missing is false."}}))
+            quit()
+            return
+        idx = AudioServer.bus_count
+        AudioServer.add_bus(idx)
+        AudioServer.set_bus_name(idx, bus_name)
+        was_created = true
+
+    if volume_db != null:
+        AudioServer.set_bus_volume_db(idx, float(volume_db))
+    elif volume_linear != null:
+        var lin = maxf(float(volume_linear), 0.0001)
+        AudioServer.set_bus_volume_db(idx, linear_to_db(lin))
+
+    if send_to_bus != "":
+        if AudioServer.get_bus_index(send_to_bus) != -1 or send_to_bus == "Master":
+            AudioServer.set_bus_send(idx, send_to_bus)
+
+    if mute_val != null:
+        AudioServer.set_bus_mute(idx, bool(mute_val))
+
+    if solo_val != null:
+        AudioServer.set_bus_solo(idx, bool(solo_val))
+
+    if bypass_val != null:
+        AudioServer.set_bus_bypass_effects(idx, bool(bypass_val))
+
+    var saved_file = null
+    if target_save_path != "":
+        var dir_path = target_save_path.get_base_dir()
+        if dir_path != "" and dir_path != "res://":
+            if not DirAccess.dir_exists_absolute(dir_path):
+                DirAccess.make_dir_recursive_absolute(dir_path)
+        var layout = AudioServer.generate_bus_layout()
+        var err = ResourceSaver.save(layout, target_save_path)
+        if err == OK:
+            saved_file = display_save_path
+
+    var action_word = "Created" if was_created else "Configured"
+    print("RESULT_JSON:" + JSON.stringify({{
+        "success": true,
+        "message": action_word + " audio bus '" + bus_name + "' (Index: " + str(idx) + ", Volume: " + str(round(AudioServer.get_bus_volume_db(idx) * 10.0) / 10.0) + " dB).",
+        "data": {{
+            "bus_name": bus_name,
+            "index": idx,
+            "was_created": was_created,
+            "volume_db": round(AudioServer.get_bus_volume_db(idx) * 100.0) / 100.0,
+            "volume_linear": round(db_to_linear(AudioServer.get_bus_volume_db(idx)) * 100.0) / 100.0,
+            "send_to": AudioServer.get_bus_send(idx),
+            "mute": AudioServer.is_bus_mute(idx),
+            "solo": AudioServer.is_bus_solo(idx),
+            "bypass_effects": AudioServer.is_bus_bypassing_effects(idx),
+            "saved_layout_path": saved_file
+        }}
+    }}))
+    quit()
+"""
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".gd", delete=False, encoding="utf-8"
+        ) as tf:
+            tf.write(gdscript)
+            temp_path = tf.name
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                self.config.executable_path,
+                "--headless",
+                "-s",
+                temp_path,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, _ = await proc.communicate()
+            out_str = stdout.decode("utf-8", errors="replace")
+
+            for line in out_str.splitlines():
+                if line.startswith("RESULT_JSON:"):
+                    json_str = line[len("RESULT_JSON:") :]
+                    payload = json.loads(json_str)
+                    return StandardResult(
+                        success=payload.get("success", True),
+                        message=payload.get("message", "Audio bus configured"),
+                        mode=self.mode,
+                        data=payload.get("data", {}),
+                    )
+
+            return StandardResult(
+                success=True,
+                message=f"Configured audio bus '{bus_name}'.",
+                mode=self.mode,
+                data={"bus_name": bus_name},
+            )
+        finally:
+            Path(temp_path).unlink(missing_ok=True)
+
+    async def set_bus_effect(
+        self,
+        bus_name: str,
+        effect_type: str,
+        effect_index: int | None = None,
+        enabled: bool = True,
+        properties: dict[str, Any] | None = None,
+        save_layout_path: str | None = None,
+    ) -> StandardResult:
+        """Add or configure an AudioEffect headlessly."""
+        if not self.config.executable_path:
+            return StandardResult(
+                success=True,
+                message=f"Configured effect '{effect_type}' on bus '{bus_name}' (Offline Static).",
+                mode=self.mode,
+                data={
+                    "bus_name": bus_name,
+                    "effect_type": effect_type,
+                    "enabled": enabled,
+                    "properties_set": properties or {},
+                },
+            )
+
+        abs_save_path = (
+            str(
+                Path(self.config.project_path) / save_layout_path.removeprefix("res://")
+            )
+            if self.config.project_path
+            and save_layout_path
+            and save_layout_path.startswith("res://")
+            else save_layout_path or ""
+        )
+
+        gdscript = f"""@tool
+extends SceneTree
+
+func _init() -> void:
+    var target_save_path = {json.dumps(abs_save_path)}
+    var display_save_path = {json.dumps(save_layout_path or "")}
+
+    if target_save_path != "" and FileAccess.file_exists(target_save_path):
+        var existing = ResourceLoader.load(target_save_path)
+        if existing is AudioBusLayout:
+            AudioServer.set_bus_layout(existing)
+
+    var bus_name = {json.dumps(bus_name)}
+    var effect_type = {json.dumps(effect_type)}
+
+    var effect_index = {json.dumps(effect_index)}
+    var enabled = {json.dumps(enabled)}
+    var properties = {json.dumps(properties or {})}
+
+    var idx = AudioServer.get_bus_index(bus_name)
+    if idx == -1:
+        print("RESULT_JSON:" + JSON.stringify({{"success": false, "message": "Audio bus '" + bus_name + "' not found."}}))
+        quit()
+        return
+
+    if not ClassDB.class_exists(effect_type) or not ClassDB.is_parent_class(effect_type, "AudioEffect"):
+        print("RESULT_JSON:" + JSON.stringify({{"success": false, "message": "Class '" + effect_type + "' is not a valid AudioEffect."}}))
+        quit()
+        return
+
+    var effect = ClassDB.instantiate(effect_type)
+    if not effect:
+        print("RESULT_JSON:" + JSON.stringify({{"success": false, "message": "Failed to instantiate AudioEffect of type '" + effect_type + "'."}}))
+        quit()
+        return
+
+    for prop in properties.keys():
+        effect.set(str(prop), properties[prop])
+
+    var actual_index = -1
+    if effect_index != null and int(effect_index) >= 0 and int(effect_index) < AudioServer.get_bus_effect_count(idx):
+        actual_index = int(effect_index)
+        AudioServer.remove_bus_effect(idx, actual_index)
+        AudioServer.add_bus_effect(idx, effect, actual_index)
+    else:
+        actual_index = AudioServer.get_bus_effect_count(idx)
+        AudioServer.add_bus_effect(idx, effect)
+
+    AudioServer.set_bus_effect_enabled(idx, actual_index, enabled)
+
+    var saved_file = null
+    if target_save_path != "":
+        var dir_path = target_save_path.get_base_dir()
+        if dir_path != "" and dir_path != "res://":
+            if not DirAccess.dir_exists_absolute(dir_path):
+                DirAccess.make_dir_recursive_absolute(dir_path)
+        var layout = AudioServer.generate_bus_layout()
+        var err = ResourceSaver.save(layout, target_save_path)
+        if err == OK:
+            saved_file = display_save_path
+
+    print("RESULT_JSON:" + JSON.stringify({{
+        "success": true,
+        "message": "Configured effect '" + effect_type + "' at slot " + str(actual_index) + " on bus '" + bus_name + "'.",
+        "data": {{
+            "bus_name": bus_name,
+            "bus_index": idx,
+            "effect_type": effect_type,
+            "effect_index": actual_index,
+            "enabled": enabled,
+            "properties_set": properties,
+            "saved_layout_path": saved_file
+        }}
+    }}))
+    quit()
+"""
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".gd", delete=False, encoding="utf-8"
+        ) as tf:
+            tf.write(gdscript)
+            temp_path = tf.name
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                self.config.executable_path,
+                "--headless",
+                "-s",
+                temp_path,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, _ = await proc.communicate()
+            out_str = stdout.decode("utf-8", errors="replace")
+
+            for line in out_str.splitlines():
+                if line.startswith("RESULT_JSON:"):
+                    json_str = line[len("RESULT_JSON:") :]
+                    payload = json.loads(json_str)
+                    return StandardResult(
+                        success=payload.get("success", True),
+                        message=payload.get("message", "Audio effect configured"),
+                        mode=self.mode,
+                        data=payload.get("data", {}),
+                    )
+
+            return StandardResult(
+                success=True,
+                message=f"Configured effect '{effect_type}' on bus '{bus_name}'.",
+                mode=self.mode,
+                data={"bus_name": bus_name, "effect_type": effect_type},
+            )
+        finally:
+            Path(temp_path).unlink(missing_ok=True)

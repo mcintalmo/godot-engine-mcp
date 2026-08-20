@@ -15,6 +15,7 @@ const TileMapOps = preload("res://addons/godot_mcp/operations/tilemap_ops.gd")
 const NavigationOps = preload("res://addons/godot_mcp/operations/navigation_ops.gd")
 const PerformanceOps = preload("res://addons/godot_mcp/operations/performance_ops.gd")
 const ThemeOps = preload("res://addons/godot_mcp/operations/theme_ops.gd")
+const AudioOps = preload("res://addons/godot_mcp/operations/audio_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -31,6 +32,7 @@ var _tilemap_ops: RefCounted
 var _navigation_ops: RefCounted
 var _performance_ops: RefCounted
 var _theme_ops: RefCounted
+var _audio_ops: RefCounted
 
 var _port: int = PORT
 
@@ -48,6 +50,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_navigation_ops = NavigationOps.new(_plugin)
 	_performance_ops = PerformanceOps.new(_plugin)
 	_theme_ops = ThemeOps.new(_plugin)
+	_audio_ops = AudioOps.new(_plugin)
+
 
 
 
@@ -185,6 +189,13 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _theme_ops.create_theme(params)
 		"apply_theme_override":
 			result = _theme_ops.apply_theme_override(params)
+		"get_audio_layout":
+			result = _audio_ops.get_audio_layout(params)
+		"configure_audio_bus":
+			result = _audio_ops.configure_audio_bus(params)
+		"set_bus_effect":
+			result = _audio_ops.set_bus_effect(params)
+
 
 
 

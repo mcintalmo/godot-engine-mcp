@@ -13,6 +13,11 @@ from godot_mcp.models.asset import (
     CreateCollisionPolygonInput,
     ReimportAssetInput,
 )
+from godot_mcp.models.audio import (
+    ConfigureAudioBusInput,
+    GetAudioLayoutInput,
+    SetBusEffectInput,
+)
 from godot_mcp.models.debug import (
     RunProjectInput,
     RunTestsInput,
@@ -68,6 +73,11 @@ from godot_mcp.tools.animation_tools import handle_create_animation
 from godot_mcp.tools.asset_tools import (
     handle_create_collision_polygon,
     handle_reimport_asset,
+)
+from godot_mcp.tools.audio_tools import (
+    handle_configure_audio_bus,
+    handle_get_audio_layout,
+    handle_set_bus_effect,
 )
 from godot_mcp.tools.debug_tools import (
     handle_run_project,
@@ -653,7 +663,55 @@ def create_server(
         """Apply a styling override (StyleBoxFlat, color, constant, font_size) directly to a target Control node in the active scene."""
         return await handle_apply_theme_override(active_client, params)
 
+    @server.tool(
+        name="godot_get_audio_layout",
+        annotations=ToolAnnotations(
+            title="Get Audio Bus Layout",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_audio_layout(params: GetAudioLayoutInput) -> str:
+        """Query all AudioServer buses, volume levels, routing send destinations, and active effect chains."""
+        return await handle_get_audio_layout(active_client, params)
+
+    @server.tool(
+        name="godot_configure_audio_bus",
+        annotations=ToolAnnotations(
+            title="Configure Audio Bus",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_audio_bus(params: ConfigureAudioBusInput) -> str:
+        """Create or configure an audio bus in AudioServer (volume, routing send, mute, solo, effect bypass, .tres layout export)."""
+        return await handle_configure_audio_bus(active_client, params)
+
+    @server.tool(
+        name="godot_set_bus_effect",
+        annotations=ToolAnnotations(
+            title="Set Audio Bus Effect",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def set_bus_effect(params: SetBusEffectInput) -> str:
+        """Add or configure an AudioEffect (Reverb, Chorus, Delay, LowPassFilter, EQ, Compressor, Limiter) on an audio bus."""
+        return await handle_set_bus_effect(active_client, params)
+
     # --- Dynamic MCP Resources (godot://) ---
+
+    @server.resource("godot://audio/layout")
+    async def resource_audio_layout() -> str:
+        """Dynamic MCP resource providing current AudioServer bus hierarchy and effect chains JSON."""
+        res = await active_client.get_audio_layout(include_effects=True)
+        return json.dumps(res.data, indent=2)
 
     @server.resource("godot://performance/metrics")
     async def resource_performance_metrics() -> str:

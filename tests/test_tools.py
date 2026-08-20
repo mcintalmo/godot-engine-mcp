@@ -799,6 +799,107 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def get_audio_layout(
+        self,
+        include_effects: bool = True,
+    ) -> StandardResult:
+        buses = [
+            {
+                "index": 0,
+                "name": "Master",
+                "volume_db": 0.0,
+                "volume_linear": 1.0,
+                "send_to": "",
+                "mute": False,
+                "solo": False,
+                "bypass_effects": False,
+                "effect_count": 1,
+                "effects": [
+                    {
+                        "index": 0,
+                        "type": "AudioEffectLimiter",
+                        "resource_name": "Limiter",
+                        "enabled": True,
+                    }
+                ]
+                if include_effects
+                else [],
+            },
+            {
+                "index": 1,
+                "name": "Music",
+                "volume_db": -6.0,
+                "volume_linear": 0.5,
+                "send_to": "Master",
+                "mute": False,
+                "solo": False,
+                "bypass_effects": False,
+                "effect_count": 0,
+                "effects": [],
+            },
+        ]
+        return StandardResult(
+            success=True,
+            message="Found 2 audio buses in layout.",
+            mode=self.mode,
+            data={"bus_count": len(buses), "buses": buses},
+        )
+
+    async def configure_audio_bus(
+        self,
+        bus_name: str,
+        create_if_missing: bool = True,
+        volume_db: float | None = None,
+        volume_linear: float | None = None,
+        send_to_bus: str | None = None,
+        mute: bool | None = None,
+        solo: bool | None = None,
+        bypass_effects: bool | None = None,
+        save_layout_path: str | None = None,
+    ) -> StandardResult:
+        vol = volume_db if volume_db is not None else 0.0
+        return StandardResult(
+            success=True,
+            message=f"Configured audio bus '{bus_name}' (Volume: {vol} dB).",
+            mode=self.mode,
+            data={
+                "bus_name": bus_name,
+                "index": 1,
+                "was_created": False,
+                "volume_db": vol,
+                "volume_linear": 1.0,
+                "send_to": send_to_bus or "Master",
+                "mute": mute or False,
+                "solo": solo or False,
+                "bypass_effects": bypass_effects or False,
+                "saved_layout_path": save_layout_path,
+            },
+        )
+
+    async def set_bus_effect(
+        self,
+        bus_name: str,
+        effect_type: str,
+        effect_index: int | None = None,
+        enabled: bool = True,
+        properties: dict[str, Any] | None = None,
+        save_layout_path: str | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Configured effect '{effect_type}' at slot 0 on bus '{bus_name}'.",
+            mode=self.mode,
+            data={
+                "bus_name": bus_name,
+                "bus_index": 1,
+                "effect_type": effect_type,
+                "effect_index": effect_index or 0,
+                "enabled": enabled,
+                "properties_set": properties or {},
+                "saved_layout_path": save_layout_path,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

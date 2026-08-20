@@ -632,3 +632,60 @@ class LiveBridgeClient(GodotClient):
                 "value": value,
             },
         )
+
+    async def get_audio_layout(
+        self,
+        include_effects: bool = True,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_audio_layout",
+            {"include_effects": include_effects},
+        )
+
+    async def configure_audio_bus(
+        self,
+        bus_name: str,
+        create_if_missing: bool = True,
+        volume_db: float | None = None,
+        volume_linear: float | None = None,
+        send_to_bus: str | None = None,
+        mute: bool | None = None,
+        solo: bool | None = None,
+        bypass_effects: bool | None = None,
+        save_layout_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "configure_audio_bus",
+            {
+                "bus_name": bus_name,
+                "create_if_missing": create_if_missing,
+                "volume_db": volume_db,
+                "volume_linear": volume_linear,
+                "send_to_bus": send_to_bus,
+                "mute": mute,
+                "solo": solo,
+                "bypass_effects": bypass_effects,
+                "save_layout_path": save_layout_path or "",
+            },
+        )
+
+    async def set_bus_effect(
+        self,
+        bus_name: str,
+        effect_type: str,
+        effect_index: int | None = None,
+        enabled: bool = True,
+        properties: dict[str, Any] | None = None,
+        save_layout_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "set_bus_effect",
+            {
+                "bus_name": bus_name,
+                "effect_type": effect_type,
+                "effect_index": effect_index,
+                "enabled": enabled,
+                "properties": properties or {},
+                "save_layout_path": save_layout_path or "",
+            },
+        )
