@@ -53,6 +53,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 ### Phase 5: 3D Physics & World Diagnostics
 - [x] **3D Physics Debugging & Geometric Queries (`godot_cast_ray_3d`, `godot_cast_shape_3d`, `godot_get_body_physics_state_3d`, `godot_set_physics_debug_mode`)**: Raycasting (`intersect_ray`), volumetric shape sweeps (sphere/box/capsule/cylinder `intersect_shape`/`cast_motion`), live body telemetry (velocity, mass, sleeping, contacts, impulses), and collision wireframe debug overlays.
 
+### Phase 6: Input System, WorldEnvironment & Viewport Focus
+- [x] **Input Map & Actions Engine (`godot_get_input_actions`, `godot_configure_input_action`)**: Query, create, and bind input events (Keys, Mouse buttons, Gamepad buttons/axes) with deadzone configuration and permanent `project.godot` `ProjectSettings` persistence.
+- [x] **WorldEnvironment & Post-Processing (`godot_configure_environment`)**: Parametric control over procedural/physical skies, ACES tonemapping, HDR glow/bloom, SSAO, SSIL, SSR, and volumetric fog with `.tres` saving or live `WorldEnvironment` node updating.
+- [x] **Editor Selection & Viewport Navigation (`godot_set_editor_selection`, `godot_focus_node`)**: Programmatically select nodes in the Scene Tree dock and focus target nodes in the Inspector and 2D/3D editor workspaces.
+
+
 
 
 

@@ -503,3 +503,71 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Toggle physics debug rendering and wireframe collision shapes."""
         ...
+
+    @abstractmethod
+    async def get_input_actions(
+        self,
+        filter_prefix: str | None = None,
+    ) -> StandardResult:
+        """Query project input actions and event bindings."""
+        ...
+
+    @abstractmethod
+    async def configure_input_action(
+        self,
+        action_name: str,
+        deadzone: float = 0.5,
+        events: list[dict[str, Any]] | None = None,
+        replace_existing: bool = True,
+        save_to_project_settings: bool = True,
+    ) -> StandardResult:
+        """Create or configure an input action with key/button/axis bindings."""
+        ...
+
+    @abstractmethod
+    async def configure_environment(
+        self,
+        save_path: str | None = None,
+        node_path: str | None = None,
+        background_mode: str | None = None,
+        background_color: str | None = None,
+        sky_type: str | None = None,
+        sky_params: dict[str, Any] | None = None,
+        ambient_light_source: str | None = None,
+        ambient_light_color: str | None = None,
+        ambient_light_energy: float | None = None,
+        tonemap_mode: str | None = None,
+        tonemap_exposure: float | None = None,
+        glow_enabled: bool | None = None,
+        glow_intensity: float | None = None,
+        glow_bloom: float | None = None,
+        glow_blend_mode: str | None = None,
+        ssao_enabled: bool | None = None,
+        ssao_radius: float | None = None,
+        ssao_intensity: float | None = None,
+        ssil_enabled: bool | None = None,
+        ssr_enabled: bool | None = None,
+        volumetric_fog_enabled: bool | None = None,
+        volumetric_fog_density: float | None = None,
+        volumetric_fog_albedo: str | None = None,
+    ) -> StandardResult:
+        """Configure post-processing, lighting, and skybox in Environment resource or WorldEnvironment node."""
+        ...
+
+    @abstractmethod
+    async def set_editor_selection(
+        self,
+        node_paths: list[str],
+        clear_previous: bool = True,
+    ) -> StandardResult:
+        """Select nodes in the Godot Scene dock."""
+        ...
+
+    @abstractmethod
+    async def focus_node(
+        self,
+        node_path: str,
+        main_screen: str | None = None,
+    ) -> StandardResult:
+        """Focus a node in Inspector and 2D/3D editor screen."""
+        ...

@@ -477,6 +477,69 @@ def format_result(
                         f"- Contact {c.get('index')}: Pos `{c.get('position')}` | Norm `{c.get('normal')}` | Impulse `{c.get('impulse')}`"
                     )
 
+        elif "actions" in result.data:
+            lines.append(
+                f"**Input Actions ({result.data.get('action_count', len(result.data['actions']))})**:\n"
+            )
+            lines.append("| Action Name | Deadzone | Events |")
+            lines.append("|---|---|---|")
+            for a in result.data.get("actions", []):
+                ev_strs = []
+                for e in a.get("events", []):
+                    if e.get("type") == "key":
+                        ev_strs.append(
+                            f"Key `{e.get('keycode') or e.get('physical_keycode')}`"
+                        )
+                    elif e.get("type") == "mouse_button":
+                        ev_strs.append(f"MouseBtn `{e.get('button_index')}`")
+                    elif e.get("type") == "joypad_button":
+                        ev_strs.append(f"JoyBtn `{e.get('button_index')}`")
+                    elif e.get("type") == "joypad_motion":
+                        ev_strs.append(
+                            f"Axis `{e.get('axis')}` ({e.get('axis_value')})"
+                        )
+                ev_summary = ", ".join(ev_strs) if ev_strs else "*None*"
+                lines.append(
+                    f"| **{a.get('name')}** | `{a.get('deadzone')}` | {ev_summary} |"
+                )
+
+        elif "action_name" in result.data and "events_added" in result.data:
+            lines.append(
+                f"**Action**: `{result.data.get('action_name')}` (Deadzone: `{result.data.get('deadzone')}`)"
+            )
+            lines.append(
+                f"- **Saved to Project Settings**: `{result.data.get('saved_to_project_settings')}`"
+            )
+            if result.data.get("events_added"):
+                lines.append("\n**Events Configured**:")
+                for ev in result.data["events_added"]:
+                    lines.append(f"- `{ev}`")
+
+        elif "properties_set" in result.data and (
+            "saved_path" in result.data or "target_node" in result.data
+        ):
+            lines.append("**Environment Configuration**:")
+            if result.data.get("target_node"):
+                lines.append(f"- **Target Node**: `{result.data.get('target_node')}`")
+            if result.data.get("saved_path"):
+                lines.append(f"- **Saved Path**: `{result.data.get('saved_path')}`")
+            lines.append("\n**Properties Updated**:")
+            for k, v in result.data.get("properties_set", {}).items():
+                lines.append(f"- `{k}` = `{v}`")
+
+        elif "selected_nodes" in result.data:
+            lines.append(
+                f"**Selected Nodes ({result.data.get('selected_count', len(result.data['selected_nodes']))})**:"
+            )
+            for n in result.data.get("selected_nodes", []):
+                lines.append(f"- `{n}`")
+
+        elif "node_name" in result.data and "node_class" in result.data:
+            lines.append(
+                f"**Focused Node**: `{result.data.get('node_name')}` (`{result.data.get('node_class')}`)"
+            )
+            lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

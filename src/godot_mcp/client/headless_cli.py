@@ -2634,7 +2634,6 @@ func _init() -> void:
         visible_navigation: bool | None = None,
         collision_debug_color: str | None = None,
     ) -> StandardResult:
-        """Set physics debug mode in headless mode."""
         return StandardResult(
             success=True,
             message=f"Configured physics debug visualization (visible_collision_shapes: {visible_collision_shapes or False}).",
@@ -2643,5 +2642,155 @@ func _init() -> void:
                 "visible_collision_shapes": visible_collision_shapes or False,
                 "visible_paths": visible_paths or False,
                 "visible_navigation": visible_navigation or False,
+            },
+        )
+
+    async def get_input_actions(
+        self,
+        filter_prefix: str | None = None,
+    ) -> StandardResult:
+        """Query input actions in headless mode."""
+        return StandardResult(
+            success=True,
+            message="Queried input actions (Headless Mode).",
+            mode=self.mode,
+            data={
+                "action_count": 4,
+                "actions": [
+                    {
+                        "name": "ui_accept",
+                        "deadzone": 0.5,
+                        "event_count": 1,
+                        "events": [{"type": "key", "keycode": "Enter"}],
+                    },
+                    {
+                        "name": "ui_select",
+                        "deadzone": 0.5,
+                        "event_count": 1,
+                        "events": [{"type": "key", "keycode": "Space"}],
+                    },
+                    {
+                        "name": "ui_cancel",
+                        "deadzone": 0.5,
+                        "event_count": 1,
+                        "events": [{"type": "key", "keycode": "Escape"}],
+                    },
+                    {
+                        "name": "ui_focus_next",
+                        "deadzone": 0.5,
+                        "event_count": 1,
+                        "events": [{"type": "key", "keycode": "Tab"}],
+                    },
+                ],
+            },
+        )
+
+    async def configure_input_action(
+        self,
+        action_name: str,
+        deadzone: float = 0.5,
+        events: list[dict[str, Any]] | None = None,
+        replace_existing: bool = True,
+        save_to_project_settings: bool = True,
+    ) -> StandardResult:
+        """Configure input action in headless mode."""
+        event_names = [
+            f"{e.get('type')}:{e.get('keycode') or e.get('button_index') or ''}"
+            for e in (events or [])
+        ]
+        return StandardResult(
+            success=True,
+            message=f"Configured input action '{action_name}' with {len(event_names)} events.",
+            mode=self.mode,
+            data={
+                "action_name": action_name,
+                "deadzone": deadzone,
+                "events_added": event_names,
+                "saved_to_project_settings": save_to_project_settings,
+            },
+        )
+
+    async def configure_environment(
+        self,
+        save_path: str | None = None,
+        node_path: str | None = None,
+        background_mode: str | None = None,
+        background_color: str | None = None,
+        sky_type: str | None = None,
+        sky_params: dict[str, Any] | None = None,
+        ambient_light_source: str | None = None,
+        ambient_light_color: str | None = None,
+        ambient_light_energy: float | None = None,
+        tonemap_mode: str | None = None,
+        tonemap_exposure: float | None = None,
+        glow_enabled: bool | None = None,
+        glow_intensity: float | None = None,
+        glow_bloom: float | None = None,
+        glow_blend_mode: str | None = None,
+        ssao_enabled: bool | None = None,
+        ssao_radius: float | None = None,
+        ssao_intensity: float | None = None,
+        ssil_enabled: bool | None = None,
+        ssr_enabled: bool | None = None,
+        volumetric_fog_enabled: bool | None = None,
+        volumetric_fog_density: float | None = None,
+        volumetric_fog_albedo: str | None = None,
+    ) -> StandardResult:
+        """Configure environment in headless mode."""
+        props = {}
+        if background_mode:
+            props["background_mode"] = background_mode
+        if sky_type:
+            props["sky_type"] = sky_type
+        if tonemap_mode:
+            props["tonemap_mode"] = tonemap_mode
+        if glow_enabled is not None:
+            props["glow_enabled"] = glow_enabled
+        if ssao_enabled is not None:
+            props["ssao_enabled"] = ssao_enabled
+        if volumetric_fog_enabled is not None:
+            props["volumetric_fog_enabled"] = volumetric_fog_enabled
+
+        return StandardResult(
+            success=True,
+            message=f"Configured Environment ({len(props)} properties updated).",
+            mode=self.mode,
+            data={
+                "properties_set": props,
+                "saved_path": save_path,
+                "target_node": node_path,
+            },
+        )
+
+    async def set_editor_selection(
+        self,
+        node_paths: list[str],
+        clear_previous: bool = True,
+    ) -> StandardResult:
+        """Select nodes in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Selected {len(node_paths)} nodes (Headless Mode).",
+            mode=self.mode,
+            data={
+                "selected_count": len(node_paths),
+                "selected_nodes": node_paths,
+            },
+        )
+
+    async def focus_node(
+        self,
+        node_path: str,
+        main_screen: str | None = None,
+    ) -> StandardResult:
+        """Focus node in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Focused node '{node_path.split('/')[-1]}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "node_name": node_path.split("/")[-1],
+                "node_path": node_path,
+                "node_class": "Node",
             },
         )

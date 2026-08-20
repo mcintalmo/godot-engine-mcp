@@ -610,3 +610,104 @@ class ClientManager(GodotClient):
             visible_navigation=visible_navigation,
             collision_debug_color=collision_debug_color,
         )
+
+    async def get_input_actions(
+        self,
+        filter_prefix: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_input_actions(
+            filter_prefix=filter_prefix,
+        )
+
+    async def configure_input_action(
+        self,
+        action_name: str,
+        deadzone: float = 0.5,
+        events: list[dict[str, Any]] | None = None,
+        replace_existing: bool = True,
+        save_to_project_settings: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.configure_input_action(
+            action_name=action_name,
+            deadzone=deadzone,
+            events=events,
+            replace_existing=replace_existing,
+            save_to_project_settings=save_to_project_settings,
+        )
+
+    async def configure_environment(
+        self,
+        save_path: str | None = None,
+        node_path: str | None = None,
+        background_mode: str | None = None,
+        background_color: str | None = None,
+        sky_type: str | None = None,
+        sky_params: dict[str, Any] | None = None,
+        ambient_light_source: str | None = None,
+        ambient_light_color: str | None = None,
+        ambient_light_energy: float | None = None,
+        tonemap_mode: str | None = None,
+        tonemap_exposure: float | None = None,
+        glow_enabled: bool | None = None,
+        glow_intensity: float | None = None,
+        glow_bloom: float | None = None,
+        glow_blend_mode: str | None = None,
+        ssao_enabled: bool | None = None,
+        ssao_radius: float | None = None,
+        ssao_intensity: float | None = None,
+        ssil_enabled: bool | None = None,
+        ssr_enabled: bool | None = None,
+        volumetric_fog_enabled: bool | None = None,
+        volumetric_fog_density: float | None = None,
+        volumetric_fog_albedo: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.configure_environment(
+            save_path=save_path,
+            node_path=node_path,
+            background_mode=background_mode,
+            background_color=background_color,
+            sky_type=sky_type,
+            sky_params=sky_params,
+            ambient_light_source=ambient_light_source,
+            ambient_light_color=ambient_light_color,
+            ambient_light_energy=ambient_light_energy,
+            tonemap_mode=tonemap_mode,
+            tonemap_exposure=tonemap_exposure,
+            glow_enabled=glow_enabled,
+            glow_intensity=glow_intensity,
+            glow_bloom=glow_bloom,
+            glow_blend_mode=glow_blend_mode,
+            ssao_enabled=ssao_enabled,
+            ssao_radius=ssao_radius,
+            ssao_intensity=ssao_intensity,
+            ssil_enabled=ssil_enabled,
+            ssr_enabled=ssr_enabled,
+            volumetric_fog_enabled=volumetric_fog_enabled,
+            volumetric_fog_density=volumetric_fog_density,
+            volumetric_fog_albedo=volumetric_fog_albedo,
+        )
+
+    async def set_editor_selection(
+        self,
+        node_paths: list[str],
+        clear_previous: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.set_editor_selection(
+            node_paths=node_paths,
+            clear_previous=clear_previous,
+        )
+
+    async def focus_node(
+        self,
+        node_path: str,
+        main_screen: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.focus_node(
+            node_path=node_path,
+            main_screen=main_screen,
+        )

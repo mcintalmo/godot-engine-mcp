@@ -1065,6 +1065,126 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def get_input_actions(
+        self,
+        filter_prefix: str | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Found 2 input actions.",
+            mode=self.mode,
+            data={
+                "action_count": 2,
+                "actions": [
+                    {
+                        "name": "jump",
+                        "deadzone": 0.5,
+                        "event_count": 1,
+                        "events": [{"type": "key", "keycode": "Space"}],
+                    },
+                    {
+                        "name": "fire",
+                        "deadzone": 0.5,
+                        "event_count": 1,
+                        "events": [{"type": "mouse_button", "button_index": 1}],
+                    },
+                ],
+            },
+        )
+
+    async def configure_input_action(
+        self,
+        action_name: str,
+        deadzone: float = 0.5,
+        events: list[dict[str, Any]] | None = None,
+        replace_existing: bool = True,
+        save_to_project_settings: bool = True,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Configured input action '{action_name}'.",
+            mode=self.mode,
+            data={
+                "action_name": action_name,
+                "deadzone": deadzone,
+                "events_added": ["Key:SPACE"],
+                "saved_to_project_settings": save_to_project_settings,
+            },
+        )
+
+    async def configure_environment(
+        self,
+        save_path: str | None = None,
+        node_path: str | None = None,
+        background_mode: str | None = None,
+        background_color: str | None = None,
+        sky_type: str | None = None,
+        sky_params: dict[str, Any] | None = None,
+        ambient_light_source: str | None = None,
+        ambient_light_color: str | None = None,
+        ambient_light_energy: float | None = None,
+        tonemap_mode: str | None = None,
+        tonemap_exposure: float | None = None,
+        glow_enabled: bool | None = None,
+        glow_intensity: float | None = None,
+        glow_bloom: float | None = None,
+        glow_blend_mode: str | None = None,
+        ssao_enabled: bool | None = None,
+        ssao_radius: float | None = None,
+        ssao_intensity: float | None = None,
+        ssil_enabled: bool | None = None,
+        ssr_enabled: bool | None = None,
+        volumetric_fog_enabled: bool | None = None,
+        volumetric_fog_density: float | None = None,
+        volumetric_fog_albedo: str | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Configured Environment (4 properties updated).",
+            mode=self.mode,
+            data={
+                "properties_set": {
+                    "glow_enabled": True,
+                    "tonemap_mode": "aces",
+                    "ssao_enabled": True,
+                    "volumetric_fog_enabled": True,
+                },
+                "saved_path": save_path,
+                "target_node": node_path,
+            },
+        )
+
+    async def set_editor_selection(
+        self,
+        node_paths: list[str],
+        clear_previous: bool = True,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Selected {len(node_paths)} nodes in the Scene Tree dock.",
+            mode=self.mode,
+            data={
+                "selected_count": len(node_paths),
+                "selected_nodes": node_paths,
+            },
+        )
+
+    async def focus_node(
+        self,
+        node_path: str,
+        main_screen: str | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Focused node '{node_path.split('/')[-1]}' (Node3D) in Inspector and viewport.",
+            mode=self.mode,
+            data={
+                "node_name": node_path.split("/")[-1],
+                "node_path": node_path,
+                "node_class": "Node3D",
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

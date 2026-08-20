@@ -23,6 +23,15 @@ from godot_mcp.models.debug import (
     RunTestsInput,
     TakeScreenshotInput,
 )
+from godot_mcp.models.editor_focus import (
+    FocusNodeInput,
+    SetEditorSelectionInput,
+)
+from godot_mcp.models.environment import ConfigureEnvironmentInput
+from godot_mcp.models.input_map import (
+    ConfigureInputActionInput,
+    GetInputActionsInput,
+)
 from godot_mcp.models.lsp import (
     LSPQueryInput,
     LSPRenameInput,
@@ -95,6 +104,15 @@ from godot_mcp.tools.debug_tools import (
     handle_run_project,
     handle_run_tests,
     handle_take_screenshot,
+)
+from godot_mcp.tools.editor_tools import (
+    handle_focus_node,
+    handle_set_editor_selection,
+)
+from godot_mcp.tools.environment_tools import handle_configure_environment
+from godot_mcp.tools.input_tools import (
+    handle_configure_input_action,
+    handle_get_input_actions,
 )
 from godot_mcp.tools.lsp_tools import (
     handle_lsp_query,
@@ -840,6 +858,76 @@ def create_server(
     async def set_physics_debug_mode(params: SetPhysicsDebugModeInput) -> str:
         """Toggle visible collision wireframe shapes, paths, and navigation meshes in editor / runtime preview."""
         return await handle_set_physics_debug_mode(active_client, params)
+
+    @server.tool(
+        name="godot_get_input_actions",
+        annotations=ToolAnnotations(
+            title="Get Input Actions",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_input_actions(params: GetInputActionsInput) -> str:
+        """Query project input actions and bound triggers (Keys, Mouse, Gamepad buttons/axes)."""
+        return await handle_get_input_actions(active_client, params)
+
+    @server.tool(
+        name="godot_configure_input_action",
+        annotations=ToolAnnotations(
+            title="Configure Input Action",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_input_action(params: ConfigureInputActionInput) -> str:
+        """Create or configure an input action with key/mouse/gamepad bindings and save into project.godot."""
+        return await handle_configure_input_action(active_client, params)
+
+    @server.tool(
+        name="godot_configure_environment",
+        annotations=ToolAnnotations(
+            title="Configure WorldEnvironment & Post-Processing",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_environment(params: ConfigureEnvironmentInput) -> str:
+        """Configure post-processing (tonemap, glow, SSAO, SSIL, SSR, volumetric fog, skybox) in Environment resource or WorldEnvironment node."""
+        return await handle_configure_environment(active_client, params)
+
+    @server.tool(
+        name="godot_set_editor_selection",
+        annotations=ToolAnnotations(
+            title="Set Editor Scene Selection",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def set_editor_selection(params: SetEditorSelectionInput) -> str:
+        """Select nodes in the Godot Scene dock."""
+        return await handle_set_editor_selection(active_client, params)
+
+    @server.tool(
+        name="godot_focus_node",
+        annotations=ToolAnnotations(
+            title="Focus Node in Inspector & Viewport",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def focus_node(params: FocusNodeInput) -> str:
+        """Focus a node in the Inspector and switch to active 2D/3D viewport workspace."""
+        return await handle_focus_node(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

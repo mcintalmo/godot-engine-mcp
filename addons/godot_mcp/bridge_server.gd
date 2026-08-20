@@ -18,6 +18,9 @@ const ThemeOps = preload("res://addons/godot_mcp/operations/theme_ops.gd")
 const AudioOps = preload("res://addons/godot_mcp/operations/audio_ops.gd")
 const PlayOps = preload("res://addons/godot_mcp/operations/play_ops.gd")
 const PhysicsOps = preload("res://addons/godot_mcp/operations/physics_ops.gd")
+const InputOps = preload("res://addons/godot_mcp/operations/input_ops.gd")
+const EnvironmentOps = preload("res://addons/godot_mcp/operations/environment_ops.gd")
+const EditorOps = preload("res://addons/godot_mcp/operations/editor_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -37,6 +40,9 @@ var _theme_ops: RefCounted
 var _audio_ops: RefCounted
 var _play_ops: RefCounted
 var _physics_ops: RefCounted
+var _input_ops: RefCounted
+var _environment_ops: RefCounted
+var _editor_ops: RefCounted
 
 var _port: int = PORT
 
@@ -57,6 +63,10 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_audio_ops = AudioOps.new(_plugin)
 	_play_ops = PlayOps.new(_plugin)
 	_physics_ops = PhysicsOps.new(_plugin)
+	_input_ops = InputOps.new(_plugin)
+	_environment_ops = EnvironmentOps.new(_plugin)
+	_editor_ops = EditorOps.new(_plugin)
+
 
 
 
@@ -219,6 +229,17 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _physics_ops.get_body_physics_state_3d(params)
 		"set_physics_debug_mode":
 			result = _physics_ops.set_physics_debug_mode(params)
+		"get_input_actions":
+			result = _input_ops.get_input_actions(params)
+		"configure_input_action":
+			result = _input_ops.configure_input_action(params)
+		"configure_environment":
+			result = _environment_ops.configure_environment(params)
+		"set_editor_selection":
+			result = _editor_ops.set_editor_selection(params)
+		"focus_node":
+			result = _editor_ops.focus_node(params)
+
 
 
 
