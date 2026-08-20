@@ -689,3 +689,34 @@ class LiveBridgeClient(GodotClient):
                 "save_layout_path": save_layout_path or "",
             },
         )
+
+    async def play_scene(
+        self,
+        mode: str = "main",
+        custom_scene_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "play_scene",
+            {"mode": mode, "custom_scene_path": custom_scene_path or ""},
+        )
+
+    async def stop_scene(self) -> StandardResult:
+        return await self._send_rpc("stop_scene", {})
+
+    async def get_play_state(self) -> StandardResult:
+        return await self._send_rpc("get_play_state", {})
+
+    async def set_play_state(
+        self,
+        pause: bool | None = None,
+        time_scale: float | None = None,
+        step_frames: int | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "set_play_state",
+            {
+                "pause": pause,
+                "time_scale": time_scale,
+                "step_frames": step_frames,
+            },
+        )

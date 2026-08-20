@@ -48,7 +48,8 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 ### Phase 4: UI Design, Audio & Interactive Debugging
 - [x] **Theme & UI Styling Engine (`godot_create_theme`, `godot_apply_theme_override`)**: Create and save Godot 4 Theme resources (`.tres`) with custom `StyleBoxFlat` rounded corners, borders, shadows, colors, constants, and fonts; apply live node overrides with `UndoRedo`.
 - [x] **Audio Bus & Effect Pipeline (`godot_get_audio_layout`, `godot_configure_audio_bus`, `godot_set_bus_effect`, `godot://audio/layout`)**: Programmatically query and configure `AudioServer` layout, routing, bus volumes (dB / linear), and audio effects (Reverb, EQ, Chorus, Delay, Filters, Compressors) with `.tres` persistence.
-- [ ] **Interactive Play Mode & Debug Control (`godot_pause_game`, `godot_resume_game`, `godot_step_frame`)**: Pause, unpause, step single physics/process frames, and inspect live runtime trees.
+- [x] **Interactive Play Mode & Debug Control (`godot_play_scene`, `godot_stop_scene`, `godot_get_play_state`, `godot_set_play_state`)**: Interactive viewport scene playback (main, active, custom .tscn), simulation speed control (`Engine.time_scale`), pause toggle, and frame-stepping.
+
 
 
 

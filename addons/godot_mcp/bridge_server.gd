@@ -16,6 +16,7 @@ const NavigationOps = preload("res://addons/godot_mcp/operations/navigation_ops.
 const PerformanceOps = preload("res://addons/godot_mcp/operations/performance_ops.gd")
 const ThemeOps = preload("res://addons/godot_mcp/operations/theme_ops.gd")
 const AudioOps = preload("res://addons/godot_mcp/operations/audio_ops.gd")
+const PlayOps = preload("res://addons/godot_mcp/operations/play_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -33,6 +34,7 @@ var _navigation_ops: RefCounted
 var _performance_ops: RefCounted
 var _theme_ops: RefCounted
 var _audio_ops: RefCounted
+var _play_ops: RefCounted
 
 var _port: int = PORT
 
@@ -51,6 +53,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_performance_ops = PerformanceOps.new(_plugin)
 	_theme_ops = ThemeOps.new(_plugin)
 	_audio_ops = AudioOps.new(_plugin)
+	_play_ops = PlayOps.new(_plugin)
+
 
 
 
@@ -195,6 +199,15 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _audio_ops.configure_audio_bus(params)
 		"set_bus_effect":
 			result = _audio_ops.set_bus_effect(params)
+		"play_scene":
+			result = _play_ops.play_scene(params)
+		"stop_scene":
+			result = _play_ops.stop_scene(params)
+		"get_play_state":
+			result = _play_ops.get_play_state(params)
+		"set_play_state":
+			result = _play_ops.set_play_state(params)
+
 
 
 

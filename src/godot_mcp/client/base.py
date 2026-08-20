@@ -428,3 +428,32 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Add or modify an AudioEffect on an AudioServer bus."""
         ...
+
+    @abstractmethod
+    async def play_scene(
+        self,
+        mode: str = "main",
+        custom_scene_path: str | None = None,
+    ) -> StandardResult:
+        """Launch interactive scene playback."""
+        ...
+
+    @abstractmethod
+    async def stop_scene(self) -> StandardResult:
+        """Stop running scene playback."""
+        ...
+
+    @abstractmethod
+    async def get_play_state(self) -> StandardResult:
+        """Query current playback state, time scale, and pause status."""
+        ...
+
+    @abstractmethod
+    async def set_play_state(
+        self,
+        pause: bool | None = None,
+        time_scale: float | None = None,
+        step_frames: int | None = None,
+    ) -> StandardResult:
+        """Set pause state, simulation speed, or step frames."""
+        ...

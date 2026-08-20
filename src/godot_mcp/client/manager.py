@@ -514,3 +514,35 @@ class ClientManager(GodotClient):
             properties=properties,
             save_layout_path=save_layout_path,
         )
+
+    async def play_scene(
+        self,
+        mode: str = "main",
+        custom_scene_path: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.play_scene(
+            mode=mode,
+            custom_scene_path=custom_scene_path,
+        )
+
+    async def stop_scene(self) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.stop_scene()
+
+    async def get_play_state(self) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_play_state()
+
+    async def set_play_state(
+        self,
+        pause: bool | None = None,
+        time_scale: float | None = None,
+        step_frames: int | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.set_play_state(
+            pause=pause,
+            time_scale=time_scale,
+            step_frames=step_frames,
+        )

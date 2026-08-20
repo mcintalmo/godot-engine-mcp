@@ -2414,3 +2414,65 @@ func _init() -> void:
             )
         finally:
             Path(temp_path).unlink(missing_ok=True)
+
+    async def play_scene(
+        self,
+        mode: str = "main",
+        custom_scene_path: str | None = None,
+    ) -> StandardResult:
+        """Play scene headlessly or advise live editor."""
+        target = custom_scene_path or (
+            "project main scene" if mode == "main" else "active scene"
+        )
+        return StandardResult(
+            success=True,
+            message=f"Interactive viewport playback for '{target}' (Mode: {mode}) requires Godot Editor.",
+            mode=self.mode,
+            data={
+                "mode": mode,
+                "target": target,
+                "is_playing": False,
+            },
+            actionable_hint="Open your project in Godot Editor with Live Bridge enabled to drive interactive game playback directly from LLM tools.",
+        )
+
+    async def stop_scene(self) -> StandardResult:
+        """Stop playback in headless mode."""
+        return StandardResult(
+            success=True,
+            message="No interactive scene playback is running in headless mode.",
+            mode=self.mode,
+            data={"is_playing": False, "was_playing": False},
+        )
+
+    async def get_play_state(self) -> StandardResult:
+        """Query play state in headless mode."""
+        return StandardResult(
+            success=True,
+            message="Play State: STOPPED (Headless Mode)",
+            mode=self.mode,
+            data={
+                "is_playing": False,
+                "is_paused": False,
+                "time_scale": 1.0,
+                "active_editor_scene": "",
+            },
+        )
+
+    async def set_play_state(
+        self,
+        pause: bool | None = None,
+        time_scale: float | None = None,
+        step_frames: int | None = None,
+    ) -> StandardResult:
+        """Set play state in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Configured play state (time_scale: {time_scale or 1.0}x, paused: {pause or False}).",
+            mode=self.mode,
+            data={
+                "is_paused": pause or False,
+                "time_scale": time_scale or 1.0,
+                "stepped_frames": step_frames,
+            },
+        )

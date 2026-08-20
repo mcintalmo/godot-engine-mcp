@@ -900,6 +900,60 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def play_scene(
+        self,
+        mode: str = "main",
+        custom_scene_path: str | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Playing scene in mode '{mode}'.",
+            mode=self.mode,
+            data={
+                "mode": mode,
+                "is_playing": True,
+                "custom_scene_path": custom_scene_path,
+            },
+        )
+
+    async def stop_scene(self) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Stopped scene playback.",
+            mode=self.mode,
+            data={"was_playing": True, "is_playing": False},
+        )
+
+    async def get_play_state(self) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Play State: PLAYING (Time Scale: 1.00x, Paused: FALSE)",
+            mode=self.mode,
+            data={
+                "is_playing": True,
+                "is_paused": False,
+                "time_scale": 1.0,
+                "active_editor_scene": "res://main.tscn",
+            },
+        )
+
+    async def set_play_state(
+        self,
+        pause: bool | None = None,
+        time_scale: float | None = None,
+        step_frames: int | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Updated play state.",
+            mode=self.mode,
+            data={
+                "is_paused": pause if pause is not None else False,
+                "time_scale": time_scale if time_scale is not None else 1.0,
+                "stepped_frames": step_frames,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

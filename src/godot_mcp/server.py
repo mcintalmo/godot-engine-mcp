@@ -33,6 +33,12 @@ from godot_mcp.models.navigation import (
     CreateNavigationRegionInput,
 )
 from godot_mcp.models.performance import GetPerformanceMetricsInput
+from godot_mcp.models.play import (
+    GetPlayStateInput,
+    PlaySceneInput,
+    SetPlayStateInput,
+    StopSceneInput,
+)
 from godot_mcp.models.project import (
     GetProjectSettingsInput,
     GetVersionInput,
@@ -94,6 +100,12 @@ from godot_mcp.tools.navigation_tools import (
     handle_create_navigation_region,
 )
 from godot_mcp.tools.performance_tools import handle_get_performance_metrics
+from godot_mcp.tools.play_tools import (
+    handle_get_play_state,
+    handle_play_scene,
+    handle_set_play_state,
+    handle_stop_scene,
+)
 from godot_mcp.tools.project_tools import (
     handle_get_project_settings,
     handle_get_version,
@@ -704,6 +716,62 @@ def create_server(
     async def set_bus_effect(params: SetBusEffectInput) -> str:
         """Add or configure an AudioEffect (Reverb, Chorus, Delay, LowPassFilter, EQ, Compressor, Limiter) on an audio bus."""
         return await handle_set_bus_effect(active_client, params)
+
+    @server.tool(
+        name="godot_play_scene",
+        annotations=ToolAnnotations(
+            title="Play Scene",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def play_scene(params: PlaySceneInput) -> str:
+        """Launch interactive game playback (main scene, active tab scene, or custom .tscn)."""
+        return await handle_play_scene(active_client, params)
+
+    @server.tool(
+        name="godot_stop_scene",
+        annotations=ToolAnnotations(
+            title="Stop Scene Playback",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def stop_scene(params: StopSceneInput) -> str:
+        """Stop currently running interactive scene playback."""
+        return await handle_stop_scene(active_client, params)
+
+    @server.tool(
+        name="godot_get_play_state",
+        annotations=ToolAnnotations(
+            title="Get Play State",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_play_state(params: GetPlayStateInput) -> str:
+        """Query current interactive playback status, simulation speed (time_scale), and pause state."""
+        return await handle_get_play_state(active_client, params)
+
+    @server.tool(
+        name="godot_set_play_state",
+        annotations=ToolAnnotations(
+            title="Set Play State & Simulation Speed",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def set_play_state(params: SetPlayStateInput) -> str:
+        """Control pause state, simulation speed (Engine.time_scale), or step game physics/process frames."""
+        return await handle_set_play_state(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

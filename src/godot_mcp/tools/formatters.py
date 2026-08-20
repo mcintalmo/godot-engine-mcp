@@ -397,6 +397,27 @@ def format_result(
                     f"- **Saved Layout**: `{result.data.get('saved_layout_path')}`"
                 )
 
+        elif "is_playing" in result.data or "was_playing" in result.data:
+            if "is_playing" in result.data:
+                playing_str = "PLAYING" if result.data["is_playing"] else "STOPPED"
+                lines.append(f"**Play State**: `{playing_str}`")
+            if "time_scale" in result.data:
+                lines.append(
+                    f"**Simulation Speed (Time Scale)**: `{result.data.get('time_scale')}x`"
+                )
+            if "is_paused" in result.data:
+                lines.append(f"**Paused**: `{result.data.get('is_paused')}`")
+            if result.data.get("stepped_frames"):
+                lines.append(
+                    f"**Stepped Frames**: `{result.data.get('stepped_frames')}`"
+                )
+            if result.data.get("active_editor_scene"):
+                lines.append(
+                    f"**Active Editor Scene**: `{result.data.get('active_editor_scene')}`"
+                )
+            if result.data.get("mode"):
+                lines.append(f"**Launch Mode**: `{result.data.get('mode')}`")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 
