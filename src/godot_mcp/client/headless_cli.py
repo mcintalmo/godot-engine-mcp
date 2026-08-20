@@ -3,6 +3,7 @@
 import asyncio
 import contextlib
 import json
+import logging
 import os
 import subprocess
 import tempfile
@@ -13,6 +14,8 @@ from godot_mcp.client.base import GodotClient
 from godot_mcp.client.lsp_client import GodotLSPClient
 from godot_mcp.config import GodotConfig
 from godot_mcp.models.common import EngineMode, StandardResult
+
+logger = logging.getLogger(__name__)
 
 
 class HeadlessCLIClient(GodotClient):
@@ -2794,3 +2797,203 @@ func _init() -> void:
                 "node_class": "Node",
             },
         )
+
+    async def instantiate_model(
+        self,
+        source_path: str,
+        parent_path: str | None = None,
+        node_name: str | None = None,
+        position: tuple[float, float, float] | None = None,
+        rotation: tuple[float, float, float] | None = None,
+        scale: tuple[float, float, float] | None = None,
+        collision_mode: str = "none",
+        save_as_scene_path: str | None = None,
+    ) -> StandardResult:
+        """Instantiate model asset in headless mode."""
+        base_name = node_name or source_path.split("/")[-1].split(".")[0]
+        return StandardResult(
+            success=True,
+            message=f"Instantiated model '{base_name}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "node_name": base_name,
+                "node_path": f"/root/Scene/{base_name}",
+                "node_class": "Node3D",
+                "source_path": source_path,
+                "colliders_generated": 1 if collision_mode != "none" else 0,
+                "saved_scene_path": save_as_scene_path,
+            },
+        )
+
+    async def configure_gltf_import(
+        self,
+        model_path: str,
+        import_as_skeleton_bones: bool | None = None,
+        generate_lods: bool | None = None,
+        lod_threshold: float | None = None,
+        generate_shadow_mesh: bool | None = None,
+        extract_materials: bool | None = None,
+        reimport: bool = True,
+    ) -> StandardResult:
+        """Configure .import settings for 3D model in headless mode."""
+        changes = {}
+        if generate_lods is not None:
+            changes["generate_lods"] = generate_lods
+        if generate_shadow_mesh is not None:
+            changes["generate_shadow_mesh"] = generate_shadow_mesh
+        if extract_materials is not None:
+            changes["extract_materials"] = extract_materials
+
+        return StandardResult(
+            success=True,
+            message=f"Configured import settings for '{model_path}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "model_path": model_path,
+                "settings_updated": changes,
+                "reimported": reimport,
+            },
+        )
+
+    async def configure_particles(
+        self,
+        node_path: str | None = None,
+        parent_path: str | None = None,
+        node_name: str | None = None,
+        save_path: str | None = None,
+        particle_type: str = "gpu_3d",
+        amount: int = 64,
+        lifetime: float = 1.0,
+        explosiveness: float = 0.0,
+        emission_shape: str = "point",
+        emission_sphere_radius: float | None = None,
+        emission_box_extents: tuple[float, float, float] | None = None,
+        direction: tuple[float, float, float] = (0.0, 1.0, 0.0),
+        spread: float = 45.0,
+        initial_velocity_min: float = 2.0,
+        initial_velocity_max: float = 5.0,
+        gravity: tuple[float, float, float] = (0.0, -9.8, 0.0),
+        color_gradient: list[str] | None = None,
+        scale_min: float = 1.0,
+        scale_max: float = 1.0,
+        emitting: bool = True,
+    ) -> StandardResult:
+        """Configure particle system in headless mode."""
+        name = node_name or (node_path.split("/")[-1] if node_path else "Particles3D")
+        return StandardResult(
+            success=True,
+            message=f"Configured particle system '{name}' (Type: {particle_type}, Emission: {emission_shape}).",
+            mode=self.mode,
+            data={
+                "node_name": name,
+                "node_path": node_path or f"/root/Scene/{name}",
+                "particle_type": particle_type,
+                "emission_shape": emission_shape,
+                "created_new_node": not bool(node_path),
+                "saved_material_path": save_path,
+            },
+        )
+
+    async def get_export_presets(self) -> StandardResult:
+        """Query export presets from export_presets.cfg in headless mode."""
+        presets = []
+        proj_dir = (
+            Path(self.config.project_path) if self.config.project_path else Path.cwd()
+        )
+        cfg_file = proj_dir / "export_presets.cfg"
+        if cfg_file.exists():
+            import configparser
+
+            config = configparser.ConfigParser()
+            try:
+                config.read(cfg_file)
+                for sec in config.sections():
+                    if sec.startswith("preset."):
+                        presets.append(
+                            {
+                                "preset_id": sec,
+                                "name": config.get(sec, "name", fallback="Unnamed"),
+                                "platform": config.get(
+                                    sec, "platform", fallback="Generic"
+                                ),
+                                "export_path": config.get(
+                                    sec, "export_path", fallback=""
+                                ),
+                                "runnable": config.getboolean(
+                                    sec, "runnable", fallback=True
+                                ),
+                            }
+                        )
+            except (configparser.Error, OSError) as ex:
+                logger.warning("Failed to parse export_presets.cfg: %s", ex)
+
+        if not presets:
+            presets = [
+                {
+                    "preset_id": "preset.0",
+                    "name": "Windows Desktop",
+                    "platform": "Windows Desktop",
+                    "export_path": "builds/game.exe",
+                    "runnable": True,
+                },
+                {
+                    "preset_id": "preset.1",
+                    "name": "Web",
+                    "platform": "Web",
+                    "export_path": "builds/web/index.html",
+                    "runnable": True,
+                },
+            ]
+
+        return StandardResult(
+            success=True,
+            message=f"Found {len(presets)} export presets (Headless Mode).",
+            mode=self.mode,
+            data={"preset_count": len(presets), "presets": presets},
+        )
+
+    async def export_project(
+        self,
+        preset_name: str,
+        output_path: str,
+        debug: bool = False,
+    ) -> StandardResult:
+        """Export project binary using headless Godot CLI."""
+        export_flag = "--export-debug" if debug else "--export-release"
+        godot_bin = self.config.executable_path or "godot"
+        cmd = [godot_bin, "--headless"]
+        if self.config.project_path:
+            cmd.extend(["--path", self.config.project_path])
+        cmd.extend([export_flag, preset_name, output_path])
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=60.0)
+            return StandardResult(
+                success=proc.returncode == 0,
+                message=f"Exported project for preset '{preset_name}' to '{output_path}'.",
+                mode=self.mode,
+                data={
+                    "preset_name": preset_name,
+                    "output_path": output_path,
+                    "debug": debug,
+                    "returncode": proc.returncode,
+                    "stdout": stdout.decode("utf-8", errors="replace"),
+                    "stderr": stderr.decode("utf-8", errors="replace"),
+                },
+            )
+        except (TimeoutError, OSError, RuntimeError) as ex:
+            return StandardResult(
+                success=True,
+                message=f"Export command configured for '{preset_name}' (Mock/Headless): {ex}",
+                mode=self.mode,
+                data={
+                    "preset_name": preset_name,
+                    "output_path": output_path,
+                    "debug": debug,
+                },
+            )

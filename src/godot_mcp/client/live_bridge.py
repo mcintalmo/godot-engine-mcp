@@ -893,3 +893,120 @@ class LiveBridgeClient(GodotClient):
             "focus_node",
             {"node_path": node_path, "main_screen": main_screen or ""},
         )
+
+    async def instantiate_model(
+        self,
+        source_path: str,
+        parent_path: str | None = None,
+        node_name: str | None = None,
+        position: tuple[float, float, float] | None = None,
+        rotation: tuple[float, float, float] | None = None,
+        scale: tuple[float, float, float] | None = None,
+        collision_mode: str = "none",
+        save_as_scene_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "instantiate_model",
+            {
+                "source_path": source_path,
+                "parent_path": parent_path or "",
+                "node_name": node_name or "",
+                "position": list(position) if position is not None else None,
+                "rotation": list(rotation) if rotation is not None else None,
+                "scale": list(scale) if scale is not None else None,
+                "collision_mode": collision_mode,
+                "save_as_scene_path": save_as_scene_path or "",
+            },
+        )
+
+    async def configure_gltf_import(
+        self,
+        model_path: str,
+        import_as_skeleton_bones: bool | None = None,
+        generate_lods: bool | None = None,
+        lod_threshold: float | None = None,
+        generate_shadow_mesh: bool | None = None,
+        extract_materials: bool | None = None,
+        reimport: bool = True,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "configure_gltf_import",
+            {
+                "model_path": model_path,
+                "import_as_skeleton_bones": import_as_skeleton_bones,
+                "generate_lods": generate_lods,
+                "lod_threshold": lod_threshold,
+                "generate_shadow_mesh": generate_shadow_mesh,
+                "extract_materials": extract_materials,
+                "reimport": reimport,
+            },
+        )
+
+    async def configure_particles(
+        self,
+        node_path: str | None = None,
+        parent_path: str | None = None,
+        node_name: str | None = None,
+        save_path: str | None = None,
+        particle_type: str = "gpu_3d",
+        amount: int = 64,
+        lifetime: float = 1.0,
+        explosiveness: float = 0.0,
+        emission_shape: str = "point",
+        emission_sphere_radius: float | None = None,
+        emission_box_extents: tuple[float, float, float] | None = None,
+        direction: tuple[float, float, float] = (0.0, 1.0, 0.0),
+        spread: float = 45.0,
+        initial_velocity_min: float = 2.0,
+        initial_velocity_max: float = 5.0,
+        gravity: tuple[float, float, float] = (0.0, -9.8, 0.0),
+        color_gradient: list[str] | None = None,
+        scale_min: float = 1.0,
+        scale_max: float = 1.0,
+        emitting: bool = True,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "configure_particles",
+            {
+                "node_path": node_path or "",
+                "parent_path": parent_path or "",
+                "node_name": node_name or "",
+                "save_path": save_path or "",
+                "particle_type": particle_type,
+                "amount": amount,
+                "lifetime": lifetime,
+                "explosiveness": explosiveness,
+                "emission_shape": emission_shape,
+                "emission_sphere_radius": emission_sphere_radius,
+                "emission_box_extents": list(emission_box_extents)
+                if emission_box_extents is not None
+                else None,
+                "direction": list(direction),
+                "spread": spread,
+                "initial_velocity_min": initial_velocity_min,
+                "initial_velocity_max": initial_velocity_max,
+                "gravity": list(gravity),
+                "color_gradient": color_gradient,
+                "scale_min": scale_min,
+                "scale_max": scale_max,
+                "emitting": emitting,
+            },
+        )
+
+    async def get_export_presets(self) -> StandardResult:
+        return await self._send_rpc("get_export_presets", {})
+
+    async def export_project(
+        self,
+        preset_name: str,
+        output_path: str,
+        debug: bool = False,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "export_project",
+            {
+                "preset_name": preset_name,
+                "output_path": output_path,
+                "debug": debug,
+            },
+        )

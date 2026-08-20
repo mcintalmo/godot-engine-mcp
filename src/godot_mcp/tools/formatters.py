@@ -534,11 +534,66 @@ def format_result(
             for n in result.data.get("selected_nodes", []):
                 lines.append(f"- `{n}`")
 
+        elif "source_path" in result.data and "colliders_generated" in result.data:
+            lines.append(
+                f"**Model Instance**: `{result.data.get('node_name')}` (`{result.data.get('node_class')}`)"
+            )
+            lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+            lines.append(f"- **Source**: `{result.data.get('source_path')}`")
+            lines.append(
+                f"- **Colliders Created**: `{result.data.get('colliders_generated')}`"
+            )
+            if result.data.get("saved_scene_path"):
+                lines.append(
+                    f"- **Saved Scene**: `{result.data.get('saved_scene_path')}`"
+                )
+
         elif "node_name" in result.data and "node_class" in result.data:
             lines.append(
                 f"**Focused Node**: `{result.data.get('node_name')}` (`{result.data.get('node_class')}`)"
             )
             lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+
+        elif "model_path" in result.data and "settings_updated" in result.data:
+            lines.append(f"**GLTF Import Settings**: `{result.data.get('model_path')}`")
+            lines.append(f"- **Reimported**: `{result.data.get('reimported')}`")
+            if result.data.get("settings_updated"):
+                lines.append("\n**Parameters Updated**:")
+                for k, v in result.data["settings_updated"].items():
+                    lines.append(f"- `{k}` = `{v}`")
+
+        elif "particle_type" in result.data and "emission_shape" in result.data:
+            lines.append(
+                f"**Particle System**: `{result.data.get('node_name')}` (Type: `{result.data.get('particle_type')}`)"
+            )
+            if result.data.get("node_path"):
+                lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+            lines.append(f"- **Emission Shape**: `{result.data.get('emission_shape')}`")
+            lines.append(
+                f"- **Created New Node**: `{result.data.get('created_new_node')}`"
+            )
+            if result.data.get("saved_material_path"):
+                lines.append(
+                    f"- **Saved Material**: `{result.data.get('saved_material_path')}`"
+                )
+
+        elif "presets" in result.data:
+            lines.append(
+                f"**Export Presets ({result.data.get('preset_count', len(result.data['presets']))})**:\n"
+            )
+            lines.append("| Name | Platform | Export Path | Runnable |")
+            lines.append("|---|---|---|---|")
+            for p in result.data.get("presets", []):
+                lines.append(
+                    f"| **{p.get('name')}** | `{p.get('platform')}` | `{p.get('export_path') or '*None*'}` | `{p.get('runnable')}` |"
+                )
+
+        elif "preset_name" in result.data and "output_path" in result.data:
+            lines.append(f"**Export Build**: `{result.data.get('preset_name')}`")
+            lines.append(f"- **Destination**: `{result.data.get('output_path')}`")
+            lines.append(f"- **Debug**: `{result.data.get('debug')}`")
+            if "returncode" in result.data:
+                lines.append(f"- **Return Code**: `{result.data.get('returncode')}`")
 
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")

@@ -1185,6 +1185,138 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def instantiate_model(
+        self,
+        source_path: str,
+        parent_path: str | None = None,
+        node_name: str | None = None,
+        position: tuple[float, float, float] | None = None,
+        rotation: tuple[float, float, float] | None = None,
+        scale: tuple[float, float, float] | None = None,
+        collision_mode: str = "none",
+        save_as_scene_path: str | None = None,
+    ) -> StandardResult:
+        base_name = node_name or "Chest"
+        return StandardResult(
+            success=True,
+            message=f"Instantiated model '{base_name}' under 'Root'.",
+            mode=self.mode,
+            data={
+                "node_name": base_name,
+                "node_path": f"/root/Main/{base_name}",
+                "node_class": "Node3D",
+                "source_path": source_path,
+                "colliders_generated": 1 if collision_mode != "none" else 0,
+                "saved_scene_path": save_as_scene_path,
+            },
+        )
+
+    async def configure_gltf_import(
+        self,
+        model_path: str,
+        import_as_skeleton_bones: bool | None = None,
+        generate_lods: bool | None = None,
+        lod_threshold: float | None = None,
+        generate_shadow_mesh: bool | None = None,
+        extract_materials: bool | None = None,
+        reimport: bool = True,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Configured import settings for '{model_path}'.",
+            mode=self.mode,
+            data={
+                "model_path": model_path,
+                "settings_updated": {
+                    "generate_lods": generate_lods or True,
+                    "generate_shadow_mesh": generate_shadow_mesh or True,
+                },
+                "reimported": reimport,
+            },
+        )
+
+    async def configure_particles(
+        self,
+        node_path: str | None = None,
+        parent_path: str | None = None,
+        node_name: str | None = None,
+        save_path: str | None = None,
+        particle_type: str = "gpu_3d",
+        amount: int = 64,
+        lifetime: float = 1.0,
+        explosiveness: float = 0.0,
+        emission_shape: str = "point",
+        emission_sphere_radius: float | None = None,
+        emission_box_extents: tuple[float, float, float] | None = None,
+        direction: tuple[float, float, float] = (0.0, 1.0, 0.0),
+        spread: float = 45.0,
+        initial_velocity_min: float = 2.0,
+        initial_velocity_max: float = 5.0,
+        gravity: tuple[float, float, float] = (0.0, -9.8, 0.0),
+        color_gradient: list[str] | None = None,
+        scale_min: float = 1.0,
+        scale_max: float = 1.0,
+        emitting: bool = True,
+    ) -> StandardResult:
+        name = node_name or "FireVFX"
+        return StandardResult(
+            success=True,
+            message=f"Configured particle system '{name}'.",
+            mode=self.mode,
+            data={
+                "node_name": name,
+                "node_path": f"/root/Main/{name}",
+                "particle_type": particle_type,
+                "emission_shape": emission_shape,
+                "created_new_node": True,
+                "saved_material_path": save_path,
+            },
+        )
+
+    async def get_export_presets(self) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Found 2 export presets.",
+            mode=self.mode,
+            data={
+                "preset_count": 2,
+                "presets": [
+                    {
+                        "preset_id": "preset.0",
+                        "name": "Windows Desktop",
+                        "platform": "Windows Desktop",
+                        "export_path": "builds/game.exe",
+                        "runnable": True,
+                    },
+                    {
+                        "preset_id": "preset.1",
+                        "name": "Web",
+                        "platform": "Web",
+                        "export_path": "builds/web/index.html",
+                        "runnable": True,
+                    },
+                ],
+            },
+        )
+
+    async def export_project(
+        self,
+        preset_name: str,
+        output_path: str,
+        debug: bool = False,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Exported project for preset '{preset_name}' to '{output_path}'.",
+            mode=self.mode,
+            data={
+                "preset_name": preset_name,
+                "output_path": output_path,
+                "debug": debug,
+                "returncode": 0,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

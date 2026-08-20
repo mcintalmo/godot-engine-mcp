@@ -18,6 +18,10 @@ from godot_mcp.models.audio import (
     GetAudioLayoutInput,
     SetBusEffectInput,
 )
+from godot_mcp.models.dcc_asset import (
+    ConfigureGLTFImportInput,
+    InstantiateModelInput,
+)
 from godot_mcp.models.debug import (
     RunProjectInput,
     RunTestsInput,
@@ -28,6 +32,10 @@ from godot_mcp.models.editor_focus import (
     SetEditorSelectionInput,
 )
 from godot_mcp.models.environment import ConfigureEnvironmentInput
+from godot_mcp.models.export_build import (
+    ExportProjectInput,
+    GetExportPresetsInput,
+)
 from godot_mcp.models.input_map import (
     ConfigureInputActionInput,
     GetInputActionsInput,
@@ -41,6 +49,7 @@ from godot_mcp.models.navigation import (
     BakeNavMeshInput,
     CreateNavigationRegionInput,
 )
+from godot_mcp.models.particles import ConfigureParticlesInput
 from godot_mcp.models.performance import GetPerformanceMetricsInput
 from godot_mcp.models.physics import (
     CastRay3DInput,
@@ -100,6 +109,14 @@ from godot_mcp.tools.audio_tools import (
     handle_get_audio_layout,
     handle_set_bus_effect,
 )
+from godot_mcp.tools.build_tools import (
+    handle_export_project,
+    handle_get_export_presets,
+)
+from godot_mcp.tools.dcc_tools import (
+    handle_configure_gltf_import,
+    handle_instantiate_model,
+)
 from godot_mcp.tools.debug_tools import (
     handle_run_project,
     handle_run_tests,
@@ -123,6 +140,7 @@ from godot_mcp.tools.navigation_tools import (
     handle_bake_navmesh,
     handle_create_navigation_region,
 )
+from godot_mcp.tools.particle_tools import handle_configure_particles
 from godot_mcp.tools.performance_tools import handle_get_performance_metrics
 from godot_mcp.tools.physics_tools import (
     handle_cast_ray_3d,
@@ -928,6 +946,76 @@ def create_server(
     async def focus_node(params: FocusNodeInput) -> str:
         """Focus a node in the Inspector and switch to active 2D/3D viewport workspace."""
         return await handle_focus_node(active_client, params)
+
+    @server.tool(
+        name="godot_instantiate_model",
+        annotations=ToolAnnotations(
+            title="Instantiate 3D Model Asset",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def instantiate_model(params: InstantiateModelInput) -> str:
+        """Instantiate a 3D model asset (.glb, .gltf, .blend) into the scene with transform and collision generation."""
+        return await handle_instantiate_model(active_client, params)
+
+    @server.tool(
+        name="godot_configure_gltf_import",
+        annotations=ToolAnnotations(
+            title="Configure GLTF/3D Model Import",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_gltf_import(params: ConfigureGLTFImportInput) -> str:
+        """Configure .import settings for a 3D model (LODs, shadow meshes, skeleton bones, material extraction) and reimport."""
+        return await handle_configure_gltf_import(active_client, params)
+
+    @server.tool(
+        name="godot_configure_particles",
+        annotations=ToolAnnotations(
+            title="Configure VFX Particles",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_particles(params: ConfigureParticlesInput) -> str:
+        """Create or configure a GPUParticles3D/2D or CPUParticles system and ParticleProcessMaterial resource."""
+        return await handle_configure_particles(active_client, params)
+
+    @server.tool(
+        name="godot_get_export_presets",
+        annotations=ToolAnnotations(
+            title="Get Export Presets",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_export_presets(params: GetExportPresetsInput) -> str:
+        """Query all build presets and platforms configured in export_presets.cfg."""
+        return await handle_get_export_presets(active_client, params)
+
+    @server.tool(
+        name="godot_export_project",
+        annotations=ToolAnnotations(
+            title="Export Project Build",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def export_project(params: ExportProjectInput) -> str:
+        """Export project binary headlessly for specified preset target."""
+        return await handle_export_project(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

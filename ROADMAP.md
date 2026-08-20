@@ -58,6 +58,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **WorldEnvironment & Post-Processing (`godot_configure_environment`)**: Parametric control over procedural/physical skies, ACES tonemapping, HDR glow/bloom, SSAO, SSIL, SSR, and volumetric fog with `.tres` saving or live `WorldEnvironment` node updating.
 - [x] **Editor Selection & Viewport Navigation (`godot_set_editor_selection`, `godot_focus_node`)**: Programmatically select nodes in the Scene Tree dock and focus target nodes in the Inspector and 2D/3D editor workspaces.
 
+### Phase 7: DCC / Blender 3D Import Pipeline, VFX & Build Engine
+- [x] **DCC / Blender Model Instancing & GLTF Import (`godot_instantiate_model`, `godot_configure_gltf_import`)**: Programmatically instantiate `.glb`, `.gltf`, and `.blend` assets with transform placement, automated collision shape generation (`Trimesh`, `Convex`, `Box`), inherited `.tscn` packing, and `.import` LOD/shadow mesh configuration.
+- [x] **VFX Particle Systems Engine (`godot_configure_particles`)**: Create and tweak `GPUParticles3D/2D` and `CPUParticles` systems with volumetric emission shapes (Sphere, Box, Ring), bursts, color gradient ramps (`GradientTexture1D`), velocities, and `ParticleProcessMaterial` `.tres` exporting.
+- [x] **Project Export & Build Automation (`godot_get_export_presets`, `godot_export_project`)**: Inspect `export_presets.cfg` across all platforms (Windows, Linux, macOS, Web, Mobile) and trigger headless automated project builds via Godot CLI.
+
+
 
 
 

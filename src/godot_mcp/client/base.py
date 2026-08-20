@@ -571,3 +571,74 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Focus a node in Inspector and 2D/3D editor screen."""
         ...
+
+    @abstractmethod
+    async def instantiate_model(
+        self,
+        source_path: str,
+        parent_path: str | None = None,
+        node_name: str | None = None,
+        position: tuple[float, float, float] | None = None,
+        rotation: tuple[float, float, float] | None = None,
+        scale: tuple[float, float, float] | None = None,
+        collision_mode: str = "none",
+        save_as_scene_path: str | None = None,
+    ) -> StandardResult:
+        """Instantiate a 3D model asset (.glb, .gltf, .blend) into the scene tree."""
+        ...
+
+    @abstractmethod
+    async def configure_gltf_import(
+        self,
+        model_path: str,
+        import_as_skeleton_bones: bool | None = None,
+        generate_lods: bool | None = None,
+        lod_threshold: float | None = None,
+        generate_shadow_mesh: bool | None = None,
+        extract_materials: bool | None = None,
+        reimport: bool = True,
+    ) -> StandardResult:
+        """Configure .import settings for a 3D model file and trigger reimport."""
+        ...
+
+    @abstractmethod
+    async def configure_particles(
+        self,
+        node_path: str | None = None,
+        parent_path: str | None = None,
+        node_name: str | None = None,
+        save_path: str | None = None,
+        particle_type: str = "gpu_3d",
+        amount: int = 64,
+        lifetime: float = 1.0,
+        explosiveness: float = 0.0,
+        emission_shape: str = "point",
+        emission_sphere_radius: float | None = None,
+        emission_box_extents: tuple[float, float, float] | None = None,
+        direction: tuple[float, float, float] = (0.0, 1.0, 0.0),
+        spread: float = 45.0,
+        initial_velocity_min: float = 2.0,
+        initial_velocity_max: float = 5.0,
+        gravity: tuple[float, float, float] = (0.0, -9.8, 0.0),
+        color_gradient: list[str] | None = None,
+        scale_min: float = 1.0,
+        scale_max: float = 1.0,
+        emitting: bool = True,
+    ) -> StandardResult:
+        """Create or configure a VFX particle system or ParticleProcessMaterial resource."""
+        ...
+
+    @abstractmethod
+    async def get_export_presets(self) -> StandardResult:
+        """Query configured export presets from export_presets.cfg."""
+        ...
+
+    @abstractmethod
+    async def export_project(
+        self,
+        preset_name: str,
+        output_path: str,
+        debug: bool = False,
+    ) -> StandardResult:
+        """Export project binary headlessly for specified preset target."""
+        ...
