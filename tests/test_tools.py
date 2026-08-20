@@ -471,6 +471,291 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def set_tilemap_cells(
+        self,
+        node_path: str,
+        cells: list[dict[str, Any]],
+        clear_before_paint: bool = False,
+    ) -> StandardResult:
+
+        erased = sum(1 for c in cells if c.get("source_id") == -1)
+        painted = len(cells) - erased
+        return StandardResult(
+            success=True,
+            message=f"Applied tile cells to '{node_path}'",
+            mode=self.mode,
+            data={
+                "node_path": node_path,
+                "node_name": node_path.split("/")[-1],
+                "painted_count": painted,
+                "erased_count": erased,
+                "used_rect": [0, 0, 10, 10],
+            },
+        )
+
+    async def get_tilemap_cells(
+        self,
+        node_path: str,
+        region: list[int] | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Retrieved 2 cells from '{node_path}'",
+            mode=self.mode,
+            data={
+                "node_path": node_path,
+                "node_name": node_path.split("/")[-1],
+                "cell_count": 2,
+                "cells": [
+                    {
+                        "coords": [0, 0],
+                        "source_id": 0,
+                        "atlas_coords": [0, 0],
+                        "alternative_tile": 0,
+                    },
+                    {
+                        "coords": [1, 0],
+                        "source_id": 0,
+                        "atlas_coords": [1, 0],
+                        "alternative_tile": 0,
+                    },
+                ],
+                "used_rect": [0, 0, 2, 1],
+            },
+        )
+
+    async def create_tilemap_layer(
+        self,
+        name: str = "TileMapLayer",
+        parent_node_path: str = ".",
+        tile_set_path: str | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Created TileMapLayer '{name}'",
+            mode=self.mode,
+            data={
+                "node_name": name,
+                "type_name": "TileMapLayer",
+                "parent_node_path": parent_node_path,
+                "tile_set_attached": tile_set_path,
+            },
+        )
+
+    async def bake_navmesh(
+        self,
+        node_path: str,
+        dimension: str = "3D",
+        on_thread: bool = True,
+        agent_radius: float | None = None,
+        agent_height: float | None = None,
+        agent_max_climb: float | None = None,
+        agent_max_slope: float | None = None,
+        cell_size: float | None = None,
+        cell_height: float | None = None,
+        save_navmesh_path: str | None = None,
+    ) -> StandardResult:
+        params: dict[str, Any] = {}
+        if agent_radius is not None:
+            params["agent_radius"] = agent_radius
+        if agent_height is not None and dimension == "3D":
+            params["agent_height"] = agent_height
+        if agent_max_climb is not None and dimension == "3D":
+            params["agent_max_climb"] = agent_max_climb
+        if agent_max_slope is not None and dimension == "3D":
+            params["agent_max_slope"] = agent_max_slope
+        if cell_size is not None:
+            params["cell_size"] = cell_size
+        if cell_height is not None and dimension == "3D":
+            params["cell_height"] = cell_height
+
+        return StandardResult(
+            success=True,
+            message=f"Triggered {dimension} navigation mesh baking for '{node_path}'",
+            mode=self.mode,
+            data={
+                "node_name": node_path.split("/")[-1],
+                "dimension": dimension,
+                "on_thread": on_thread,
+                "parameters": params,
+                "saved_to_file": save_navmesh_path,
+            },
+        )
+
+    async def create_navigation_region(
+        self,
+        name: str = "NavigationRegion3D",
+        dimension: str = "3D",
+        parent_node_path: str = ".",
+        navmesh_path: str | None = None,
+    ) -> StandardResult:
+        type_name = "NavigationRegion3D" if dimension == "3D" else "NavigationRegion2D"
+        return StandardResult(
+            success=True,
+            message=f"Created {type_name} '{name}'",
+            mode=self.mode,
+            data={
+                "node_name": name,
+                "type_name": type_name,
+                "dimension": dimension,
+                "parent_node_path": parent_node_path,
+                "navmesh_attached": navmesh_path if navmesh_path else "default",
+            },
+        )
+
+    async def query_lsp(
+        self,
+        file_path: str,
+        query_type: str = "symbols",
+        line: int = 1,
+        character: int = 1,
+        symbol_name: str | None = None,
+    ) -> StandardResult:
+        if query_type == "symbols":
+            return StandardResult(
+                success=True,
+                message=f"Found 2 symbols in '{file_path}'",
+                mode=self.mode,
+                data={
+                    "file_path": file_path,
+                    "query_type": query_type,
+                    "symbols": [
+                        {
+                            "name": "speed",
+                            "kind": "Variable",
+                            "line": 5,
+                            "signature": "var speed: float = 200.0",
+                        },
+                        {
+                            "name": "_ready",
+                            "kind": "Function",
+                            "line": 8,
+                            "signature": "func _ready() -> void",
+                        },
+                    ],
+                },
+            )
+        elif query_type == "definition":
+            return StandardResult(
+                success=True,
+                message=f"Found definition for 'speed' at {file_path}:5",
+                mode=self.mode,
+                data={
+                    "file_path": file_path,
+                    "query_type": query_type,
+                    "symbol": "speed",
+                    "definition": {
+                        "file": file_path,
+                        "line": 5,
+                        "line_content": "var speed: float = 200.0",
+                    },
+                },
+            )
+        elif query_type == "references":
+            return StandardResult(
+                success=True,
+                message="Found 2 references to 'speed'",
+                mode=self.mode,
+                data={
+                    "file_path": file_path,
+                    "query_type": query_type,
+                    "symbol": "speed",
+                    "references": [
+                        {
+                            "file": file_path,
+                            "line": 5,
+                            "line_content": "var speed: float = 200.0",
+                        },
+                        {
+                            "file": file_path,
+                            "line": 12,
+                            "line_content": "position += velocity * speed * delta",
+                        },
+                    ],
+                },
+            )
+        elif query_type == "hover":
+            return StandardResult(
+                success=True,
+                message="Hover info for 'speed'",
+                mode=self.mode,
+                data={
+                    "file_path": file_path,
+                    "query_type": query_type,
+                    "hover": {
+                        "symbol": "speed",
+                        "signature": "var speed: float = 200.0",
+                        "docstring": "Movement speed in pixels per second.",
+                    },
+                },
+            )
+        return StandardResult(
+            success=False,
+            message=f"Unknown query_type: {query_type}",
+            mode=self.mode,
+        )
+
+    async def rename_lsp_symbol(
+        self,
+        file_path: str,
+        line: int,
+        character: int,
+        new_name: str,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Renamed symbol 'speed' -> '{new_name}' across 1 files.",
+            mode=self.mode,
+            data={
+                "old_name": "speed",
+                "new_name": new_name,
+                "modified_files": [file_path],
+            },
+        )
+
+    async def get_performance_metrics(
+        self,
+        category: str = "all",
+        include_custom_monitors: bool = True,
+    ) -> StandardResult:
+        data: dict[str, Any] = {
+            "category": category,
+            "time": {
+                "fps": 60,
+                "process_time_ms": 16.67,
+                "physics_process_time_ms": 16.67,
+                "navigation_process_time_ms": 0.5,
+            },
+            "render": {
+                "draw_calls_in_frame": 42,
+                "objects_in_frame": 120,
+                "primitives_in_frame": 5400,
+                "video_mem_mb": 18.5,
+                "texture_mem_mb": 12.0,
+                "buffer_mem_mb": 6.5,
+            },
+            "memory": {
+                "static_ram_mb": 34.2,
+                "static_ram_peak_mb": 45.0,
+                "message_buffer_kb": 128.0,
+            },
+            "objects": {
+                "node_count": 25,
+                "resource_count": 80,
+                "object_count": 310,
+                "orphan_node_count": 0,
+            },
+        }
+        if include_custom_monitors:
+            data["custom"] = {"active_enemies": 5}
+
+        return StandardResult(
+            success=True,
+            message="Engine Telemetry: 60 FPS, 42 Draw Calls",
+            mode=self.mode,
+            data=data,
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

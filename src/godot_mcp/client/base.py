@@ -277,3 +277,92 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Create and configure an Animation resource with tracks and keyframes."""
         ...
+
+    @abstractmethod
+    async def set_tilemap_cells(
+        self,
+        node_path: str,
+        cells: list[dict[str, Any]],
+        clear_before_paint: bool = False,
+    ) -> StandardResult:
+        """Batch-paint or erase tile cells on a TileMapLayer or TileMap node."""
+        ...
+
+    @abstractmethod
+    async def get_tilemap_cells(
+        self,
+        node_path: str,
+        region: list[int] | None = None,
+    ) -> StandardResult:
+        """Query painted tile cells and bounding geometry from a TileMapLayer or TileMap."""
+        ...
+
+    @abstractmethod
+    async def create_tilemap_layer(
+        self,
+        name: str = "TileMapLayer",
+        parent_node_path: str = ".",
+        tile_set_path: str | None = None,
+    ) -> StandardResult:
+        """Create a new TileMapLayer node and attach optional TileSet resource."""
+        ...
+
+    @abstractmethod
+    async def bake_navmesh(
+        self,
+        node_path: str,
+        dimension: str = "3D",
+        on_thread: bool = True,
+        agent_radius: float | None = None,
+        agent_height: float | None = None,
+        agent_max_climb: float | None = None,
+        agent_max_slope: float | None = None,
+        cell_size: float | None = None,
+        cell_height: float | None = None,
+        save_navmesh_path: str | None = None,
+    ) -> StandardResult:
+        """Bake a 2D or 3D navigation mesh on a NavigationRegion node."""
+        ...
+
+    @abstractmethod
+    async def create_navigation_region(
+        self,
+        name: str = "NavigationRegion3D",
+        dimension: str = "3D",
+        parent_node_path: str = ".",
+        navmesh_path: str | None = None,
+    ) -> StandardResult:
+        """Create a new NavigationRegion3D or NavigationRegion2D node."""
+        ...
+
+    @abstractmethod
+    async def query_lsp(
+        self,
+        file_path: str,
+        query_type: str = "symbols",
+        line: int = 1,
+        character: int = 1,
+        symbol_name: str | None = None,
+    ) -> StandardResult:
+        """Query symbols, definitions, references, or hover documentation via Godot LSP."""
+        ...
+
+    @abstractmethod
+    async def rename_lsp_symbol(
+        self,
+        file_path: str,
+        line: int,
+        character: int,
+        new_name: str,
+    ) -> StandardResult:
+        """Perform a cross-file semantic rename of a GDScript symbol via Godot LSP."""
+        ...
+
+    @abstractmethod
+    async def get_performance_metrics(
+        self,
+        category: str = "all",
+        include_custom_monitors: bool = True,
+    ) -> StandardResult:
+        """Query real-time Godot engine performance metrics and telemetry."""
+        ...

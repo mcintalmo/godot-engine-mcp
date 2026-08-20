@@ -6,9 +6,11 @@ import logging
 import uuid
 from typing import Any
 
-import websockets
+import websockets.exceptions
+from websockets.legacy.client import connect
 
 from godot_mcp.client.base import GodotClient
+from godot_mcp.client.lsp_client import GodotLSPClient
 from godot_mcp.config import GodotConfig
 from godot_mcp.models.common import EngineMode, StandardResult
 
@@ -20,7 +22,8 @@ class LiveBridgeClient(GodotClient):
 
     def __init__(self, config: GodotConfig | None = None) -> None:
         self.config = config or GodotConfig.load()
-        self.uri = f"ws://{self.config.bridge_host}:{self.config.bridge_port}/ws"
+        self.uri = f"ws://{self.config.bridge_host}:{self.config.bridge_port}"
+        self.lsp = GodotLSPClient(self.config)
 
     @property
     def mode(self) -> EngineMode:
@@ -30,7 +33,7 @@ class LiveBridgeClient(GodotClient):
         """Check if the Godot Editor bridge server is responding."""
         try:
             async with asyncio.timeout(1.5):
-                async with websockets.connect(self.uri, proxy=None) as ws:
+                async with connect(self.uri) as ws:
                     req = {
                         "jsonrpc": "2.0",
                         "id": "ping",
@@ -49,8 +52,8 @@ class LiveBridgeClient(GodotClient):
             OSError,
             TimeoutError,
             json.JSONDecodeError,
-            AttributeError,
-        ):
+        ) as e:
+            logger.debug("is_available check failed: %s", e)
             return False
 
     async def _send_rpc(
@@ -67,7 +70,7 @@ class LiveBridgeClient(GodotClient):
 
         try:
             async with asyncio.timeout(self.config.request_timeout):
-                async with websockets.connect(self.uri, proxy=None) as ws:
+                async with connect(self.uri) as ws:
                     await ws.send(json.dumps(payload))
                     resp_text = await ws.recv()
 
@@ -455,5 +458,137 @@ class LiveBridgeClient(GodotClient):
                 "tracks": tracks or [],
                 "animation_player_path": animation_player_path or "",
                 "save_path": save_path or "",
+            },
+        )
+
+    async def set_tilemap_cells(
+        self,
+        node_path: str,
+        cells: list[dict[str, Any]],
+        clear_before_paint: bool = False,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "set_tilemap_cells",
+            {
+                "node_path": node_path,
+                "cells": cells,
+                "clear_before_paint": clear_before_paint,
+            },
+        )
+
+    async def get_tilemap_cells(
+        self,
+        node_path: str,
+        region: list[int] | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_tilemap_cells",
+            {
+                "node_path": node_path,
+                "region": region or [],
+            },
+        )
+
+    async def create_tilemap_layer(
+        self,
+        name: str = "TileMapLayer",
+        parent_node_path: str = ".",
+        tile_set_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "create_tilemap_layer",
+            {
+                "name": name,
+                "parent_node_path": parent_node_path,
+                "tile_set_path": tile_set_path or "",
+            },
+        )
+
+    async def bake_navmesh(
+        self,
+        node_path: str,
+        dimension: str = "3D",
+        on_thread: bool = True,
+        agent_radius: float | None = None,
+        agent_height: float | None = None,
+        agent_max_climb: float | None = None,
+        agent_max_slope: float | None = None,
+        cell_size: float | None = None,
+        cell_height: float | None = None,
+        save_navmesh_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "bake_navmesh",
+            {
+                "node_path": node_path,
+                "dimension": dimension,
+                "on_thread": on_thread,
+                "agent_radius": agent_radius,
+                "agent_height": agent_height,
+                "agent_max_climb": agent_max_climb,
+                "agent_max_slope": agent_max_slope,
+                "cell_size": cell_size,
+                "cell_height": cell_height,
+                "save_navmesh_path": save_navmesh_path or "",
+            },
+        )
+
+    async def create_navigation_region(
+        self,
+        name: str = "NavigationRegion3D",
+        dimension: str = "3D",
+        parent_node_path: str = ".",
+        navmesh_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "create_navigation_region",
+            {
+                "name": name,
+                "dimension": dimension,
+                "parent_node_path": parent_node_path,
+                "navmesh_path": navmesh_path or "",
+            },
+        )
+
+    async def query_lsp(
+        self,
+        file_path: str,
+        query_type: str = "symbols",
+        line: int = 1,
+        character: int = 1,
+        symbol_name: str | None = None,
+    ) -> StandardResult:
+        return await self.lsp.query(
+            file_path=file_path,
+            query_type=query_type,
+            line=line,
+            character=character,
+            symbol_name=symbol_name,
+        )
+
+    async def rename_lsp_symbol(
+        self,
+        file_path: str,
+        line: int,
+        character: int,
+        new_name: str,
+    ) -> StandardResult:
+        return await self.lsp.rename(
+            file_path=file_path,
+            line=line,
+            character=character,
+            new_name=new_name,
+        )
+
+    async def get_performance_metrics(
+        self,
+        category: str = "all",
+        include_custom_monitors: bool = True,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_performance_metrics",
+            {
+                "category": category,
+                "include_custom_monitors": include_custom_monitors,
             },
         )

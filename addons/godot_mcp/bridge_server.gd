@@ -11,6 +11,9 @@ const ReflectionOps = preload("res://addons/godot_mcp/operations/reflection_ops.
 const MaterialOps = preload("res://addons/godot_mcp/operations/material_ops.gd")
 const AssetOps = preload("res://addons/godot_mcp/operations/asset_ops.gd")
 const AnimationOps = preload("res://addons/godot_mcp/operations/animation_ops.gd")
+const TileMapOps = preload("res://addons/godot_mcp/operations/tilemap_ops.gd")
+const NavigationOps = preload("res://addons/godot_mcp/operations/navigation_ops.gd")
+const PerformanceOps = preload("res://addons/godot_mcp/operations/performance_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -23,6 +26,9 @@ var _reflection_ops: RefCounted
 var _material_ops: RefCounted
 var _asset_ops: RefCounted
 var _animation_ops: RefCounted
+var _tilemap_ops: RefCounted
+var _navigation_ops: RefCounted
+var _performance_ops: RefCounted
 
 var _port: int = PORT
 
@@ -36,6 +42,12 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_material_ops = MaterialOps.new(_plugin)
 	_asset_ops = AssetOps.new(_plugin)
 	_animation_ops = AnimationOps.new(_plugin)
+	_tilemap_ops = TileMapOps.new(_plugin)
+	_navigation_ops = NavigationOps.new(_plugin)
+	_performance_ops = PerformanceOps.new(_plugin)
+
+
+
 
 
 
@@ -153,6 +165,21 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _asset_ops.create_collision_polygon(params)
 		"create_animation":
 			result = _animation_ops.create_animation(params)
+		"set_tilemap_cells":
+			result = _tilemap_ops.set_cells(params)
+		"get_tilemap_cells":
+			result = _tilemap_ops.get_cells(params)
+		"create_tilemap_layer":
+			result = _tilemap_ops.create_tilemap_layer(params)
+		"bake_navmesh":
+			result = _navigation_ops.bake_navmesh(params)
+		"create_navigation_region":
+			result = _navigation_ops.create_navigation_region(params)
+		"get_performance_metrics":
+			result = _performance_ops.get_metrics(params)
+
+
+
 
 
 

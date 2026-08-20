@@ -9,14 +9,15 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 | Feature Area | Status | Target Capabilities |
 |---|---|---|
 | **Scene & Node Operations** | ✅ Completed | Node creation/modification/deletion, full property deserialization (`Vector2/3`, `Color`, `Resources`), Undo/Redo support, standalone scene creation (`godot_create_scene`), scene switching (`godot_open_scene`), real-time warning diagnostics. |
-| **Engine Reflection & ClassDB** | 🔄 In Progress (Phase 1) | `godot_get_class_info`, `godot_get_documentation`, `godot_get_enum_constants`, eliminating LLM hallucinations across Godot 3 vs Godot 4 API changes. |
-| **Shader & Material Authoring** | 🔄 In Progress (Phase 1/2) | `godot_validate_shader` (`.gdshader` compilation diagnostics), `godot_create_material` (`StandardMaterial3D`, `ShaderMaterial`, PBR properties). |
-| **MCP Dynamic Resources & Prompts** | 📋 Planned (Phase 1) | Dynamic `godot://` URI resources (`godot://project/settings`, `godot://scene/active/tree`, `godot://engine/classes/{ClassName}`, `godot://logs/editor.log`) and workflow prompts (`prompt://fix-scene-warnings`, `prompt://create-rich-ui`). |
-| **Asset & Reimport Pipeline** | 📋 Planned (Phase 2) | `godot_reimport_asset` (`.import` configuration, texture compression presets, pixel art settings), `godot_create_tileset`. |
-| **Animation, Keyframes & Timeline** | 📋 Planned (Phase 3) | `godot_create_animation` (programmatic property tracks, transform tracks, method call tracks, easing curves, keyframes), `godot_configure_anim_tree`. |
-| **Level Design & Geometry** | 📋 Planned (Phase 3) | `godot_tilemap_set_cells` (batch paint/erase cells on `TileMapLayer`), `godot_create_collision_polygon`, `godot_bake_navmesh` (`NavigationServer3D`/`2D`). |
-| **GDScript Semantic LSP Integration** | 📋 Planned (Phase 3) | Connect directly to Godot's built-in LSP server (`port 6005`) for cross-file symbol definitions, references, and semantic renaming refactors. |
-| **Runtime Profiler & Telemetry** | 📋 Planned (Phase 3) | `godot_get_performance_metrics` (`Performance.get_monitor()`: FPS, Draw Calls, VRAM, Objects), interactive Play Mode frame stepping. |
+| **Engine Reflection & ClassDB** | ✅ Completed | `godot_get_class_info`, `godot_get_documentation`, `godot_get_enum_constants`, eliminating LLM hallucinations across Godot 3 vs Godot 4 API changes. |
+| **Shader & Material Authoring** | ✅ Completed | `godot_validate_shader` (`.gdshader` compilation diagnostics), `godot_create_material` (`StandardMaterial3D`, `ShaderMaterial`, PBR properties). |
+| **MCP Dynamic Resources & Prompts** | ✅ Completed | Dynamic `godot://` URI resources (`godot://project/settings`, `godot://scene/active/tree`, `godot://engine/classes/{ClassName}`, `godot://logs/editor.log`, `godot://performance/metrics`) and workflow prompts (`prompt://fix-scene-warnings`, `prompt://create-rich-ui`, `prompt://scaffold-character`). |
+| **Asset & Reimport Pipeline** | ✅ Completed | `godot_reimport_asset` (`.import` configuration, texture compression presets, pixel art settings), `godot_create_collision_polygon`. |
+| **Animation, Keyframes & Timeline** | ✅ Completed | `godot_create_animation` (programmatic property tracks, transform tracks, method call tracks, easing curves, keyframes). |
+| **Level Design & Geometry** | ✅ Completed | `godot_set_tilemap_cells` / `godot_get_tilemap_cells` (batch paint/erase cells on `TileMapLayer`), `godot_create_tilemap_layer`, `godot_bake_navmesh`, `godot_create_navigation_region`. |
+| **GDScript Semantic LSP Integration** | ✅ Completed | Connect directly to Godot's built-in LSP server (`port 6005`) for cross-file symbol definitions, references, hover documentation, and semantic renaming refactors. |
+| **Runtime Profiler & Telemetry** | ✅ Completed | `godot_get_performance_metrics` (`Performance.get_monitor()`: FPS, Draw Calls, VRAM, Objects, Memory Leaks) and dynamic `godot://performance/metrics` resource. |
+
 
 ---
 
@@ -39,8 +40,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 
 ### Phase 3: Animation, Level Design & Semantic LSP
 - [x] **Animation Track & Keyframe Authoring (`godot_create_animation`)**: Add tracks (property, 3D transform, method call), insert keyframes, set transition easing curves, and save `.tres` / attach to `AnimationPlayer`.
-- [ ] **TileMapLayer Cell Painting (`godot_tilemap_set_cells`)**: Programmatically paint and query tile maps on Godot 4.7+ `TileMapLayer` nodes.
+- [x] **TileMapLayer Cell Painting (`godot_set_tilemap_cells`, `godot_get_tilemap_cells`, `godot_create_tilemap_layer`)**: Programmatically create, paint, erase, and query tile maps on Godot 4.7+ `TileMapLayer` and legacy `TileMap` nodes.
 
-- [ ] **NavMesh Baking (`godot_bake_navmesh`)**: Trigger asynchronous navigation mesh baking on `NavigationRegion3D` / `NavigationRegion2D`.
-- [ ] **Godot LSP Client (`port 6005`)**: Query symbols, definitions, find references, and perform safe cross-file renaming.
-- [ ] **Performance Monitor Telemetry (`godot_get_performance_metrics`)**: Telemetry stream for draw calls, process frame time, physics tick time, and VRAM.
+
+- [x] **NavMesh Baking (`godot_bake_navmesh`, `godot_create_navigation_region`)**: Trigger asynchronous navigation mesh baking and configure agent profiles on `NavigationRegion3D` / `NavigationRegion2D`.
+- [x] **Godot LSP Client (`godot_lsp_query`, `godot_lsp_rename`)**: Query GDScript symbols, definitions, find references, inspect docstrings/signatures, and perform safe cross-file renaming on Godot LSP port 6005 with offline static fallback.
+- [x] **Performance Monitor Telemetry (`godot_get_performance_metrics`, `godot://performance/metrics`)**: Real-time telemetry stream and dynamic MCP resource for framerate (FPS), draw calls, frame process times, VRAM, and orphan node leak tracking.
+
+
+

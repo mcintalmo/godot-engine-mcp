@@ -116,6 +116,196 @@ def format_result(
                     f"**Saved Resource**: `{result.data.get('saved_to_file')}`"
                 )
 
+        elif "painted_count" in result.data:
+            lines.append(f"**Target Layer**: `{result.data.get('node_path')}`")
+            lines.append(f"**Painted**: `{result.data.get('painted_count')}` cells")
+            lines.append(f"**Erased**: `{result.data.get('erased_count')}` cells")
+            if result.data.get("used_rect"):
+                r = result.data["used_rect"]
+                lines.append(
+                    f"**Used Bounding Rect**: `[x={r[0]}, y={r[1]}, w={r[2]}, h={r[3]}]`"
+                )
+
+        elif "cell_count" in result.data:
+            lines.append(f"**Target Layer**: `{result.data.get('node_path')}`")
+            lines.append(f"**Total Used Cells**: `{result.data.get('cell_count')}`")
+            if result.data.get("used_rect"):
+                r = result.data["used_rect"]
+                lines.append(
+                    f"**Used Bounding Rect**: `[x={r[0]}, y={r[1]}, w={r[2]}, h={r[3]}]`"
+                )
+            cells_list = result.data.get("cells", [])
+            if cells_list:
+                lines.append("\n**Sample Cells**:")
+                for c in cells_list[:10]:
+                    lines.append(
+                        f"- Coords `{c['coords']}`: Source `{c['source_id']}`, Atlas `{c['atlas_coords']}`, Alt `{c['alternative_tile']}`"
+                    )
+                if len(cells_list) > 10:
+                    lines.append(f"- *... and {len(cells_list) - 10} more cells*")
+
+        elif "tile_set_attached" in result.data:
+            lines.append(
+                f"**Layer Name**: `{result.data.get('node_name')}` (`{result.data.get('type_name')}`)"
+            )
+            lines.append(f"**Parent Node**: `{result.data.get('parent_node_path')}`")
+            if result.data.get("tile_set_attached"):
+                lines.append(f"**TileSet**: `{result.data.get('tile_set_attached')}`")
+
+        elif "navmesh_attached" in result.data:
+            lines.append(
+                f"**Navigation Region**: `{result.data.get('node_name')}` (`{result.data.get('type_name')}`)"
+            )
+            lines.append(f"**Dimension**: `{result.data.get('dimension')}`")
+            lines.append(f"**Parent Node**: `{result.data.get('parent_node_path')}`")
+            if result.data.get("navmesh_attached"):
+                lines.append(
+                    f"**NavMesh Resource**: `{result.data.get('navmesh_attached')}`"
+                )
+
+        elif "dimension" in result.data and "on_thread" in result.data:
+            lines.append(
+                f"**Navigation Node**: `{result.data.get('node_name')}` (`{result.data.get('dimension')}`)"
+            )
+            lines.append(f"**Threaded Baking**: `{result.data.get('on_thread')}`")
+            if result.data.get("parameters"):
+                lines.append("\n**Baking Parameters**:")
+                for k, v in result.data["parameters"].items():
+                    lines.append(f"- `{k}` = `{v}`")
+            if result.data.get("saved_to_file"):
+                lines.append(
+                    f"**Saved Resource**: `{result.data.get('saved_to_file')}`"
+                )
+
+        elif "symbols" in result.data:
+            lines.append(f"**Target File**: `{result.data.get('file_path')}`")
+            syms = result.data.get("symbols", [])
+            lines.append(f"**Total Symbols**: `{len(syms)}`\n")
+            lines.append("| Name | Kind | Line | Signature |")
+            lines.append("|---|---|---|---|")
+            for s in syms:
+                name = s.get("name", "")
+                kind = s.get("kind", "")
+                line_no = s.get("line", "")
+                sig = s.get("signature", "")
+                lines.append(f"| `{name}` | {kind} | {line_no} | `{sig}` |")
+
+        elif "definition" in result.data:
+            defn = result.data.get("definition")
+            lines.append(f"**Symbol**: `{result.data.get('symbol', 'unknown')}`")
+            if isinstance(defn, dict):
+                lines.append(
+                    f"**Declared In**: `{defn.get('file')}` (Line {defn.get('line')})"
+                )
+                if defn.get("line_content"):
+                    lines.append(f"```gdscript\n{defn.get('line_content')}\n```")
+            else:
+                lines.append(f"**Definition**: `{defn}`")
+
+        elif "references" in result.data:
+            refs = result.data.get("references", [])
+            lines.append(f"**Symbol**: `{result.data.get('symbol', 'unknown')}`")
+            lines.append(f"**Total References**: `{len(refs)}`\n")
+            for r in refs:
+                if isinstance(r, dict):
+                    f = r.get("file", "")
+                    l = r.get("line", "")
+                    content = r.get("line_content", "")
+                    lines.append(f"- `{f}:{l}`: `{content}`")
+                else:
+                    lines.append(f"- `{r}`")
+
+        elif "hover" in result.data:
+            h = result.data.get("hover")
+            if isinstance(h, dict):
+                lines.append(f"**Symbol**: `{h.get('symbol')}`")
+                if h.get("signature"):
+                    lines.append(f"\n```gdscript\n{h.get('signature')}\n```")
+                if h.get("docstring"):
+                    lines.append(f"\n**Documentation**:\n{h.get('docstring')}")
+            else:
+                lines.append(f"**Hover Info**: {h}")
+
+        elif "modified_files" in result.data:
+            lines.append(
+                f"**Renamed**: `{result.data.get('old_name')}` -> `{result.data.get('new_name')}`"
+            )
+            mods = result.data.get("modified_files", [])
+            lines.append(f"**Modified Files ({len(mods)})**:")
+            for m in mods:
+                lines.append(f"- `{m}`")
+
+        elif "category" in result.data and (
+            "time" in result.data
+            or "render" in result.data
+            or "memory" in result.data
+            or "objects" in result.data
+        ):
+            cat = result.data.get("category", "all")
+            lines.append(f"**Performance Telemetry** (Filter: `{cat}`)\n")
+
+            if "time" in result.data:
+                t = result.data["time"]
+                lines.append("### Framerate & Timing")
+                lines.append(f"- **FPS**: `{t.get('fps')}`")
+                lines.append(
+                    f"- **Process Frame Time**: `{t.get('process_time_ms')} ms`"
+                )
+                lines.append(
+                    f"- **Physics Process Time**: `{t.get('physics_process_time_ms')} ms`"
+                )
+                if t.get("navigation_process_time_ms") is not None:
+                    lines.append(
+                        f"- **Navigation Process Time**: `{t.get('navigation_process_time_ms')} ms`"
+                    )
+                lines.append("")
+
+            if "render" in result.data:
+                r = result.data["render"]
+                lines.append("### Rendering & GPU")
+                lines.append(
+                    f"- **Draw Calls in Frame**: `{r.get('draw_calls_in_frame')}`"
+                )
+                lines.append(f"- **Rendered Objects**: `{r.get('objects_in_frame')}`")
+                lines.append(
+                    f"- **Primitives / Triangles**: `{r.get('primitives_in_frame')}`"
+                )
+                lines.append(f"- **Total VRAM**: `{r.get('video_mem_mb')} MB`")
+                lines.append(f"- **Texture VRAM**: `{r.get('texture_mem_mb')} MB`")
+                lines.append(f"- **Buffer VRAM**: `{r.get('buffer_mem_mb')} MB`")
+                lines.append("")
+
+            if "memory" in result.data:
+                m = result.data["memory"]
+                lines.append("### Memory Allocations")
+                lines.append(f"- **Static RAM**: `{m.get('static_ram_mb')} MB`")
+                lines.append(
+                    f"- **Peak Static RAM**: `{m.get('static_ram_peak_mb')} MB`"
+                )
+                lines.append(f"- **Message Buffer**: `{m.get('message_buffer_kb')} KB`")
+                lines.append("")
+
+            if "objects" in result.data:
+                o = result.data["objects"]
+                lines.append("### Object & Node Tracking")
+                lines.append(f"- **Node Count**: `{o.get('node_count')}`")
+                lines.append(f"- **Resource Count**: `{o.get('resource_count')}`")
+                lines.append(f"- **Object Count**: `{o.get('object_count')}`")
+                orphans = o.get("orphan_node_count", 0)
+                if orphans > 0:
+                    lines.append(
+                        f"- **Orphan Nodes**: `{orphans}` *(Warning: Potential memory leak)*"
+                    )
+                else:
+                    lines.append(f"- **Orphan Nodes**: `{orphans}` (Clean)")
+
+                lines.append("")
+
+            if result.data.get("custom"):
+                lines.append("### Custom Monitors")
+                for k, v in result.data["custom"].items():
+                    lines.append(f"- **{k}**: `{v}`")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

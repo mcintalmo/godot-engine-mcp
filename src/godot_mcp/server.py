@@ -18,7 +18,16 @@ from godot_mcp.models.debug import (
     RunTestsInput,
     TakeScreenshotInput,
 )
+from godot_mcp.models.lsp import (
+    LSPQueryInput,
+    LSPRenameInput,
+)
 from godot_mcp.models.material import CreateMaterialInput
+from godot_mcp.models.navigation import (
+    BakeNavMeshInput,
+    CreateNavigationRegionInput,
+)
+from godot_mcp.models.performance import GetPerformanceMetricsInput
 from godot_mcp.models.project import (
     GetProjectSettingsInput,
     GetVersionInput,
@@ -46,6 +55,11 @@ from godot_mcp.models.script import (
     CreateScriptInput,
     ValidateScriptInput,
 )
+from godot_mcp.models.tilemap import (
+    CreateTileMapLayerInput,
+    GetTileMapCellsInput,
+    SetTileMapCellsInput,
+)
 from godot_mcp.tools.animation_tools import handle_create_animation
 from godot_mcp.tools.asset_tools import (
     handle_create_collision_polygon,
@@ -56,7 +70,16 @@ from godot_mcp.tools.debug_tools import (
     handle_run_tests,
     handle_take_screenshot,
 )
+from godot_mcp.tools.lsp_tools import (
+    handle_lsp_query,
+    handle_lsp_rename,
+)
 from godot_mcp.tools.material_tools import handle_create_material
+from godot_mcp.tools.navigation_tools import (
+    handle_bake_navmesh,
+    handle_create_navigation_region,
+)
+from godot_mcp.tools.performance_tools import handle_get_performance_metrics
 from godot_mcp.tools.project_tools import (
     handle_get_project_settings,
     handle_get_version,
@@ -83,6 +106,11 @@ from godot_mcp.tools.scene_tools import (
 from godot_mcp.tools.script_tools import (
     handle_create_script,
     handle_validate_script,
+)
+from godot_mcp.tools.tilemap_tools import (
+    handle_create_tilemap_layer,
+    handle_get_tilemap_cells,
+    handle_set_tilemap_cells,
 )
 
 
@@ -475,7 +503,127 @@ def create_server(
         """Create and configure a Godot Animation resource with property tracks, 3D transform tracks, or method call tracks, with keyframes, easing curves, and optional AnimationPlayer attachment or .tres disk saving."""
         return await handle_create_animation(active_client, params)
 
+    @server.tool(
+        name="godot_create_tilemap_layer",
+        annotations=ToolAnnotations(
+            title="Create TileMapLayer Node",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def create_tilemap_layer(params: CreateTileMapLayerInput) -> str:
+        """Create a TileMapLayer node in the active scene and optionally attach an existing TileSet resource (.tres)."""
+        return await handle_create_tilemap_layer(active_client, params)
+
+    @server.tool(
+        name="godot_set_tilemap_cells",
+        annotations=ToolAnnotations(
+            title="Batch-Paint TileMapLayer Cells",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def set_tilemap_cells(params: SetTileMapCellsInput) -> str:
+        """Batch-paint or erase tile cells on a TileMapLayer or TileMap node with grid coordinates, source IDs, atlas coordinates, and alternative tile IDs."""
+        return await handle_set_tilemap_cells(active_client, params)
+
+    @server.tool(
+        name="godot_get_tilemap_cells",
+        annotations=ToolAnnotations(
+            title="Query TileMapLayer Cells",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_tilemap_cells(params: GetTileMapCellsInput) -> str:
+        """Query used tile cells, source IDs, atlas coordinates, and bounding rectangles from a TileMapLayer or TileMap node."""
+        return await handle_get_tilemap_cells(active_client, params)
+
+    @server.tool(
+        name="godot_create_navigation_region",
+        annotations=ToolAnnotations(
+            title="Create Navigation Region",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def create_navigation_region(
+        params: CreateNavigationRegionInput,
+    ) -> str:
+        """Create a NavigationRegion3D or NavigationRegion2D node in the active scene and attach a NavigationMesh / NavigationPolygon resource."""
+        return await handle_create_navigation_region(active_client, params)
+
+    @server.tool(
+        name="godot_bake_navmesh",
+        annotations=ToolAnnotations(
+            title="Bake Navigation Mesh",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def bake_navmesh(params: BakeNavMeshInput) -> str:
+        """Configure agent parameters (radius, height, climb, slope, cell size) and bake a 2D or 3D navigation mesh on a target NavigationRegion node."""
+        return await handle_bake_navmesh(active_client, params)
+
+    @server.tool(
+        name="godot_lsp_query",
+        annotations=ToolAnnotations(
+            title="Godot LSP Semantic Query",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def lsp_query(params: LSPQueryInput) -> str:
+        """Query GDScript semantic symbols, go-to-definition, find all references, or inspect hover docstrings and type signatures via Godot LSP."""
+        return await handle_lsp_query(active_client, params)
+
+    @server.tool(
+        name="godot_lsp_rename",
+        annotations=ToolAnnotations(
+            title="Godot LSP Semantic Rename",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def lsp_rename(params: LSPRenameInput) -> str:
+        """Perform a cross-file semantic rename of a GDScript symbol across all referencing project files."""
+        return await handle_lsp_rename(active_client, params)
+
+    @server.tool(
+        name="godot_get_performance_metrics",
+        annotations=ToolAnnotations(
+            title="Get Performance Metrics",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_performance_metrics(params: GetPerformanceMetricsInput) -> str:
+        """Query real-time Godot engine performance metrics (FPS, process/physics frame times, draw calls, VRAM, static memory, and orphan node leak tracking)."""
+        return await handle_get_performance_metrics(active_client, params)
+
     # --- Dynamic MCP Resources (godot://) ---
+
+    @server.resource("godot://performance/metrics")
+    async def resource_performance_metrics() -> str:
+        """Dynamic MCP resource providing real-time Godot performance telemetry JSON."""
+        res = await active_client.get_performance_metrics()
+        return json.dumps(res.data, indent=2)
 
     @server.resource("godot://project/settings")
     async def resource_project_settings() -> str:

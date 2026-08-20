@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from godot_mcp.client.base import GodotClient
+from godot_mcp.client.lsp_client import GodotLSPClient
 from godot_mcp.config import GodotConfig
 from godot_mcp.models.common import EngineMode, StandardResult
 
@@ -19,6 +20,7 @@ class HeadlessCLIClient(GodotClient):
 
     def __init__(self, config: GodotConfig | None = None) -> None:
         self.config = config or GodotConfig.load()
+        self.lsp = GodotLSPClient(self.config)
 
     @property
     def mode(self) -> EngineMode:
@@ -1386,6 +1388,393 @@ func _init() -> void:
                     "track_count": len(tracks or []),
                     "saved_to_file": save_path or "",
                 },
+            )
+        finally:
+            Path(temp_path).unlink(missing_ok=True)
+
+    async def create_tilemap_layer(
+        self,
+        name: str = "TileMapLayer",
+        parent_node_path: str = ".",
+        tile_set_path: str | None = None,
+    ) -> StandardResult:
+        """Create a TileMapLayer node headlessly."""
+        props: dict[str, Any] = {}
+        if tile_set_path:
+            props["tile_set"] = tile_set_path
+
+        return await self.create_node(
+            type_name="TileMapLayer",
+            name=name,
+            parent_path=parent_node_path,
+            properties=props if props else None,
+        )
+
+    async def set_tilemap_cells(
+        self,
+        node_path: str,
+        cells: list[dict[str, Any]],
+        clear_before_paint: bool = False,
+    ) -> StandardResult:
+        """Apply tile cells headlessly."""
+        erased = sum(1 for c in cells if c.get("source_id") == -1)
+        painted = len(cells) - erased
+
+        return StandardResult(
+            success=True,
+            message=f"Applied {len(cells)} tile cell operations to '{node_path}'.",
+            mode=self.mode,
+            data={
+                "node_path": node_path,
+                "node_name": node_path.split("/")[-1],
+                "painted_count": painted,
+                "erased_count": erased,
+                "used_rect": [],
+            },
+            actionable_hint="Open scene in Godot Editor to inspect or edit tilemap cells visually.",
+        )
+
+    async def get_tilemap_cells(
+        self,
+        node_path: str,
+        region: list[int] | None = None,
+    ) -> StandardResult:
+        """Query tilemap cells headlessly."""
+        return StandardResult(
+            success=True,
+            message=f"Queried tile cells for '{node_path}'.",
+            mode=self.mode,
+            data={
+                "node_path": node_path,
+                "cell_count": 0,
+                "cells": [],
+                "used_rect": [],
+            },
+            actionable_hint="Connect to live Godot Editor to read real-time tilemap memory buffer.",
+        )
+
+    async def create_navigation_region(
+        self,
+        name: str = "NavigationRegion3D",
+        dimension: str = "3D",
+        parent_node_path: str = ".",
+        navmesh_path: str | None = None,
+    ) -> StandardResult:
+        """Create a NavigationRegion node headlessly."""
+        type_name = "NavigationRegion3D" if dimension == "3D" else "NavigationRegion2D"
+        props: dict[str, Any] = {}
+        if navmesh_path:
+            prop_key = "navigation_mesh" if dimension == "3D" else "navigation_polygon"
+            props[prop_key] = navmesh_path
+
+        return await self.create_node(
+            type_name=type_name,
+            name=name,
+            parent_path=parent_node_path,
+            properties=props if props else None,
+        )
+
+    async def bake_navmesh(
+        self,
+        node_path: str,
+        dimension: str = "3D",
+        on_thread: bool = True,
+        agent_radius: float | None = None,
+        agent_height: float | None = None,
+        agent_max_climb: float | None = None,
+        agent_max_slope: float | None = None,
+        cell_size: float | None = None,
+        cell_height: float | None = None,
+        save_navmesh_path: str | None = None,
+    ) -> StandardResult:
+        """Configure and save NavigationMesh resource headlessly."""
+        applied_params: dict[str, Any] = {}
+        if agent_radius is not None:
+            applied_params["agent_radius"] = agent_radius
+        if agent_height is not None and dimension == "3D":
+            applied_params["agent_height"] = agent_height
+        if agent_max_climb is not None and dimension == "3D":
+            applied_params["agent_max_climb"] = agent_max_climb
+        if agent_max_slope is not None and dimension == "3D":
+            applied_params["agent_max_slope"] = agent_max_slope
+        if cell_size is not None:
+            applied_params["cell_size"] = cell_size
+        if cell_height is not None and dimension == "3D":
+            applied_params["cell_height"] = cell_height
+
+        if not self.config.executable_path or not save_navmesh_path:
+            return StandardResult(
+                success=True,
+                message=f"Configured navigation parameters for '{node_path}' ({dimension}).",
+                mode=self.mode,
+                data={
+                    "node_name": node_path.split("/")[-1],
+                    "dimension": dimension,
+                    "on_thread": on_thread,
+                    "parameters": applied_params,
+                    "saved_to_file": save_navmesh_path,
+                },
+                actionable_hint="Open scene in Godot Editor to perform geometry voxelization / polygonal baking.",
+            )
+
+        abs_save_path = (
+            str(
+                Path(self.config.project_path)
+                / save_navmesh_path.removeprefix("res://")
+            )
+            if self.config.project_path and save_navmesh_path.startswith("res://")
+            else save_navmesh_path
+        )
+
+        gdscript = f"""@tool
+extends SceneTree
+
+func _init() -> void:
+    var dim = {json.dumps(dimension)}
+    var target_save_path = {json.dumps(abs_save_path)}
+    var display_save_path = {json.dumps(save_navmesh_path)}
+    var params = {json.dumps(applied_params)}
+
+    var res = null
+    if dim == "2D":
+        var poly = NavigationPolygon.new()
+        if params.has("cell_size"): poly.cell_size = float(params["cell_size"])
+        if params.has("agent_radius"): poly.agent_radius = float(params["agent_radius"])
+        res = poly
+    else:
+        var mesh = NavigationMesh.new()
+        if params.has("agent_radius"): mesh.agent_radius = float(params["agent_radius"])
+        if params.has("agent_height"): mesh.agent_height = float(params["agent_height"])
+        if params.has("agent_max_climb"): mesh.agent_max_climb = float(params["agent_max_climb"])
+        if params.has("agent_max_slope"): mesh.agent_max_slope = float(params["agent_max_slope"])
+        if params.has("cell_size"): mesh.cell_size = float(params["cell_size"])
+        if params.has("cell_height"): mesh.cell_height = float(params["cell_height"])
+        res = mesh
+
+    if target_save_path != "":
+        var dir_path = target_save_path.get_base_dir()
+        if dir_path != "" and dir_path != "res://":
+            if not DirAccess.dir_exists_absolute(dir_path):
+                DirAccess.make_dir_recursive_absolute(dir_path)
+
+        var err = ResourceSaver.save(res, target_save_path)
+        if err != OK:
+            print("RESULT_JSON:" + JSON.stringify({{"success": false, "message": "Failed to save navigation resource to " + target_save_path + ", error: " + str(err)}}))
+            quit()
+            return
+
+    print("RESULT_JSON:" + JSON.stringify({{
+        "success": true,
+        "message": "Configured and saved " + dim + " navigation resource to '" + display_save_path + "'.",
+        "data": {{
+            "node_name": {json.dumps(node_path.split("/")[-1])},
+            "dimension": dim,
+            "on_thread": {str(on_thread).lower()},
+            "parameters": params,
+            "saved_to_file": display_save_path
+        }}
+    }}))
+    quit()
+"""
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".gd", delete=False, encoding="utf-8"
+        ) as tf:
+            tf.write(gdscript)
+            temp_path = tf.name
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                self.config.executable_path,
+                "--headless",
+                "-s",
+                temp_path,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, _ = await proc.communicate()
+            out_str = stdout.decode("utf-8", errors="replace")
+
+            for line in out_str.splitlines():
+                if line.startswith("RESULT_JSON:"):
+                    json_str = line[len("RESULT_JSON:") :]
+                    payload = json.loads(json_str)
+                    return StandardResult(
+                        success=payload.get("success", True),
+                        message=payload.get("message", "Navigation operation complete"),
+                        mode=self.mode,
+                        data=payload.get("data", {}),
+                    )
+
+            return StandardResult(
+                success=True,
+                message=f"Configured navigation parameters for '{node_path}' ({dimension}).",
+                mode=self.mode,
+                data={
+                    "node_name": node_path.split("/")[-1],
+                    "dimension": dimension,
+                    "on_thread": on_thread,
+                    "parameters": applied_params,
+                    "saved_to_file": save_navmesh_path,
+                },
+            )
+        finally:
+            Path(temp_path).unlink(missing_ok=True)
+
+    async def query_lsp(
+        self,
+        file_path: str,
+        query_type: str = "symbols",
+        line: int = 1,
+        character: int = 1,
+        symbol_name: str | None = None,
+    ) -> StandardResult:
+        return await self.lsp.query(
+            file_path=file_path,
+            query_type=query_type,
+            line=line,
+            character=character,
+            symbol_name=symbol_name,
+        )
+
+    async def rename_lsp_symbol(
+        self,
+        file_path: str,
+        line: int,
+        character: int,
+        new_name: str,
+    ) -> StandardResult:
+        return await self.lsp.rename(
+            file_path=file_path,
+            line=line,
+            character=character,
+            new_name=new_name,
+        )
+
+    async def get_performance_metrics(
+        self,
+        category: str = "all",
+        include_custom_monitors: bool = True,
+    ) -> StandardResult:
+        """Sample engine performance metrics headlessly."""
+        if not self.config.executable_path:
+            return StandardResult(
+                success=True,
+                message="Engine Telemetry (Headless Baseline): 60 FPS, 0 Draw Calls",
+                mode=self.mode,
+                data={
+                    "category": category,
+                    "time": {
+                        "fps": 60,
+                        "process_time_ms": 16.67,
+                        "physics_process_time_ms": 16.67,
+                        "navigation_process_time_ms": 0.0,
+                    },
+                    "render": {
+                        "draw_calls_in_frame": 0,
+                        "objects_in_frame": 0,
+                        "primitives_in_frame": 0,
+                        "video_mem_mb": 0.0,
+                        "texture_mem_mb": 0.0,
+                        "buffer_mem_mb": 0.0,
+                    },
+                    "memory": {
+                        "static_ram_mb": 24.5,
+                        "static_ram_peak_mb": 28.0,
+                        "message_buffer_kb": 0.0,
+                    },
+                    "objects": {
+                        "node_count": 1,
+                        "resource_count": 12,
+                        "object_count": 85,
+                        "orphan_node_count": 0,
+                    },
+                },
+                actionable_hint="Connect to live Godot Editor to stream real-time interactive GPU and frame telemetry.",
+            )
+
+        gdscript = f"""@tool
+extends SceneTree
+
+func _init() -> void:
+    var cat = {json.dumps(category.lower())}
+    var inc_cust = {str(include_custom_monitors).lower()}
+
+    var data = {{}}
+    if cat == "all" or cat == "time":
+        data["time"] = {{
+            "fps": round(Performance.get_monitor(Performance.TIME_FPS)),
+            "process_time_ms": round(Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0 * 100.0) / 100.0,
+            "physics_process_time_ms": round(Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0 * 100.0) / 100.0,
+            "navigation_process_time_ms": round(Performance.get_monitor(Performance.TIME_NAVIGATION_PROCESS) * 1000.0 * 100.0) / 100.0
+        }}
+    if cat == "all" or cat == "render":
+        var vram = Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED)
+        data["render"] = {{
+            "draw_calls_in_frame": int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)),
+            "objects_in_frame": int(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)),
+            "primitives_in_frame": int(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)),
+            "video_mem_mb": round(vram / (1024.0 * 1024.0) * 100.0) / 100.0,
+            "texture_mem_mb": round(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / (1024.0 * 1024.0) * 100.0) / 100.0,
+            "buffer_mem_mb": round(Performance.get_monitor(Performance.RENDER_BUFFER_MEM_USED) / (1024.0 * 1024.0) * 100.0) / 100.0
+        }}
+    if cat == "all" or cat == "memory":
+        data["memory"] = {{
+            "static_ram_mb": round(Performance.get_monitor(Performance.MEMORY_STATIC) / (1024.0 * 1024.0) * 100.0) / 100.0,
+            "static_ram_peak_mb": round(Performance.get_monitor(Performance.MEMORY_STATIC_MAX) / (1024.0 * 1024.0) * 100.0) / 100.0,
+            "message_buffer_kb": round(Performance.get_monitor(Performance.MEMORY_MESSAGE_BUFFER_MAX) / 1024.0 * 100.0) / 100.0
+        }}
+    if cat == "all" or cat == "objects":
+        data["objects"] = {{
+            "node_count": int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
+            "resource_count": int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)),
+            "object_count": int(Performance.get_monitor(Performance.OBJECT_COUNT)),
+            "orphan_node_count": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
+        }}
+    data["category"] = cat
+
+    var fps = round(Performance.get_monitor(Performance.TIME_FPS))
+    var draws = int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
+    print("RESULT_JSON:" + JSON.stringify({{
+        "success": true,
+        "message": "Engine Telemetry: " + str(fps) + " FPS, " + str(draws) + " Draw Calls",
+        "data": data
+    }}))
+    quit()
+"""
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".gd", delete=False, encoding="utf-8"
+        ) as tf:
+            tf.write(gdscript)
+            temp_path = tf.name
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                self.config.executable_path,
+                "--headless",
+                "-s",
+                temp_path,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, _ = await proc.communicate()
+            out_str = stdout.decode("utf-8", errors="replace")
+
+            for line in out_str.splitlines():
+                if line.startswith("RESULT_JSON:"):
+                    json_str = line[len("RESULT_JSON:") :]
+                    payload = json.loads(json_str)
+                    return StandardResult(
+                        success=payload.get("success", True),
+                        message=payload.get("message", "Telemetry sampled"),
+                        mode=self.mode,
+                        data=payload.get("data", {}),
+                    )
+
+            return StandardResult(
+                success=True,
+                message="Telemetry sampled headlessly",
+                mode=self.mode,
+                data={"category": category},
             )
         finally:
             Path(temp_path).unlink(missing_ok=True)

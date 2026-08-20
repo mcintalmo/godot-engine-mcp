@@ -314,3 +314,114 @@ class ClientManager(GodotClient):
             animation_player_path=animation_player_path,
             save_path=save_path,
         )
+
+    async def set_tilemap_cells(
+        self,
+        node_path: str,
+        cells: list[dict[str, Any]],
+        clear_before_paint: bool = False,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.set_tilemap_cells(node_path, cells, clear_before_paint)
+
+    async def get_tilemap_cells(
+        self,
+        node_path: str,
+        region: list[int] | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_tilemap_cells(node_path, region)
+
+    async def create_tilemap_layer(
+        self,
+        name: str = "TileMapLayer",
+        parent_node_path: str = ".",
+        tile_set_path: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.create_tilemap_layer(name, parent_node_path, tile_set_path)
+
+    async def bake_navmesh(
+        self,
+        node_path: str,
+        dimension: str = "3D",
+        on_thread: bool = True,
+        agent_radius: float | None = None,
+        agent_height: float | None = None,
+        agent_max_climb: float | None = None,
+        agent_max_slope: float | None = None,
+        cell_size: float | None = None,
+        cell_height: float | None = None,
+        save_navmesh_path: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.bake_navmesh(
+            node_path=node_path,
+            dimension=dimension,
+            on_thread=on_thread,
+            agent_radius=agent_radius,
+            agent_height=agent_height,
+            agent_max_climb=agent_max_climb,
+            agent_max_slope=agent_max_slope,
+            cell_size=cell_size,
+            cell_height=cell_height,
+            save_navmesh_path=save_navmesh_path,
+        )
+
+    async def create_navigation_region(
+        self,
+        name: str = "NavigationRegion3D",
+        dimension: str = "3D",
+        parent_node_path: str = ".",
+        navmesh_path: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.create_navigation_region(
+            name=name,
+            dimension=dimension,
+            parent_node_path=parent_node_path,
+            navmesh_path=navmesh_path,
+        )
+
+    async def query_lsp(
+        self,
+        file_path: str,
+        query_type: str = "symbols",
+        line: int = 1,
+        character: int = 1,
+        symbol_name: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.query_lsp(
+            file_path=file_path,
+            query_type=query_type,
+            line=line,
+            character=character,
+            symbol_name=symbol_name,
+        )
+
+    async def rename_lsp_symbol(
+        self,
+        file_path: str,
+        line: int,
+        character: int,
+        new_name: str,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.rename_lsp_symbol(
+            file_path=file_path,
+            line=line,
+            character=character,
+            new_name=new_name,
+        )
+
+    async def get_performance_metrics(
+        self,
+        category: str = "all",
+        include_custom_monitors: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_performance_metrics(
+            category=category,
+            include_custom_monitors=include_custom_monitors,
+        )
