@@ -122,6 +122,11 @@ from godot_mcp.models.scene import (
     SaveSceneInput,
 )
 from godot_mcp.models.scene_diff import DiffSceneInput
+from godot_mcp.models.scene_hierarchy import (
+    DuplicateNodeInput,
+    ReparentNodeInput,
+    SetNodeOwnerInput,
+)
 from godot_mcp.models.script import (
     CreateScriptInput,
     ValidateScriptInput,
@@ -255,6 +260,11 @@ from godot_mcp.tools.reflection_tools import (
     handle_validate_shader,
 )
 from godot_mcp.tools.scene_diff_tools import handle_diff_scene
+from godot_mcp.tools.scene_hierarchy_tools import (
+    handle_duplicate_node,
+    handle_reparent_node,
+    handle_set_node_owner,
+)
 from godot_mcp.tools.scene_tools import (
     handle_create_node,
     handle_create_scene,
@@ -1530,6 +1540,48 @@ def create_server(
     async def set_editor_layout(params: SetEditorLayoutInput) -> str:
         """Configure Godot Editor workspace layout, main screen tabs, and distraction-free mode."""
         return await handle_set_editor_layout(active_client, params)
+
+    @server.tool(
+        name="godot_reparent_node",
+        annotations=ToolAnnotations(
+            title="Reparent Node",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def reparent_node(params: ReparentNodeInput) -> str:
+        """Reparent a node to a new parent in the active scene tree while preserving global transform."""
+        return await handle_reparent_node(active_client, params)
+
+    @server.tool(
+        name="godot_duplicate_node",
+        annotations=ToolAnnotations(
+            title="Duplicate Node",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def duplicate_node(params: DuplicateNodeInput) -> str:
+        """Deep duplicate an existing node with flags for signals, groups, and scripts."""
+        return await handle_duplicate_node(active_client, params)
+
+    @server.tool(
+        name="godot_set_node_owner",
+        annotations=ToolAnnotations(
+            title="Set Node Owner",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def set_node_owner(params: SetNodeOwnerInput) -> str:
+        """Set the owner node of a target node or subtree for scene file persistence."""
+        return await handle_set_node_owner(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

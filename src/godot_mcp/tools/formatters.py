@@ -970,6 +970,42 @@ def format_result(
             if not result.data.get("changes_applied"):
                 lines.append("- *No workspace layout modifications requested.*")
 
+        elif "old_parent" in result.data and "new_parent" in result.data:
+            lines.append(f"**Reparented Node**: `{result.data.get('node_name')}`\n")
+            lines.append(f"- **Previous Parent**: `{result.data.get('old_parent')}`")
+            lines.append(f"- **New Parent**: `{result.data.get('new_parent')}`")
+            lines.append(f"- **New Path**: `{result.data.get('new_path')}`")
+            lines.append(
+                f"- **Global Transform Preserved**: `{result.data.get('keep_global_transform')}`"
+            )
+            lines.append(f"- **Child Index**: `{result.data.get('child_index')}`")
+
+        elif "duplicated_name" in result.data and "source_path" in result.data:
+            lines.append(
+                f"**Duplicated Node**: `{result.data.get('duplicated_name')}` (`{result.data.get('class')}`)\n"
+            )
+            lines.append(f"- **Source Node**: `{result.data.get('source_path')}`")
+            lines.append(f"- **New Path**: `{result.data.get('duplicated_path')}`")
+            lines.append(f"- **Parent Node**: `{result.data.get('parent_path')}`")
+
+        elif "instance_name" in result.data and "scene_path" in result.data:
+            lines.append(f"**Instantiated Scene**: `{result.data.get('scene_path')}`\n")
+            lines.append(
+                f"- **Instance Name**: `{result.data.get('instance_name')}` (`{result.data.get('class')}`)"
+            )
+            lines.append(f"- **Instance Path**: `{result.data.get('instance_path')}`")
+            lines.append(f"- **Parent Node**: `{result.data.get('parent_path')}`")
+
+        elif (
+            "owner_path" in result.data
+            and "node_path" in result.data
+            and "recursive" in result.data
+        ):
+            lines.append("**Node Owner Updated**:\n")
+            lines.append(f"- **Node**: `{result.data.get('node_path')}`")
+            lines.append(f"- **New Owner**: `{result.data.get('owner_path')}`")
+            lines.append(f"- **Recursive**: `{result.data.get('recursive')}`")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

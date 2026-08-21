@@ -40,6 +40,7 @@ const EditorSelectionOps = preload("res://addons/godot_mcp/operations/editor_sel
 const AssetAuditOps = preload("res://addons/godot_mcp/operations/asset_audit_ops.gd")
 const GUTTestOps = preload("res://addons/godot_mcp/operations/gut_test_ops.gd")
 const EditorLayoutOps = preload("res://addons/godot_mcp/operations/editor_layout_ops.gd")
+const SceneHierarchyOps = preload("res://addons/godot_mcp/operations/scene_hierarchy_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -81,6 +82,7 @@ var _editor_selection_ops: RefCounted
 var _asset_audit_ops: RefCounted
 var _gut_test_ops: RefCounted
 var _editor_layout_ops: RefCounted
+var _scene_hierarchy_ops: RefCounted
 
 var _port: int = PORT
 
@@ -123,6 +125,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_asset_audit_ops = AssetAuditOps.new(_plugin)
 	_gut_test_ops = GUTTestOps.new(_plugin)
 	_editor_layout_ops = EditorLayoutOps.new(_plugin)
+	_scene_hierarchy_ops = SceneHierarchyOps.new(_plugin)
+
 
 
 
@@ -373,6 +377,16 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _editor_layout_ops.get_editor_layout(params)
 		"set_editor_layout":
 			result = _editor_layout_ops.set_editor_layout(params)
+		"reparent_node":
+			result = _scene_hierarchy_ops.reparent_node(params)
+		"duplicate_node":
+			result = _scene_hierarchy_ops.duplicate_node(params)
+		"instantiate_scene":
+			result = _scene_hierarchy_ops.instantiate_scene(params)
+		"set_node_owner":
+			result = _scene_hierarchy_ops.set_node_owner(params)
+
+
 
 
 

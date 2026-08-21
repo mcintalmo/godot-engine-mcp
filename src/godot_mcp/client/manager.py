@@ -1173,3 +1173,50 @@ class ClientManager(GodotClient):
             distraction_free_mode=distraction_free_mode,
             active_scene_path=active_scene_path,
         )
+
+    async def reparent_node(
+        self,
+        node_path: str,
+        new_parent_path: str,
+        keep_global_transform: bool = True,
+        new_index: int | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.reparent_node(
+            node_path=node_path,
+            new_parent_path=new_parent_path,
+            keep_global_transform=keep_global_transform,
+            new_index=new_index,
+        )
+
+    async def duplicate_node(
+        self,
+        node_path: str,
+        new_name: str | None = None,
+        target_parent_path: str | None = None,
+        duplicate_signals: bool = False,
+        duplicate_groups: bool = True,
+        duplicate_scripts: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.duplicate_node(
+            node_path=node_path,
+            new_name=new_name,
+            target_parent_path=target_parent_path,
+            duplicate_signals=duplicate_signals,
+            duplicate_groups=duplicate_groups,
+            duplicate_scripts=duplicate_scripts,
+        )
+
+    async def set_node_owner(
+        self,
+        node_path: str,
+        owner_node_path: str = ".",
+        recursive: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.set_node_owner(
+            node_path=node_path,
+            owner_node_path=owner_node_path,
+            recursive=recursive,
+        )

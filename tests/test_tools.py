@@ -1994,6 +1994,80 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def reparent_node(
+        self,
+        node_path: str,
+        new_parent_path: str,
+        keep_global_transform: bool = True,
+        new_index: int | None = None,
+    ) -> StandardResult:
+        node_name = node_path.split("/")[-1]
+        parent_name = new_parent_path.split("/")[-1] or "Root"
+        new_path = (
+            f"{new_parent_path}/{node_name}"
+            if new_parent_path != "."
+            else f"/root/{node_name}"
+        )
+        return StandardResult(
+            success=True,
+            message=f"Reparented node '{node_name}' to '{parent_name}'.",
+            mode=self.mode,
+            data={
+                "node_name": node_name,
+                "old_parent": "/root/Scene",
+                "new_parent": new_parent_path,
+                "new_path": new_path,
+                "keep_global_transform": keep_global_transform,
+                "child_index": new_index or 0,
+            },
+        )
+
+    async def duplicate_node(
+        self,
+        node_path: str,
+        new_name: str | None = None,
+        target_parent_path: str | None = None,
+        duplicate_signals: bool = False,
+        duplicate_groups: bool = True,
+        duplicate_scripts: bool = True,
+    ) -> StandardResult:
+        orig_name = node_path.split("/")[-1]
+        dup_name = new_name or f"{orig_name}2"
+        parent_path = (
+            target_parent_path or "/".join(node_path.split("/")[:-1]) or "/root"
+        )
+        return StandardResult(
+            success=True,
+            message=f"Duplicated node '{orig_name}' as '{dup_name}' under '{parent_path}'.",
+            mode=self.mode,
+            data={
+                "source_path": node_path,
+                "duplicated_name": dup_name,
+                "duplicated_path": f"{parent_path}/{dup_name}",
+                "parent_path": parent_path,
+                "class": "Node3D",
+            },
+        )
+
+    async def set_node_owner(
+        self,
+        node_path: str,
+        owner_node_path: str = ".",
+        recursive: bool = True,
+    ) -> StandardResult:
+        node_name = node_path.split("/")[-1]
+        owner_name = owner_node_path.split("/")[-1] or "Root"
+        return StandardResult(
+            success=True,
+            message=f"Set owner of node '{node_name}' to '{owner_name}' (Recursive: {recursive}).",
+            mode=self.mode,
+            data={
+                "node_path": node_path,
+                "owner_path": owner_node_path,
+                "recursive": recursive,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

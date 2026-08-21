@@ -928,3 +928,37 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Configure the Godot Editor workspace layout and screen modes."""
         ...
+
+    @abstractmethod
+    async def reparent_node(
+        self,
+        node_path: str,
+        new_parent_path: str,
+        keep_global_transform: bool = True,
+        new_index: int | None = None,
+    ) -> StandardResult:
+        """Reparent a node to a new parent in the active scene hierarchy."""
+        ...
+
+    @abstractmethod
+    async def duplicate_node(
+        self,
+        node_path: str,
+        new_name: str | None = None,
+        target_parent_path: str | None = None,
+        duplicate_signals: bool = False,
+        duplicate_groups: bool = True,
+        duplicate_scripts: bool = True,
+    ) -> StandardResult:
+        """Deep duplicate an existing node in the active scene hierarchy."""
+        ...
+
+    @abstractmethod
+    async def set_node_owner(
+        self,
+        node_path: str,
+        owner_node_path: str = ".",
+        recursive: bool = True,
+    ) -> StandardResult:
+        """Set the owner of a node or subtree in the active scene."""
+        ...

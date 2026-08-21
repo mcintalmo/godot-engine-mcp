@@ -100,6 +100,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Editor Workspace Layout & Screen Query (`godot_get_editor_layout`)**: Query active main screen (`2D`, `3D`, `Script`, `AssetLib`), distraction-free mode state, editor UI scale, open scene tabs, and edited scene root.
 - [x] **Programmatic Workspace Layout Configuration (`godot_set_editor_layout`)**: Switch main screen editor tabs, toggle distraction-free mode, and activate scene tabs.
 
+### Phase 16: Scene Hierarchy Mutation & Node Ownership
+- [x] **Node Reparenting (`godot_reparent_node`)**: Reparent nodes with `keep_global_transform` spatial preservation, owner synchronization, and child index placement (`move_child`).
+- [x] **Deep Node Duplication (`godot_duplicate_node`)**: Deep clone nodes with custom flags for signal connections, group memberships, and attached script state.
+- [x] **Scene Node Ownership Management (`godot_set_node_owner`)**: Programmatically assign node ownership across hierarchy subtrees to ensure proper serialization upon `.tscn` save.
+
+
 
 
 
