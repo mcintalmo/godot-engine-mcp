@@ -902,6 +902,48 @@ def format_result(
                 f"- **Estimated VRAM**: `~{result.data.get('estimated_vram_kb'):.2f} KB` ({result.data.get('estimated_vram_bytes')} bytes)"
             )
 
+        elif "total_tests" in result.data and "assert_count" in result.data:
+            passed = result.data.get("passed", 0)
+            failed = result.data.get("failed", 0)
+            pending = result.data.get("pending", 0)
+            total = result.data.get("total_tests", 0)
+            status_tag = (
+                "ALL PASSED"
+                if failed == 0 and total > 0
+                else ("FAILURES DETECTED" if failed > 0 else "NO TESTS")
+            )
+            lines.append(f"**GUT Test Run [{status_tag}]**:\n")
+            lines.append(f"- **Total Tests**: `{total}`")
+            lines.append(f"- **Passed**: `{passed}`")
+            lines.append(f"- **Failed**: `{failed}`")
+            lines.append(f"- **Pending**: `{pending}`")
+            lines.append(f"- **Total Assertions**: `{result.data.get('assert_count')}`")
+            if result.data.get("test_file"):
+                lines.append(f"- **Target File**: `{result.data.get('test_file')}`")
+            else:
+                lines.append(f"- **Test Directory**: `{result.data.get('test_dir')}`")
+            out_lines = result.data.get("output_lines", [])
+            if out_lines:
+                lines.append("\n**Runner Log Output**:")
+                lines.append("```")
+                for l in out_lines[:25]:
+                    lines.append(str(l))
+                if len(out_lines) > 25:
+                    lines.append(f"... and {len(out_lines) - 25} more log lines")
+                lines.append("```")
+
+        elif "target_script" in result.data and "methods_scaffolded" in result.data:
+            lines.append(
+                f"**GUT Test Scaffolded**: `{result.data.get('test_file_path')}`\n"
+            )
+            lines.append(f"- **Target Script**: `{result.data.get('target_script')}`")
+            lines.append(
+                f"- **Scaffolded Test Methods**: `{result.data.get('methods_scaffolded')}`"
+            )
+            lines.append(
+                f"- **Code Size**: `{result.data.get('code_length')} characters`"
+            )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

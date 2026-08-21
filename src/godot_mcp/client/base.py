@@ -888,3 +888,25 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Inspect dimensions, format, mipmaps, and estimated VRAM for a texture."""
         ...
+
+    @abstractmethod
+    async def run_gut_tests(
+        self,
+        test_dir: str = "res://test/unit",
+        test_file: str | None = None,
+        prefix: str = "test_",
+        config_file: str | None = None,
+        extra_args: list[str] | None = None,
+    ) -> StandardResult:
+        """Execute Godot Unit Test (GUT) suites or custom test runners headlessly."""
+        ...
+
+    @abstractmethod
+    async def generate_gut_test(
+        self,
+        target_script_path: str,
+        test_file_path: str,
+        test_methods: list[str] | None = None,
+    ) -> StandardResult:
+        """Scaffold a complete GUT test script inheriting GutTest."""
+        ...

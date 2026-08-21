@@ -92,6 +92,11 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Safe Orphan Asset Cleanup (`godot_clean_orphans`)**: Clean or quarantine unreferenced orphan files (`.tres`, `.tscn`, `.png`, `.wav`, etc.) with dry-run verification and destination folder support.
 - [x] **Texture Diagnostics & VRAM Estimation (`godot_get_texture_info`)**: Inspect 2D/3D texture dimensions, pixel format, mipmaps, compression mode, and estimated VRAM footprint.
 
+### Phase 14: Automated Engine Test Runner & GUT Integration
+- [x] **Headless Engine & GUT Test Runner (`godot_run_gut_tests`)**: Execute Godot Unit Test (GUT) suites or custom test runners headlessly with automated log parsing (passed, failed, pending, assertion counts, durations, and failure stack traces).
+- [x] **GUT Test Suite Scaffolding (`godot_generate_gut_test`)**: Scaffold complete GUT test scripts inheriting `GutTest` for target GDScript scripts or scenes, generating setup/teardown methods and test assertion stubs.
+
+
 
 
 

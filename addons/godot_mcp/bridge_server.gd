@@ -38,6 +38,7 @@ const SceneDiffOps = preload("res://addons/godot_mcp/operations/scene_diff_ops.g
 const EditorHistoryOps = preload("res://addons/godot_mcp/operations/editor_history_ops.gd")
 const EditorSelectionOps = preload("res://addons/godot_mcp/operations/editor_selection_ops.gd")
 const AssetAuditOps = preload("res://addons/godot_mcp/operations/asset_audit_ops.gd")
+const GUTTestOps = preload("res://addons/godot_mcp/operations/gut_test_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -77,6 +78,7 @@ var _scene_diff_ops: RefCounted
 var _editor_history_ops: RefCounted
 var _editor_selection_ops: RefCounted
 var _asset_audit_ops: RefCounted
+var _gut_test_ops: RefCounted
 
 var _port: int = PORT
 
@@ -117,6 +119,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_editor_history_ops = EditorHistoryOps.new(_plugin)
 	_editor_selection_ops = EditorSelectionOps.new(_plugin)
 	_asset_audit_ops = AssetAuditOps.new(_plugin)
+	_gut_test_ops = GUTTestOps.new(_plugin)
+
 
 
 
@@ -357,6 +361,11 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _asset_audit_ops.clean_orphans(params)
 		"get_texture_info":
 			result = _asset_audit_ops.get_texture_info(params)
+		"run_gut_tests":
+			result = _gut_test_ops.run_gut_tests(params)
+		"generate_gut_test":
+			result = _gut_test_ops.generate_gut_test(params)
+
 
 
 

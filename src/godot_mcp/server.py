@@ -54,6 +54,10 @@ from godot_mcp.models.export_build import (
     ExportProjectInput,
     GetExportPresetsInput,
 )
+from godot_mcp.models.gut_test import (
+    GenerateGUTTestInput,
+    RunGUTTestsInput,
+)
 from godot_mcp.models.input_map import (
     ConfigureInputActionInput,
     GetInputActionsInput,
@@ -189,6 +193,10 @@ from godot_mcp.tools.editor_tools import (
 )
 from godot_mcp.tools.environment_tools import handle_configure_environment
 from godot_mcp.tools.eval_tools import handle_evaluate_expression
+from godot_mcp.tools.gut_test_tools import (
+    handle_generate_gut_test,
+    handle_run_gut_tests,
+)
 from godot_mcp.tools.input_tools import (
     handle_configure_input_action,
     handle_get_input_actions,
@@ -1458,6 +1466,34 @@ def create_server(
     async def get_texture_info(params: GetTextureInfoInput) -> str:
         """Inspect dimensions, pixel format, mipmaps, and estimated VRAM footprint for a texture."""
         return await handle_get_texture_info(active_client, params)
+
+    @server.tool(
+        name="godot_run_gut_tests",
+        annotations=ToolAnnotations(
+            title="Run GUT Tests",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def run_gut_tests(params: RunGUTTestsInput) -> str:
+        """Execute Godot Unit Test (GUT) suites or custom test runners headlessly with automated log parsing."""
+        return await handle_run_gut_tests(active_client, params)
+
+    @server.tool(
+        name="godot_generate_gut_test",
+        annotations=ToolAnnotations(
+            title="Generate GUT Test",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def generate_gut_test(params: GenerateGUTTestInput) -> str:
+        """Scaffold a complete GUT test script inheriting GutTest for target GDScript scripts or scenes."""
+        return await handle_generate_gut_test(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

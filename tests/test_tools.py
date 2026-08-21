@@ -1902,6 +1902,54 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def run_gut_tests(
+        self,
+        test_dir: str = "res://test/unit",
+        test_file: str | None = None,
+        prefix: str = "test_",
+        config_file: str | None = None,
+        extra_args: list[str] | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Executed GUT test runner (Passed: 8, Failed: 0, Total: 8).",
+            mode=self.mode,
+            data={
+                "has_gut": True,
+                "test_dir": test_dir,
+                "test_file": test_file,
+                "total_tests": 8,
+                "passed": 8,
+                "failed": 0,
+                "pending": 0,
+                "assert_count": 24,
+                "output_lines": [
+                    "GUT test runner started.",
+                    f"Running test directory: {test_dir}",
+                    "All 8 tests passed (24 asserts).",
+                ],
+            },
+        )
+
+    async def generate_gut_test(
+        self,
+        target_script_path: str,
+        test_file_path: str,
+        test_methods: list[str] | None = None,
+    ) -> StandardResult:
+        methods = test_methods or ["initialization", "attack", "take_damage"]
+        return StandardResult(
+            success=True,
+            message=f"Scaffolded GUT test suite at '{test_file_path}' for '{target_script_path}'.",
+            mode=self.mode,
+            data={
+                "target_script": target_script_path,
+                "test_file_path": test_file_path,
+                "methods_scaffolded": len(methods),
+                "code_length": 580,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

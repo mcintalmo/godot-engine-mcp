@@ -1123,3 +1123,33 @@ class ClientManager(GodotClient):
     ) -> StandardResult:
         client = await self.get_active_client()
         return await client.get_texture_info(texture_path=texture_path)
+
+    async def run_gut_tests(
+        self,
+        test_dir: str = "res://test/unit",
+        test_file: str | None = None,
+        prefix: str = "test_",
+        config_file: str | None = None,
+        extra_args: list[str] | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.run_gut_tests(
+            test_dir=test_dir,
+            test_file=test_file,
+            prefix=prefix,
+            config_file=config_file,
+            extra_args=extra_args,
+        )
+
+    async def generate_gut_test(
+        self,
+        target_script_path: str,
+        test_file_path: str,
+        test_methods: list[str] | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.generate_gut_test(
+            target_script_path=target_script_path,
+            test_file_path=test_file_path,
+            test_methods=test_methods,
+        )

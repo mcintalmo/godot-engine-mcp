@@ -1357,3 +1357,37 @@ class LiveBridgeClient(GodotClient):
             "get_texture_info",
             {"texture_path": texture_path},
         )
+
+    async def run_gut_tests(
+        self,
+        test_dir: str = "res://test/unit",
+        test_file: str | None = None,
+        prefix: str = "test_",
+        config_file: str | None = None,
+        extra_args: list[str] | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "run_gut_tests",
+            {
+                "test_dir": test_dir,
+                "test_file": test_file or "",
+                "prefix": prefix,
+                "config_file": config_file or "",
+                "extra_args": extra_args or [],
+            },
+        )
+
+    async def generate_gut_test(
+        self,
+        target_script_path: str,
+        test_file_path: str,
+        test_methods: list[str] | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "generate_gut_test",
+            {
+                "target_script_path": target_script_path,
+                "test_file_path": test_file_path,
+                "test_methods": test_methods or [],
+            },
+        )
