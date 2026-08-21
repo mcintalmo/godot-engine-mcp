@@ -115,6 +115,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Project Rendering Quality Engine (`godot_configure_render_settings`)**: Parametric control over MSAA 2D/3D, FXAA, TAA, FSR 1.0/2.2 upscaling, shadow map resolutions, and V-Sync.
 - [x] **High-Res Viewport Frame Capture (`godot_capture_viewport`)**: Capture viewport frames with custom resolution downscaling, format selection (PNG/WebP/JPEG), file persistence, and base64 payload delivery for AI vision.
 
+### Phase 19: Interactive Runtime Input Simulation & Debug Drawing
+- [x] **Interactive Input Injection (`godot_simulate_input`)**: Synthesize and dispatch raw input events (`InputEventAction`, `InputEventKey`, `InputEventMouseButton`, `InputEventMouseMotion`) to the engine input pipeline.
+- [x] **Viewport Debug Shape Renderer (`godot_draw_debug_shapes`)**: Render temporary 2D and 3D shapes (lines, rays, boxes, spheres, circles, rects, text) with expiration timers and color tinting.
+- [x] **Debug Overlay Management (`godot_clear_debug_shapes`)**: Programmatically purge active debug shapes and overlays.
+
+
 
 
 

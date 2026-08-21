@@ -43,6 +43,7 @@ const EditorLayoutOps = preload("res://addons/godot_mcp/operations/editor_layout
 const SceneHierarchyOps = preload("res://addons/godot_mcp/operations/scene_hierarchy_ops.gd")
 const ScriptLifecycleOps = preload("res://addons/godot_mcp/operations/script_lifecycle_ops.gd")
 const CameraRenderingOps = preload("res://addons/godot_mcp/operations/camera_rendering_ops.gd")
+const InputSimulationOps = preload("res://addons/godot_mcp/operations/input_simulation_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -87,6 +88,7 @@ var _editor_layout_ops: RefCounted
 var _scene_hierarchy_ops: RefCounted
 var _script_lifecycle_ops: RefCounted
 var _camera_rendering_ops: RefCounted
+var _input_simulation_ops: RefCounted
 
 var _port: int = PORT
 
@@ -132,6 +134,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_scene_hierarchy_ops = SceneHierarchyOps.new(_plugin)
 	_script_lifecycle_ops = ScriptLifecycleOps.new(_plugin)
 	_camera_rendering_ops = CameraRenderingOps.new(_plugin)
+	_input_simulation_ops = InputSimulationOps.new(_plugin)
+
 
 
 
@@ -405,6 +409,13 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _camera_rendering_ops.configure_render_settings(params)
 		"capture_viewport":
 			result = _camera_rendering_ops.capture_viewport(params)
+		"simulate_input":
+			result = _input_simulation_ops.simulate_input(params)
+		"draw_debug_shapes":
+			result = _input_simulation_ops.draw_debug_shapes(params)
+		"clear_debug_shapes":
+			result = _input_simulation_ops.clear_debug_shapes(params)
+
 
 
 

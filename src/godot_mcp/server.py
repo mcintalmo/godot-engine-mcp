@@ -71,6 +71,11 @@ from godot_mcp.models.input_map import (
     ConfigureInputActionInput,
     GetInputActionsInput,
 )
+from godot_mcp.models.input_simulation import (
+    ClearDebugShapesInput,
+    DrawDebugShapesInput,
+    SimulateInputInput,
+)
 from godot_mcp.models.localization import (
     AddTranslationInput,
     GetTranslationsInput,
@@ -224,6 +229,11 @@ from godot_mcp.tools.eval_tools import handle_evaluate_expression
 from godot_mcp.tools.gut_test_tools import (
     handle_generate_gut_test,
     handle_run_gut_tests,
+)
+from godot_mcp.tools.input_simulation_tools import (
+    handle_clear_debug_shapes,
+    handle_draw_debug_shapes,
+    handle_simulate_input,
 )
 from godot_mcp.tools.input_tools import (
     handle_configure_input_action,
@@ -1686,6 +1696,48 @@ def create_server(
     async def capture_viewport(params: CaptureViewportInput) -> str:
         """Capture a high-resolution viewport frame with scaling and optional base64 image data for AI vision."""
         return await handle_capture_viewport(active_client, params)
+
+    @server.tool(
+        name="godot_simulate_input",
+        annotations=ToolAnnotations(
+            title="Simulate Input",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def simulate_input(params: SimulateInputInput) -> str:
+        """Simulate low-level keyboard, mouse, action, and joypad input events in the running game or editor."""
+        return await handle_simulate_input(active_client, params)
+
+    @server.tool(
+        name="godot_draw_debug_shapes",
+        annotations=ToolAnnotations(
+            title="Draw Debug Shapes",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def draw_debug_shapes(params: DrawDebugShapesInput) -> str:
+        """Render temporary 2D or 3D debug shapes (lines, rays, boxes, spheres, circles, text) with auto-expiration."""
+        return await handle_draw_debug_shapes(active_client, params)
+
+    @server.tool(
+        name="godot_clear_debug_shapes",
+        annotations=ToolAnnotations(
+            title="Clear Debug Shapes",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def clear_debug_shapes(params: ClearDebugShapesInput) -> str:
+        """Clear active debug shape overlays from the viewport."""
+        return await handle_clear_debug_shapes(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

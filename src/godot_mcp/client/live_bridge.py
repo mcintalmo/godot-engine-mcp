@@ -1578,3 +1578,46 @@ class LiveBridgeClient(GodotClient):
                 "include_base64": include_base64,
             },
         )
+
+    async def simulate_input(
+        self,
+        event_type: str = "action",
+        action: str | None = None,
+        pressed: bool = True,
+        strength: float = 1.0,
+        key: str | None = None,
+        button_index: int = 1,
+        position: list[float] | None = None,
+        relative: list[float] | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "simulate_input",
+            {
+                "event_type": event_type,
+                "action": action or "",
+                "pressed": pressed,
+                "strength": strength,
+                "key": key or "",
+                "button_index": button_index,
+                "position": position or [],
+                "relative": relative or [],
+            },
+        )
+
+    async def draw_debug_shapes(
+        self,
+        shapes: list[dict[str, Any]],
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "draw_debug_shapes",
+            {"shapes": shapes},
+        )
+
+    async def clear_debug_shapes(
+        self,
+        category: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "clear_debug_shapes",
+            {"category": category or ""},
+        )

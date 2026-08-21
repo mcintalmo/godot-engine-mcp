@@ -1034,3 +1034,34 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Capture a high-resolution screenshot from the active editor viewport."""
         ...
+
+    @abstractmethod
+    async def simulate_input(
+        self,
+        event_type: str = "action",
+        action: str | None = None,
+        pressed: bool = True,
+        strength: float = 1.0,
+        key: str | None = None,
+        button_index: int = 1,
+        position: list[float] | None = None,
+        relative: list[float] | None = None,
+    ) -> StandardResult:
+        """Simulate low-level input events in the engine runtime."""
+        ...
+
+    @abstractmethod
+    async def draw_debug_shapes(
+        self,
+        shapes: list[dict[str, Any]],
+    ) -> StandardResult:
+        """Render temporary 2D or 3D debug shapes in active viewports."""
+        ...
+
+    @abstractmethod
+    async def clear_debug_shapes(
+        self,
+        category: str | None = None,
+    ) -> StandardResult:
+        """Clear active debug shapes from viewport overlays."""
+        ...

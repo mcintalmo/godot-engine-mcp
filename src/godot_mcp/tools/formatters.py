@@ -1069,6 +1069,30 @@ def format_result(
                 b64 = result.data.get("base64_data", "")
                 lines.append(f"- **Base64 Size**: `{len(b64)} chars`")
 
+        elif "event_type" in result.data and "details" in result.data:
+            lines.append(
+                f"**Dispatched Input Event**: `{result.data.get('details')}`\n"
+            )
+            lines.append(f"- **Event Type**: `{result.data.get('event_type')}`")
+            lines.append(f"- **Pressed**: `{result.data.get('pressed')}`")
+
+        elif "total_shapes_added" in result.data:
+            lines.append(
+                f"**Rendered {result.data.get('total_shapes_added')} Debug Shapes**:\n"
+            )
+            lines.append(f"- **3D Shapes**: `{result.data.get('shapes_3d_count', 0)}`")
+            lines.append(f"- **2D Shapes**: `{result.data.get('shapes_2d_count', 0)}`")
+            lines.append(
+                f"- **Active Overlay Shapes**: `{result.data.get('total_active_shapes', 0)}`"
+            )
+
+        elif "shapes_cleared" in result.data and "remaining_active" in result.data:
+            lines.append("**Cleared Debug Overlays**:\n")
+            lines.append(f"- **Shapes Removed**: `{result.data.get('shapes_cleared')}`")
+            lines.append(
+                f"- **Remaining Overlays**: `{result.data.get('remaining_active')}`"
+            )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

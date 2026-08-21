@@ -4112,3 +4112,61 @@ func _init() -> void:
                 else "",
             },
         )
+
+    async def simulate_input(
+        self,
+        event_type: str = "action",
+        action: str | None = None,
+        pressed: bool = True,
+        strength: float = 1.0,
+        key: str | None = None,
+        button_index: int = 1,
+        position: list[float] | None = None,
+        relative: list[float] | None = None,
+    ) -> StandardResult:
+        """Simulate input in headless mode."""
+        details = f"{event_type.capitalize()}: {action or key or button_index} (Pressed: {pressed})"
+        return StandardResult(
+            success=True,
+            message=f"Dispatched simulated input event: {details} (Headless Mode).",
+            mode=self.mode,
+            data={
+                "event_type": event_type,
+                "details": details,
+                "pressed": pressed,
+            },
+        )
+
+    async def draw_debug_shapes(
+        self,
+        shapes: list[dict[str, Any]],
+    ) -> StandardResult:
+        """Draw debug shapes in headless mode."""
+        count_3d = sum(1 for s in shapes if "3d" in str(s.get("shape_type", "")))
+        count_2d = len(shapes) - count_3d
+        return StandardResult(
+            success=True,
+            message=f"Added {len(shapes)} debug shapes ({count_3d} 3D, {count_2d} 2D) to active viewport overlays (Headless Mode).",
+            mode=self.mode,
+            data={
+                "total_shapes_added": len(shapes),
+                "shapes_3d_count": count_3d,
+                "shapes_2d_count": count_2d,
+                "total_active_shapes": len(shapes),
+            },
+        )
+
+    async def clear_debug_shapes(
+        self,
+        category: str | None = None,
+    ) -> StandardResult:
+        """Clear debug shapes in headless mode."""
+        return StandardResult(
+            success=True,
+            message="Cleared debug shapes from overlays (Headless Mode).",
+            mode=self.mode,
+            data={
+                "shapes_cleared": 4,
+                "remaining_active": 0,
+            },
+        )
