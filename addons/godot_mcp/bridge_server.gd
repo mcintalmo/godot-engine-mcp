@@ -42,6 +42,7 @@ const GUTTestOps = preload("res://addons/godot_mcp/operations/gut_test_ops.gd")
 const EditorLayoutOps = preload("res://addons/godot_mcp/operations/editor_layout_ops.gd")
 const SceneHierarchyOps = preload("res://addons/godot_mcp/operations/scene_hierarchy_ops.gd")
 const ScriptLifecycleOps = preload("res://addons/godot_mcp/operations/script_lifecycle_ops.gd")
+const CameraRenderingOps = preload("res://addons/godot_mcp/operations/camera_rendering_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -85,6 +86,7 @@ var _gut_test_ops: RefCounted
 var _editor_layout_ops: RefCounted
 var _scene_hierarchy_ops: RefCounted
 var _script_lifecycle_ops: RefCounted
+var _camera_rendering_ops: RefCounted
 
 var _port: int = PORT
 
@@ -129,6 +131,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_editor_layout_ops = EditorLayoutOps.new(_plugin)
 	_scene_hierarchy_ops = SceneHierarchyOps.new(_plugin)
 	_script_lifecycle_ops = ScriptLifecycleOps.new(_plugin)
+	_camera_rendering_ops = CameraRenderingOps.new(_plugin)
+
 
 
 
@@ -395,6 +399,13 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _script_lifecycle_ops.reload_scripts(params)
 		"get_node_script_info":
 			result = _script_lifecycle_ops.get_node_script_info(params)
+		"configure_camera":
+			result = _camera_rendering_ops.configure_camera(params)
+		"configure_render_settings":
+			result = _camera_rendering_ops.configure_render_settings(params)
+		"capture_viewport":
+			result = _camera_rendering_ops.capture_viewport(params)
+
 
 
 

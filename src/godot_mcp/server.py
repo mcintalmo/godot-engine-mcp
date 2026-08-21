@@ -28,6 +28,11 @@ from godot_mcp.models.autoload import (
     GetAutoloadsInput,
     SetAutoloadInput,
 )
+from godot_mcp.models.camera_rendering import (
+    CaptureViewportInput,
+    ConfigureCameraInput,
+    ConfigureRenderSettingsInput,
+)
 from godot_mcp.models.dcc_asset import (
     ConfigureGLTFImportInput,
     InstantiateModelInput,
@@ -183,6 +188,11 @@ from godot_mcp.tools.autoload_tools import (
 from godot_mcp.tools.build_tools import (
     handle_export_project,
     handle_get_export_presets,
+)
+from godot_mcp.tools.camera_rendering_tools import (
+    handle_capture_viewport,
+    handle_configure_camera,
+    handle_configure_render_settings,
 )
 from godot_mcp.tools.dcc_tools import (
     handle_configure_gltf_import,
@@ -1634,6 +1644,48 @@ def create_server(
     async def get_node_script_info(params: GetNodeScriptInfoInput) -> str:
         """Inspect attached script methods, signals, constants, and exported properties with default vs current values."""
         return await handle_get_node_script_info(active_client, params)
+
+    @server.tool(
+        name="godot_configure_camera",
+        annotations=ToolAnnotations(
+            title="Configure Camera",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_camera(params: ConfigureCameraInput) -> str:
+        """Configure Camera2D or Camera3D settings (projection, FOV, zoom, smoothing, clipping)."""
+        return await handle_configure_camera(active_client, params)
+
+    @server.tool(
+        name="godot_configure_render_settings",
+        annotations=ToolAnnotations(
+            title="Configure Render Settings",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_render_settings(params: ConfigureRenderSettingsInput) -> str:
+        """Tune ProjectSettings rendering features (MSAA, FXAA, TAA, FSR scaling, shadow resolutions, V-Sync)."""
+        return await handle_configure_render_settings(active_client, params)
+
+    @server.tool(
+        name="godot_capture_viewport",
+        annotations=ToolAnnotations(
+            title="Capture Viewport",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def capture_viewport(params: CaptureViewportInput) -> str:
+        """Capture a high-resolution viewport frame with scaling and optional base64 image data for AI vision."""
+        return await handle_capture_viewport(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

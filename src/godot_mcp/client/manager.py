@@ -1251,3 +1251,74 @@ class ClientManager(GodotClient):
         return await client.get_node_script_info(
             node_path=node_path,
         )
+
+    async def configure_camera(
+        self,
+        camera_node_path: str,
+        projection: str | None = None,
+        fov: float | None = None,
+        size: float | None = None,
+        near: float | None = None,
+        far: float | None = None,
+        current: bool | None = None,
+        zoom: list[float] | None = None,
+        position_smoothing_enabled: bool | None = None,
+        position_smoothing_speed: float | None = None,
+        limits: dict[str, int] | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.configure_camera(
+            camera_node_path=camera_node_path,
+            projection=projection,
+            fov=fov,
+            size=size,
+            near=near,
+            far=far,
+            current=current,
+            zoom=zoom,
+            position_smoothing_enabled=position_smoothing_enabled,
+            position_smoothing_speed=position_smoothing_speed,
+            limits=limits,
+        )
+
+    async def configure_render_settings(
+        self,
+        msaa_2d: str | None = None,
+        msaa_3d: str | None = None,
+        screen_space_aa: str | None = None,
+        use_taa: bool | None = None,
+        scaling_3d_mode: str | None = None,
+        scaling_3d_scale: float | None = None,
+        directional_shadow_size: int | None = None,
+        positional_shadow_atlas_size: int | None = None,
+        vsync_mode: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.configure_render_settings(
+            msaa_2d=msaa_2d,
+            msaa_3d=msaa_3d,
+            screen_space_aa=screen_space_aa,
+            use_taa=use_taa,
+            scaling_3d_mode=scaling_3d_mode,
+            scaling_3d_scale=scaling_3d_scale,
+            directional_shadow_size=directional_shadow_size,
+            positional_shadow_atlas_size=positional_shadow_atlas_size,
+            vsync_mode=vsync_mode,
+        )
+
+    async def capture_viewport(
+        self,
+        output_path: str | None = None,
+        max_width: int = 1280,
+        max_height: int = 720,
+        format: str = "png",
+        include_base64: bool = False,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.capture_viewport(
+            output_path=output_path,
+            max_width=max_width,
+            max_height=max_height,
+            format=format,
+            include_base64=include_base64,
+        )

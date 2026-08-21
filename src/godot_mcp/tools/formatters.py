@@ -1042,6 +1042,33 @@ def format_result(
                 for k, v in result.data.get("applied_properties", {}).items():
                     lines.append(f"  - `{k}`: `{v}`")
 
+        elif "camera_name" in result.data and "camera_path" in result.data:
+            lines.append(
+                f"**Configured Camera**: `{result.data.get('camera_name')}` (`{result.data.get('class')}`)\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('camera_path')}`")
+            if result.data.get("changes_applied"):
+                lines.append("- **Settings Applied**:")
+                for c in result.data.get("changes_applied", []):
+                    lines.append(f"  - `{c}`")
+
+        elif "captured_dimensions" in result.data and "format" in result.data:
+            dims = result.data.get("captured_dimensions", [0, 0])
+            orig_dims = result.data.get("original_dimensions", [0, 0])
+            lines.append(
+                f"**Viewport Captured** ({dims[0]}x{dims[1]}, format: `{result.data.get('format')}`):\n"
+            )
+            lines.append(f"- **Native Resolution**: {orig_dims[0]}x{orig_dims[1]}")
+            lines.append(
+                f"- **Saved File**: `{result.data.get('saved_file') or 'None (In-memory)'}`"
+            )
+            lines.append(
+                f"- **Base64 Payload Included**: `{result.data.get('has_base64')}`"
+            )
+            if result.data.get("has_base64") and result.data.get("base64_data"):
+                b64 = result.data.get("base64_data", "")
+                lines.append(f"- **Base64 Size**: `{len(b64)} chars`")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

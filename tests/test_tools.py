@@ -2161,6 +2161,97 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def configure_camera(
+        self,
+        camera_node_path: str,
+        projection: str | None = None,
+        fov: float | None = None,
+        size: float | None = None,
+        near: float | None = None,
+        far: float | None = None,
+        current: bool | None = None,
+        zoom: list[float] | None = None,
+        position_smoothing_enabled: bool | None = None,
+        position_smoothing_speed: float | None = None,
+        limits: dict[str, int] | None = None,
+    ) -> StandardResult:
+        node_name = camera_node_path.split("/")[-1]
+        changes = []
+        if projection:
+            changes.append(f"Projection: {projection}")
+        if fov is not None:
+            changes.append(f"FOV: {fov:.1f} deg")
+        if zoom:
+            changes.append(f"Zoom: ({zoom[0]:.2f}, {zoom[1]:.2f})")
+        if current is not None:
+            changes.append(f"Current: {current}")
+        return StandardResult(
+            success=True,
+            message=f"Configured camera '{node_name}': {', '.join(changes) or 'No modifications'}.",
+            mode=self.mode,
+            data={
+                "camera_name": node_name,
+                "camera_path": camera_node_path,
+                "class": "Camera3D",
+                "changes_applied": changes,
+            },
+        )
+
+    async def configure_render_settings(
+        self,
+        msaa_2d: str | None = None,
+        msaa_3d: str | None = None,
+        screen_space_aa: str | None = None,
+        use_taa: bool | None = None,
+        scaling_3d_mode: str | None = None,
+        scaling_3d_scale: float | None = None,
+        directional_shadow_size: int | None = None,
+        positional_shadow_atlas_size: int | None = None,
+        vsync_mode: str | None = None,
+    ) -> StandardResult:
+        changes = []
+        if msaa_3d:
+            changes.append(f"MSAA 3D: {msaa_3d}")
+        if screen_space_aa:
+            changes.append(f"Screen-Space AA: {screen_space_aa}")
+        if use_taa is not None:
+            changes.append(f"TAA: {use_taa}")
+        if scaling_3d_mode:
+            changes.append(f"Scaling 3D Mode: {scaling_3d_mode}")
+        return StandardResult(
+            success=True,
+            message=f"Configured render settings: {', '.join(changes) or 'No modifications'}.",
+            mode=self.mode,
+            data={
+                "changes_applied": changes,
+            },
+        )
+
+    async def capture_viewport(
+        self,
+        output_path: str | None = None,
+        max_width: int = 1280,
+        max_height: int = 720,
+        format: str = "png",
+        include_base64: bool = False,
+    ) -> StandardResult:
+        saved_file = output_path or "res://screenshots/viewport_capture.png"
+        return StandardResult(
+            success=True,
+            message=f"Captured viewport image ({max_width}x{max_height}, format: {format}).",
+            mode=self.mode,
+            data={
+                "original_dimensions": [1920, 1080],
+                "captured_dimensions": [max_width, max_height],
+                "format": format,
+                "saved_file": saved_file,
+                "has_base64": include_base64,
+                "base64_data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+                if include_base64
+                else "",
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

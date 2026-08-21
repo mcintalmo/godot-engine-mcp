@@ -110,6 +110,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **In-Memory Script Hot-Reloading (`godot_reload_scripts`)**: Force reload of GDScript resources in memory cache without restarting the editor.
 - [x] **Script Introspection & Exported Properties (`godot_get_node_script_info`)**: Inspect attached script methods, signals, declared constants, and all `@export` properties with their default vs current values.
 
+### Phase 18: Camera Presets, High-Res Viewport Capture & Rendering Pipeline
+- [x] **2D & 3D Camera Configuration (`godot_configure_camera`)**: Configure Camera2D and Camera3D properties (perspective/ortho/frustum, FOV, clipping, 2D zoom, position smoothing, limits).
+- [x] **Project Rendering Quality Engine (`godot_configure_render_settings`)**: Parametric control over MSAA 2D/3D, FXAA, TAA, FSR 1.0/2.2 upscaling, shadow map resolutions, and V-Sync.
+- [x] **High-Res Viewport Frame Capture (`godot_capture_viewport`)**: Capture viewport frames with custom resolution downscaling, format selection (PNG/WebP/JPEG), file persistence, and base64 payload delivery for AI vision.
+
+
 
 
 

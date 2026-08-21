@@ -988,3 +988,49 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Retrieve attached script metadata, methods, signals, constants, and exported properties."""
         ...
+
+    @abstractmethod
+    async def configure_camera(
+        self,
+        camera_node_path: str,
+        projection: str | None = None,
+        fov: float | None = None,
+        size: float | None = None,
+        near: float | None = None,
+        far: float | None = None,
+        current: bool | None = None,
+        zoom: list[float] | None = None,
+        position_smoothing_enabled: bool | None = None,
+        position_smoothing_speed: float | None = None,
+        limits: dict[str, int] | None = None,
+    ) -> StandardResult:
+        """Configure Camera2D or Camera3D parameters in the active scene."""
+        ...
+
+    @abstractmethod
+    async def configure_render_settings(
+        self,
+        msaa_2d: str | None = None,
+        msaa_3d: str | None = None,
+        screen_space_aa: str | None = None,
+        use_taa: bool | None = None,
+        scaling_3d_mode: str | None = None,
+        scaling_3d_scale: float | None = None,
+        directional_shadow_size: int | None = None,
+        positional_shadow_atlas_size: int | None = None,
+        vsync_mode: str | None = None,
+    ) -> StandardResult:
+        """Configure rendering quality and performance settings in ProjectSettings."""
+        ...
+
+    @abstractmethod
+    async def capture_viewport(
+        self,
+        output_path: str | None = None,
+        max_width: int = 1280,
+        max_height: int = 720,
+        format: str = "png",
+        include_base64: bool = False,
+    ) -> StandardResult:
+        """Capture a high-resolution screenshot from the active editor viewport."""
+        ...
