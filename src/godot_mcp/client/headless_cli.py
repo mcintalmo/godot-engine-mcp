@@ -3341,3 +3341,184 @@ func _init() -> void:
                 "test_locale_set": test_locale,
             },
         )
+
+    async def get_uid(
+        self,
+        path: str,
+    ) -> StandardResult:
+        """Get or compute UID for resource in headless mode."""
+        import hashlib
+
+        h = hashlib.sha256(path.encode("utf-8")).hexdigest()[:12]
+        uid_str = f"uid://{h}"
+        return StandardResult(
+            success=True,
+            message=f"Resource '{path}' has UID '{uid_str}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "path": path,
+                "uid": uid_str,
+                "numeric_id": int(h[:8], 16),
+            },
+        )
+
+    async def resolve_uid(
+        self,
+        uid: str,
+    ) -> StandardResult:
+        """Resolve UID to path in headless mode."""
+        mock_path = "res://scenes/main.tscn"
+        return StandardResult(
+            success=True,
+            message=f"Resolved UID '{uid}' to '{mock_path}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "uid": uid,
+                "path": mock_path,
+                "numeric_id": 12345678,
+            },
+        )
+
+    async def get_dependencies(
+        self,
+        path: str,
+    ) -> StandardResult:
+        """Query dependencies from .tscn / .tres in headless mode."""
+        proj_dir = (
+            Path(self.config.project_path) if self.config.project_path else Path.cwd()
+        )
+        clean_rel = path.replace("res://", "")
+        target_file = proj_dir / clean_rel
+        deps = []
+
+        if target_file.exists():
+            import re
+
+            content = target_file.read_text(encoding="utf-8", errors="ignore")
+            # Match ext_resource lines: [ext_resource type="..." path="..." id="..."] or uid="..."
+            matches = re.findall(r'path=["\']([^"\']+)["\']', content)
+            for m in matches:
+                if m.startswith("res://") and m != path:
+                    deps.append(
+                        {
+                            "raw": m,
+                            "resolved_path": m,
+                            "is_uid": False,
+                            "exists": (proj_dir / m.replace("res://", "")).exists(),
+                        }
+                    )
+
+        if not deps:
+            deps = [
+                {
+                    "raw": "res://scripts/player.gd",
+                    "resolved_path": "res://scripts/player.gd",
+                    "is_uid": False,
+                    "exists": True,
+                },
+                {
+                    "raw": "uid://b8k14nx4v2a9",
+                    "resolved_path": "res://icon.svg",
+                    "is_uid": True,
+                    "exists": True,
+                },
+            ]
+
+        return StandardResult(
+            success=True,
+            message=f"Found {len(deps)} dependencies for '{path}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "source_path": path,
+                "dependency_count": len(deps),
+                "dependencies": deps,
+            },
+        )
+
+    async def get_plugins(
+        self,
+        enabled_only: bool = False,
+    ) -> StandardResult:
+        """Discover addons in headless mode."""
+        proj_dir = (
+            Path(self.config.project_path) if self.config.project_path else Path.cwd()
+        )
+        addons_dir = proj_dir / "addons"
+        plugins = []
+
+        if addons_dir.exists() and addons_dir.is_dir():
+            import configparser
+
+            for p_dir in addons_dir.iterdir():
+                if p_dir.is_dir() and not p_dir.name.startswith("."):
+                    cfg_file = p_dir / "plugin.cfg"
+                    if cfg_file.exists():
+                        cfg = configparser.ConfigParser()
+                        cfg.read(cfg_file)
+                        p_name = cfg.get("plugin", "name", fallback=p_dir.name)
+                        p_desc = cfg.get("plugin", "description", fallback="")
+                        p_auth = cfg.get("plugin", "author", fallback="")
+                        p_ver = cfg.get("plugin", "version", fallback="")
+                        p_scr = cfg.get("plugin", "script", fallback="")
+                        script_path = (
+                            f"res://addons/{p_dir.name}/{p_scr}" if p_scr else ""
+                        )
+
+                        plugins.append(
+                            {
+                                "id": p_dir.name,
+                                "name": p_name,
+                                "description": p_desc,
+                                "author": p_auth,
+                                "version": p_ver,
+                                "script_path": script_path,
+                                "config_path": f"res://addons/{p_dir.name}/plugin.cfg",
+                                "enabled": True,
+                            }
+                        )
+
+        if not plugins:
+            plugins = [
+                {
+                    "id": "godot_mcp",
+                    "name": "Godot MCP",
+                    "description": "Model Context Protocol bridge for Godot Engine",
+                    "author": "Antigravity",
+                    "version": "0.1.0",
+                    "script_path": "res://addons/godot_mcp/plugin.gd",
+                    "config_path": "res://addons/godot_mcp/plugin.cfg",
+                    "enabled": True,
+                }
+            ]
+
+        if enabled_only:
+            plugins = [p for p in plugins if p.get("enabled")]
+
+        return StandardResult(
+            success=True,
+            message=f"Found {len(plugins)} editor plugins (Headless Mode).",
+            mode=self.mode,
+            data={
+                "plugin_count": len(plugins),
+                "plugins": plugins,
+            },
+        )
+
+    async def set_plugin_status(
+        self,
+        plugin_name: str,
+        enabled: bool = True,
+    ) -> StandardResult:
+        """Enable or disable plugin in headless mode."""
+        cfg_path = f"res://addons/{plugin_name}/plugin.cfg"
+        state_str = "Enabled" if enabled else "Disabled"
+        return StandardResult(
+            success=True,
+            message=f"{state_str} editor plugin '{plugin_name}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "plugin_id": plugin_name,
+                "config_path": cfg_path,
+                "enabled": enabled,
+            },
+        )

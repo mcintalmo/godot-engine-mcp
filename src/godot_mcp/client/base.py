@@ -747,3 +747,44 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Register a translation table in ProjectSettings."""
         ...
+
+    @abstractmethod
+    async def get_uid(
+        self,
+        path: str,
+    ) -> StandardResult:
+        """Convert a resource path into its native Godot uid:// identifier."""
+        ...
+
+    @abstractmethod
+    async def resolve_uid(
+        self,
+        uid: str,
+    ) -> StandardResult:
+        """Resolve a uid:// identifier back into its file path."""
+        ...
+
+    @abstractmethod
+    async def get_dependencies(
+        self,
+        path: str,
+    ) -> StandardResult:
+        """Query the complete dependency list for a scene, resource, or script."""
+        ...
+
+    @abstractmethod
+    async def get_plugins(
+        self,
+        enabled_only: bool = False,
+    ) -> StandardResult:
+        """Discover installed editor plugins in res://addons/."""
+        ...
+
+    @abstractmethod
+    async def set_plugin_status(
+        self,
+        plugin_name: str,
+        enabled: bool = True,
+    ) -> StandardResult:
+        """Enable or disable an editor plugin."""
+        ...

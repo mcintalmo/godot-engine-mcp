@@ -731,6 +731,39 @@ def format_result(
                     f"- **Active Test Locale**: `{result.data.get('test_locale_set')}`"
                 )
 
+        elif "uid" in result.data and "path" in result.data:
+            lines.append(f"**Resource UID**: `{result.data.get('uid')}`")
+            lines.append(f"- **Path**: `{result.data.get('path')}`")
+            if "numeric_id" in result.data:
+                lines.append(f"- **Numeric ID**: `{result.data.get('numeric_id')}`")
+
+        elif "dependencies" in result.data and "dependency_count" in result.data:
+            lines.append(
+                f"**Dependencies for `{result.data.get('source_path')}` ({result.data.get('dependency_count')})**:\n"
+            )
+            lines.append("| Dependency | Resolved Path | Type | Exists |")
+            lines.append("|---|---|---|---|")
+            for d in result.data.get("dependencies", []):
+                t_str = "UID" if d.get("is_uid") else "Path"
+                lines.append(
+                    f"| `{d.get('raw')}` | `{d.get('resolved_path')}` | `{t_str}` | `{d.get('exists', True)}` |"
+                )
+
+        elif "plugins" in result.data and "plugin_count" in result.data:
+            lines.append(f"**Editor Plugins ({result.data.get('plugin_count')})**:\n")
+            lines.append("| Plugin ID | Name | Version | Author | Enabled |")
+            lines.append("|---|---|---|---|---|")
+            for p in result.data.get("plugins", []):
+                lines.append(
+                    f"| **{p.get('id')}** | {p.get('name')} | `{p.get('version')}` | {p.get('author')} | `{p.get('enabled')}` |"
+                )
+
+        elif "plugin_id" in result.data and "config_path" in result.data:
+            state_str = "Enabled" if result.data.get("enabled", True) else "Disabled"
+            lines.append(f"**Plugin {state_str}**: `{result.data.get('plugin_id')}`")
+            lines.append(f"- **Config**: `{result.data.get('config_path')}`")
+            lines.append(f"- **Status**: `{result.data.get('enabled')}`")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

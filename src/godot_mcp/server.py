@@ -72,6 +72,10 @@ from godot_mcp.models.play import (
     SetPlayStateInput,
     StopSceneInput,
 )
+from godot_mcp.models.plugin_mgr import (
+    GetPluginsInput,
+    SetPluginStatusInput,
+)
 from godot_mcp.models.project import (
     GetProjectSettingsInput,
     GetVersionInput,
@@ -116,6 +120,11 @@ from godot_mcp.models.tilemap import (
     CreateTileMapLayerInput,
     GetTileMapCellsInput,
     SetTileMapCellsInput,
+)
+from godot_mcp.models.uid_dep import (
+    GetDependenciesInput,
+    GetUIDInput,
+    ResolveUIDInput,
 )
 from godot_mcp.tools.anim_tree_tools import handle_configure_animation_tree
 from godot_mcp.tools.animation_tools import handle_create_animation
@@ -182,6 +191,10 @@ from godot_mcp.tools.play_tools import (
     handle_set_play_state,
     handle_stop_scene,
 )
+from godot_mcp.tools.plugin_tools import (
+    handle_get_plugins,
+    handle_set_plugin_status,
+)
 from godot_mcp.tools.project_tools import (
     handle_get_project_settings,
     handle_get_version,
@@ -225,6 +238,11 @@ from godot_mcp.tools.tilemap_tools import (
     handle_create_tilemap_layer,
     handle_get_tilemap_cells,
     handle_set_tilemap_cells,
+)
+from godot_mcp.tools.uid_tools import (
+    handle_get_dependencies,
+    handle_get_uid,
+    handle_resolve_uid,
 )
 
 
@@ -1192,6 +1210,76 @@ def create_server(
     async def add_translation(params: AddTranslationInput) -> str:
         """Register a translation file (.csv, .po, .translation) in ProjectSettings."""
         return await handle_add_translation(active_client, params)
+
+    @server.tool(
+        name="godot_get_uid",
+        annotations=ToolAnnotations(
+            title="Get Resource UID",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_uid(params: GetUIDInput) -> str:
+        """Convert a resource path into its native Godot uid:// identifier string."""
+        return await handle_get_uid(active_client, params)
+
+    @server.tool(
+        name="godot_resolve_uid",
+        annotations=ToolAnnotations(
+            title="Resolve Resource UID",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def resolve_uid(params: ResolveUIDInput) -> str:
+        """Resolve a uid:// identifier back into its current project file path."""
+        return await handle_resolve_uid(active_client, params)
+
+    @server.tool(
+        name="godot_get_dependencies",
+        annotations=ToolAnnotations(
+            title="Get Dependencies",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_dependencies(params: GetDependenciesInput) -> str:
+        """Query the dependency list for a scene, resource, or script."""
+        return await handle_get_dependencies(active_client, params)
+
+    @server.tool(
+        name="godot_get_plugins",
+        annotations=ToolAnnotations(
+            title="Get Editor Plugins",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_plugins(params: GetPluginsInput) -> str:
+        """Discover installed editor plugins in res://addons/ and inspect active status."""
+        return await handle_get_plugins(active_client, params)
+
+    @server.tool(
+        name="godot_set_plugin_status",
+        annotations=ToolAnnotations(
+            title="Set Plugin Status",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def set_plugin_status(params: SetPluginStatusInput) -> str:
+        """Enable or disable an editor addon dynamically."""
+        return await handle_set_plugin_status(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

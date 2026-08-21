@@ -1552,6 +1552,107 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def get_uid(
+        self,
+        path: str,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Resource '{path}' has UID 'uid://mock_uid_123'.",
+            mode=self.mode,
+            data={
+                "path": path,
+                "uid": "uid://mock_uid_123",
+                "numeric_id": 12345678,
+            },
+        )
+
+    async def resolve_uid(
+        self,
+        uid: str,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Resolved UID '{uid}' to 'res://scenes/main.tscn'.",
+            mode=self.mode,
+            data={
+                "uid": uid,
+                "path": "res://scenes/main.tscn",
+                "numeric_id": 12345678,
+            },
+        )
+
+    async def get_dependencies(
+        self,
+        path: str,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Found 2 dependencies for '{path}'.",
+            mode=self.mode,
+            data={
+                "source_path": path,
+                "dependency_count": 2,
+                "dependencies": [
+                    {
+                        "raw": "res://scripts/player.gd",
+                        "resolved_path": "res://scripts/player.gd",
+                        "is_uid": False,
+                        "exists": True,
+                    },
+                    {
+                        "raw": "uid://b8k14nx4v2a9",
+                        "resolved_path": "res://icon.svg",
+                        "is_uid": True,
+                        "exists": True,
+                    },
+                ],
+            },
+        )
+
+    async def get_plugins(
+        self,
+        enabled_only: bool = False,
+    ) -> StandardResult:
+        plugins = [
+            {
+                "id": "godot_mcp",
+                "name": "Godot MCP",
+                "description": "Model Context Protocol bridge for Godot Engine",
+                "author": "Antigravity",
+                "version": "0.1.0",
+                "script_path": "res://addons/godot_mcp/plugin.gd",
+                "config_path": "res://addons/godot_mcp/plugin.cfg",
+                "enabled": True,
+            }
+        ]
+        return StandardResult(
+            success=True,
+            message="Found 1 editor plugins in res://addons/.",
+            mode=self.mode,
+            data={
+                "plugin_count": len(plugins),
+                "plugins": plugins,
+            },
+        )
+
+    async def set_plugin_status(
+        self,
+        plugin_name: str,
+        enabled: bool = True,
+    ) -> StandardResult:
+        state_str = "Enabled" if enabled else "Disabled"
+        return StandardResult(
+            success=True,
+            message=f"{state_str} editor plugin '{plugin_name}'.",
+            mode=self.mode,
+            data={
+                "plugin_id": plugin_name,
+                "config_path": f"res://addons/{plugin_name}/plugin.cfg",
+                "enabled": enabled,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

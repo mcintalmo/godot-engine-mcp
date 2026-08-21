@@ -962,3 +962,42 @@ class ClientManager(GodotClient):
             translation_path=translation_path,
             test_locale=test_locale,
         )
+
+    async def get_uid(
+        self,
+        path: str,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_uid(path=path)
+
+    async def resolve_uid(
+        self,
+        uid: str,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.resolve_uid(uid=uid)
+
+    async def get_dependencies(
+        self,
+        path: str,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_dependencies(path=path)
+
+    async def get_plugins(
+        self,
+        enabled_only: bool = False,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_plugins(enabled_only=enabled_only)
+
+    async def set_plugin_status(
+        self,
+        plugin_name: str,
+        enabled: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.set_plugin_status(
+            plugin_name=plugin_name,
+            enabled=enabled,
+        )

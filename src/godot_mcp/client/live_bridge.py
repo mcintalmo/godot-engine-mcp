@@ -1166,3 +1166,52 @@ class LiveBridgeClient(GodotClient):
                 "test_locale": test_locale or "",
             },
         )
+
+    async def get_uid(
+        self,
+        path: str,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_uid",
+            {"path": path},
+        )
+
+    async def resolve_uid(
+        self,
+        uid: str,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "resolve_uid",
+            {"uid": uid},
+        )
+
+    async def get_dependencies(
+        self,
+        path: str,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_dependencies",
+            {"path": path},
+        )
+
+    async def get_plugins(
+        self,
+        enabled_only: bool = False,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_plugins",
+            {"enabled_only": enabled_only},
+        )
+
+    async def set_plugin_status(
+        self,
+        plugin_name: str,
+        enabled: bool = True,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "set_plugin_status",
+            {
+                "plugin_name": plugin_name,
+                "enabled": enabled,
+            },
+        )

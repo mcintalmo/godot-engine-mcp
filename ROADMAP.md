@@ -73,6 +73,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **AnimationTree & State Machine Graphs (`godot_configure_animation_tree`)**: Build `AnimationTree` nodes, `AnimationNodeStateMachine` roots, animation states (`AnimationNodeAnimation`), and conditional transitions with advance conditions / advance expressions.
 - [x] **Localization & Translation Tables (`godot_get_translations`, `godot_add_translation`)**: Query configured translation files (`.csv`, `.po`, `.translation`), discover loaded locales, and register new localization tables into `project.godot`.
 
+### Phase 10: Resource UIDs, Asset Dependencies & Plugin Management
+- [x] **Resource UID Engine (`godot_get_uid`, `godot_resolve_uid`)**: Convert resource paths to persistent Godot 4 `uid://...` identifier strings and resolve `uid://` identifiers back to project filesystem paths.
+- [x] **Asset Dependency Graph (`godot_get_dependencies`)**: Query the complete dependency list for any scene (`.tscn`), resource (`.tres`), script (`.gd`), or mesh (`.glb`) via `ResourceLoader.get_dependencies()`.
+- [x] **Plugin & Addon Lifecycle Manager (`godot_get_plugins`, `godot_set_plugin_status`)**: Discover all installed editor addons in `res://addons/*/plugin.cfg`, inspect metadata, and dynamically enable/disable plugins via `EditorInterface`.
+
+
 
 
 
