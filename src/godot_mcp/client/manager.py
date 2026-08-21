@@ -1058,3 +1058,37 @@ class ClientManager(GodotClient):
             scene_path=scene_path,
             target_scene_path=target_scene_path,
         )
+
+    async def undo_action(
+        self,
+        history_id: int | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.undo_action(history_id=history_id)
+
+    async def redo_action(
+        self,
+        history_id: int | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.redo_action(history_id=history_id)
+
+    async def get_selected_nodes(
+        self,
+        include_properties: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_selected_nodes(include_properties=include_properties)
+
+    async def set_selected_nodes(
+        self,
+        node_paths: list[str],
+        clear_previous: bool = True,
+        inspect_primary: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.set_selected_nodes(
+            node_paths=node_paths,
+            clear_previous=clear_previous,
+            inspect_primary=inspect_primary,
+        )

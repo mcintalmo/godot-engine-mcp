@@ -827,3 +827,37 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Diff active scene against disk or compare two .tscn scene files."""
         ...
+
+    @abstractmethod
+    async def undo_action(
+        self,
+        history_id: int | None = None,
+    ) -> StandardResult:
+        """Revert the last action in the active scene or global undo history."""
+        ...
+
+    @abstractmethod
+    async def redo_action(
+        self,
+        history_id: int | None = None,
+    ) -> StandardResult:
+        """Redo the previously undone action in history."""
+        ...
+
+    @abstractmethod
+    async def get_selected_nodes(
+        self,
+        include_properties: bool = True,
+    ) -> StandardResult:
+        """Query currently selected nodes in the editor SceneTree."""
+        ...
+
+    @abstractmethod
+    async def set_selected_nodes(
+        self,
+        node_paths: list[str],
+        clear_previous: bool = True,
+        inspect_primary: bool = True,
+    ) -> StandardResult:
+        """Set active node selection in the editor SceneTree."""
+        ...

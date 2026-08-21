@@ -533,11 +533,29 @@ def format_result(
                 lines.append(f"- `{k}` = `{v}`")
 
         elif "selected_nodes" in result.data:
-            lines.append(
-                f"**Selected Nodes ({result.data.get('selected_count', len(result.data['selected_nodes']))})**:"
+            nodes_raw = result.data.get("selected_nodes", [])
+            count = result.data.get(
+                "selection_count",
+                result.data.get("selected_count", len(nodes_raw)),
             )
-            for n in result.data.get("selected_nodes", []):
-                lines.append(f"- `{n}`")
+            lines.append(f"**Editor Selection - Selected Nodes ({count})**:\n")
+
+            if nodes_raw and isinstance(nodes_raw[0], dict):
+                lines.append("| Node Name | Path | Class | Position | Visible |")
+                lines.append("|---|---|---|---|---|")
+                for n in nodes_raw:
+                    p_str = n.get("position", "-")
+                    v_str = str(n.get("visible", "-"))
+                    lines.append(
+                        f"| **{n.get('name')}** | `{n.get('path')}` | `{n.get('class')}` | {p_str} | {v_str} |"
+                    )
+            else:
+                for n in nodes_raw:
+                    lines.append(f"- `{n}`")
+            if result.data.get("inspected_node"):
+                lines.append(
+                    f"\n- **Inspected in Editor**: `{result.data.get('inspected_node')}`"
+                )
 
         elif "source_path" in result.data and "colliders_generated" in result.data:
             lines.append(
@@ -815,6 +833,13 @@ def format_result(
                         lines.append(
                             f"    - `{c.get('property')}`: `{c.get('base_value')}` -> `{c.get('target_value')}`"
                         )
+
+        elif "has_undo" in result.data and "has_redo" in result.data:
+            lines.append(
+                f"**Action History**: `{result.data.get('action_name', 'Action')}`"
+            )
+            lines.append(f"- **Can Undo**: `{result.data.get('has_undo')}`")
+            lines.append(f"- **Can Redo**: `{result.data.get('has_redo')}`")
 
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")

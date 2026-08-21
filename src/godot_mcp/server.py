@@ -36,6 +36,14 @@ from godot_mcp.models.editor_focus import (
     FocusNodeInput,
     SetEditorSelectionInput,
 )
+from godot_mcp.models.editor_history import (
+    RedoInput,
+    UndoInput,
+)
+from godot_mcp.models.editor_selection import (
+    GetSelectedNodesInput,
+    SetSelectedNodesInput,
+)
 from godot_mcp.models.environment import ConfigureEnvironmentInput
 from godot_mcp.models.export_build import (
     ExportProjectInput,
@@ -156,6 +164,14 @@ from godot_mcp.tools.debug_tools import (
     handle_run_project,
     handle_run_tests,
     handle_take_screenshot,
+)
+from godot_mcp.tools.editor_history_tools import (
+    handle_redo,
+    handle_undo,
+)
+from godot_mcp.tools.editor_selection_tools import (
+    handle_get_selected_nodes,
+    handle_set_selected_nodes,
 )
 from godot_mcp.tools.editor_tools import (
     handle_focus_node,
@@ -1334,6 +1350,62 @@ def create_server(
     async def diff_scene(params: DiffSceneInput) -> str:
         """Diff the live edited scene in memory against its saved .tscn file on disk, or compare two .tscn scene files."""
         return await handle_diff_scene(active_client, params)
+
+    @server.tool(
+        name="godot_undo",
+        annotations=ToolAnnotations(
+            title="Undo Action",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def undo_action(params: UndoInput) -> str:
+        """Revert the last editor action on the active scene or global undo history."""
+        return await handle_undo(active_client, params)
+
+    @server.tool(
+        name="godot_redo",
+        annotations=ToolAnnotations(
+            title="Redo Action",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def redo_action(params: RedoInput) -> str:
+        """Redo the previously undone editor action on the active scene or global undo history."""
+        return await handle_redo(active_client, params)
+
+    @server.tool(
+        name="godot_get_selected_nodes",
+        annotations=ToolAnnotations(
+            title="Get Selected Nodes",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_selected_nodes(params: GetSelectedNodesInput) -> str:
+        """Query currently selected nodes in the Godot Editor SceneTree."""
+        return await handle_get_selected_nodes(active_client, params)
+
+    @server.tool(
+        name="godot_set_selected_nodes",
+        annotations=ToolAnnotations(
+            title="Set Selected Nodes",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def set_selected_nodes(params: SetSelectedNodesInput) -> str:
+        """Set active node selection in the Godot Editor SceneTree and optionally inspect the primary node."""
+        return await handle_set_selected_nodes(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

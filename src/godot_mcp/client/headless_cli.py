@@ -3599,3 +3599,80 @@ func _init() -> void:
                 "modified_nodes": [],
             },
         )
+
+    async def undo_action(
+        self,
+        history_id: int | None = None,
+    ) -> StandardResult:
+        """Undo last action in headless mode."""
+        return StandardResult(
+            success=True,
+            message="Undid editor action: 'Previous Modification' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "action_name": "Previous Modification",
+                "has_undo": False,
+                "has_redo": True,
+            },
+        )
+
+    async def redo_action(
+        self,
+        history_id: int | None = None,
+    ) -> StandardResult:
+        """Redo previously undone action in headless mode."""
+        return StandardResult(
+            success=True,
+            message="Redid editor action: 'Next Modification' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "action_name": "Next Modification",
+                "has_undo": True,
+                "has_redo": False,
+            },
+        )
+
+    async def get_selected_nodes(
+        self,
+        include_properties: bool = True,
+    ) -> StandardResult:
+        """Get selected nodes in headless mode."""
+        return StandardResult(
+            success=True,
+            message="Found 1 selected nodes in editor (Headless Mode).",
+            mode=self.mode,
+            data={
+                "selection_count": 1,
+                "selected_nodes": [
+                    {
+                        "name": "Player",
+                        "path": "/root/Scene/Player",
+                        "class": "CharacterBody3D",
+                        "position": "(0, 0, 0)",
+                        "visible": True,
+                    }
+                ],
+            },
+        )
+
+    async def set_selected_nodes(
+        self,
+        node_paths: list[str],
+        clear_previous: bool = True,
+        inspect_primary: bool = True,
+    ) -> StandardResult:
+        """Set selected nodes in headless mode."""
+        nodes = [
+            {"name": p.split("/")[-1], "path": p, "class": "Node"} for p in node_paths
+        ]
+        primary = node_paths[0] if node_paths else None
+        return StandardResult(
+            success=True,
+            message=f"Selected {len(nodes)} nodes in editor (Headless Mode).",
+            mode=self.mode,
+            data={
+                "selected_count": len(nodes),
+                "selected_nodes": nodes,
+                "inspected_node": primary,
+            },
+        )

@@ -35,6 +35,8 @@ const PluginOps = preload("res://addons/godot_mcp/operations/plugin_ops.gd")
 const NavObstacleOps = preload("res://addons/godot_mcp/operations/nav_obstacle_ops.gd")
 const TilesetTerrainOps = preload("res://addons/godot_mcp/operations/tileset_terrain_ops.gd")
 const SceneDiffOps = preload("res://addons/godot_mcp/operations/scene_diff_ops.gd")
+const EditorHistoryOps = preload("res://addons/godot_mcp/operations/editor_history_ops.gd")
+const EditorSelectionOps = preload("res://addons/godot_mcp/operations/editor_selection_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -71,6 +73,8 @@ var _plugin_ops: RefCounted
 var _nav_obstacle_ops: RefCounted
 var _tileset_terrain_ops: RefCounted
 var _scene_diff_ops: RefCounted
+var _editor_history_ops: RefCounted
+var _editor_selection_ops: RefCounted
 
 var _port: int = PORT
 
@@ -108,6 +112,9 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_nav_obstacle_ops = NavObstacleOps.new(_plugin)
 	_tileset_terrain_ops = TilesetTerrainOps.new(_plugin)
 	_scene_diff_ops = SceneDiffOps.new(_plugin)
+	_editor_history_ops = EditorHistoryOps.new(_plugin)
+	_editor_selection_ops = EditorSelectionOps.new(_plugin)
+
 
 
 
@@ -332,6 +339,15 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _tileset_terrain_ops.configure_tileset_terrain(params)
 		"diff_scene":
 			result = _scene_diff_ops.diff_scene(params)
+		"undo_action":
+			result = _editor_history_ops.undo_action(params)
+		"redo_action":
+			result = _editor_history_ops.redo_action(params)
+		"get_selected_nodes":
+			result = _editor_selection_ops.get_selected_nodes(params)
+		"set_selected_nodes":
+			result = _editor_selection_ops.set_selected_nodes(params)
+
 
 
 

@@ -1278,3 +1278,45 @@ class LiveBridgeClient(GodotClient):
                 "target_scene_path": target_scene_path or "",
             },
         )
+
+    async def undo_action(
+        self,
+        history_id: int | None = None,
+    ) -> StandardResult:
+        payload: dict[str, Any] = {}
+        if history_id is not None:
+            payload["history_id"] = history_id
+        return await self._send_rpc("undo_action", payload)
+
+    async def redo_action(
+        self,
+        history_id: int | None = None,
+    ) -> StandardResult:
+        payload: dict[str, Any] = {}
+        if history_id is not None:
+            payload["history_id"] = history_id
+        return await self._send_rpc("redo_action", payload)
+
+    async def get_selected_nodes(
+        self,
+        include_properties: bool = True,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_selected_nodes",
+            {"include_properties": include_properties},
+        )
+
+    async def set_selected_nodes(
+        self,
+        node_paths: list[str],
+        clear_previous: bool = True,
+        inspect_primary: bool = True,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "set_selected_nodes",
+            {
+                "node_paths": node_paths,
+                "clear_previous": clear_previous,
+                "inspect_primary": inspect_primary,
+            },
+        )

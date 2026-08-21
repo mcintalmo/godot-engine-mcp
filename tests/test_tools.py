@@ -1739,6 +1739,86 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def undo_action(
+        self,
+        history_id: int | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Undid editor action: 'Move Node'.",
+            mode=self.mode,
+            data={
+                "action_name": "Move Node",
+                "has_undo": False,
+                "has_redo": True,
+            },
+        )
+
+    async def redo_action(
+        self,
+        history_id: int | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Redid editor action: 'Move Node'.",
+            mode=self.mode,
+            data={
+                "action_name": "Move Node",
+                "has_undo": True,
+                "has_redo": False,
+            },
+        )
+
+    async def get_selected_nodes(
+        self,
+        include_properties: bool = True,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Found 2 selected nodes in editor.",
+            mode=self.mode,
+            data={
+                "selection_count": 2,
+                "selected_nodes": [
+                    {
+                        "name": "Player",
+                        "path": "Main/Player",
+                        "class": "CharacterBody3D",
+                        "position": "(0, 10, 0)",
+                        "visible": True,
+                    },
+                    {
+                        "name": "Camera3D",
+                        "path": "Main/Player/Camera3D",
+                        "class": "Camera3D",
+                        "position": "(0, 2, 4)",
+                        "visible": True,
+                    },
+                ],
+            },
+        )
+
+    async def set_selected_nodes(
+        self,
+        node_paths: list[str],
+        clear_previous: bool = True,
+        inspect_primary: bool = True,
+    ) -> StandardResult:
+        nodes = [
+            {"name": p.split("/")[-1], "path": p, "class": "Node"} for p in node_paths
+        ]
+        primary = node_paths[0] if node_paths else None
+        return StandardResult(
+            success=True,
+            message=f"Selected {len(nodes)} nodes in editor.",
+            mode=self.mode,
+            data={
+                "selected_count": len(nodes),
+                "selected_nodes": nodes,
+                "inspected_node": primary,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

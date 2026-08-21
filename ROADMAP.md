@@ -83,6 +83,11 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **TileSet Terrain & Autotiling Engine (`godot_configure_tileset_terrain`)**: Create and configure `TileSet` terrain sets (`Match Corners`, `Match Sides`, `Match Corners and Sides`), named terrains with debug colors, and autotiling peering bit mappings.
 - [x] **Scene Tree Diff & Audit Helper (`godot_diff_scene`)**: Perform structural hierarchy and property diffs between live edited scenes and disk files, or between two standalone `.tscn` scene files.
 
+### Phase 12: Editor Undo/Redo & Multi-Node Selection Management
+- [x] **Editor Action Undo/Redo (`godot_undo`, `godot_redo`)**: Revert or re-apply editor actions on the active scene or global history via `EditorUndoRedoManager` / `UndoRedo`.
+- [x] **Multi-Node SceneTree Selection & Inspector Inspection (`godot_get_selected_nodes`, `godot_set_selected_nodes`)**: Query and programmatically manipulate active node selections in the Godot Editor SceneTree and Inspector dock via `EditorInterface.get_selection()`.
+
+
 
 
 
