@@ -841,6 +841,67 @@ def format_result(
             lines.append(f"- **Can Undo**: `{result.data.get('has_undo')}`")
             lines.append(f"- **Can Redo**: `{result.data.get('has_redo')}`")
 
+        elif "total_assets" in result.data and "orphan_count" in result.data:
+            lines.append(
+                f"**Asset Audit Summary** (Total: `{result.data.get('total_assets')}` files)\n"
+            )
+            lines.append(f"- **Orphan Assets**: {result.data.get('orphan_count')}")
+            lines.append(
+                f"- **Broken Dependencies**: {result.data.get('broken_count')}\n"
+            )
+
+            orphans = result.data.get("orphans", [])
+            broken = result.data.get("broken_dependencies", [])
+
+            if orphans:
+                lines.append("**Orphan Files (Unreferenced)**:")
+                for o in orphans[:20]:
+                    lines.append(f"- `{o}`")
+                if len(orphans) > 20:
+                    lines.append(f"- *... and {len(orphans) - 20} more orphan files*")
+
+            if broken:
+                lines.append("\n**Broken Dependency References**:")
+                for b in broken[:15]:
+                    lines.append(
+                        f"- `{b.get('source')}` -> Missing `{b.get('dependency')}` ({b.get('reason')})"
+                    )
+                if len(broken) > 15:
+                    lines.append(
+                        f"- *... and {len(broken) - 15} more broken dependencies*"
+                    )
+
+        elif "target_count" in result.data and "processed" in result.data:
+            dry = result.data.get("dry_run", True)
+            q_f = result.data.get("quarantine_folder")
+            action_str = (
+                "Simulated Orphan Cleanup (Dry Run)"
+                if dry
+                else ("Orphan Files Quarantined" if q_f else "Orphan Files Deleted")
+            )
+            lines.append(
+                f"**{action_str}** (Count: `{result.data.get('target_count')}`)\n"
+            )
+            if q_f:
+                lines.append(f"- **Quarantine Location**: `{q_f}`\n")
+            lines.append("| Target File | Status | Destination |")
+            lines.append("|---|---|---|")
+            for p in result.data.get("processed", []):
+                lines.append(
+                    f"| `{p.get('path')}` | `{p.get('status')}` | `{p.get('destination', '-')}` |"
+                )
+
+        elif "estimated_vram_kb" in result.data and "format" in result.data:
+            lines.append(f"**Texture Diagnostics**: `{result.data.get('path')}`\n")
+            lines.append(
+                f"- **Resolution**: `{result.data.get('width')}x{result.data.get('height')}`"
+            )
+            lines.append(f"- **Pixel Format**: `{result.data.get('format')}`")
+            lines.append(f"- **Mipmaps**: `{result.data.get('has_mipmaps')}`")
+            lines.append(
+                f"- **Estimated VRAM**: `~{result.data.get('estimated_vram_kb'):.2f} KB` ({result.data.get('estimated_vram_bytes')} bytes)"
+            )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

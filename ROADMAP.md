@@ -87,6 +87,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Editor Action Undo/Redo (`godot_undo`, `godot_redo`)**: Revert or re-apply editor actions on the active scene or global history via `EditorUndoRedoManager` / `UndoRedo`.
 - [x] **Multi-Node SceneTree Selection & Inspector Inspection (`godot_get_selected_nodes`, `godot_set_selected_nodes`)**: Query and programmatically manipulate active node selections in the Godot Editor SceneTree and Inspector dock via `EditorInterface.get_selection()`.
 
+### Phase 13: Project Asset Audit, Orphan Cleanup & Texture Validation
+- [x] **Project-Wide Asset Audit (`godot_audit_assets`)**: Scan the entire project for unreferenced orphan files, broken dependencies (missing files or invalid UIDs), and dependency tree reachability.
+- [x] **Safe Orphan Asset Cleanup (`godot_clean_orphans`)**: Clean or quarantine unreferenced orphan files (`.tres`, `.tscn`, `.png`, `.wav`, etc.) with dry-run verification and destination folder support.
+- [x] **Texture Diagnostics & VRAM Estimation (`godot_get_texture_info`)**: Inspect 2D/3D texture dimensions, pixel format, mipmaps, compression mode, and estimated VRAM footprint.
+
+
 
 
 

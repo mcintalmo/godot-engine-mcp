@@ -14,6 +14,11 @@ from godot_mcp.models.asset import (
     CreateCollisionPolygonInput,
     ReimportAssetInput,
 )
+from godot_mcp.models.asset_audit import (
+    AuditAssetsInput,
+    CleanOrphansInput,
+    GetTextureInfoInput,
+)
 from godot_mcp.models.audio import (
     ConfigureAudioBusInput,
     GetAudioLayoutInput,
@@ -139,6 +144,11 @@ from godot_mcp.models.uid_dep import (
 )
 from godot_mcp.tools.anim_tree_tools import handle_configure_animation_tree
 from godot_mcp.tools.animation_tools import handle_create_animation
+from godot_mcp.tools.asset_audit_tools import (
+    handle_audit_assets,
+    handle_clean_orphans,
+    handle_get_texture_info,
+)
 from godot_mcp.tools.asset_tools import (
     handle_create_collision_polygon,
     handle_reimport_asset,
@@ -1406,6 +1416,48 @@ def create_server(
     async def set_selected_nodes(params: SetSelectedNodesInput) -> str:
         """Set active node selection in the Godot Editor SceneTree and optionally inspect the primary node."""
         return await handle_set_selected_nodes(active_client, params)
+
+    @server.tool(
+        name="godot_audit_assets",
+        annotations=ToolAnnotations(
+            title="Audit Project Assets",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def audit_assets(params: AuditAssetsInput) -> str:
+        """Deep project-wide asset audit scanning for unreferenced orphan files and broken dependency references."""
+        return await handle_audit_assets(active_client, params)
+
+    @server.tool(
+        name="godot_clean_orphans",
+        annotations=ToolAnnotations(
+            title="Clean Orphan Assets",
+            read_only_hint=False,
+            destructive_hint=True,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def clean_orphans(params: CleanOrphansInput) -> str:
+        """Safely clean or quarantine unreferenced orphan files with dry-run verification."""
+        return await handle_clean_orphans(active_client, params)
+
+    @server.tool(
+        name="godot_get_texture_info",
+        annotations=ToolAnnotations(
+            title="Get Texture Info",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_texture_info(params: GetTextureInfoInput) -> str:
+        """Inspect dimensions, pixel format, mipmaps, and estimated VRAM footprint for a texture."""
+        return await handle_get_texture_info(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

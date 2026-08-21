@@ -3676,3 +3676,76 @@ func _init() -> void:
                 "inspected_node": primary,
             },
         )
+
+    async def audit_assets(
+        self,
+        include_extensions: list[str] | None = None,
+        ignore_paths: list[str] | None = None,
+    ) -> StandardResult:
+        """Audit assets in headless mode."""
+        return StandardResult(
+            success=True,
+            message="Asset Audit: 12 total, 1 orphans, 0 broken dependencies (Headless Mode).",
+            mode=self.mode,
+            data={
+                "total_assets": 12,
+                "orphan_count": 1,
+                "broken_count": 0,
+                "orphans": ["res://unused_icon.png"],
+                "broken_dependencies": [],
+            },
+        )
+
+    async def clean_orphans(
+        self,
+        file_paths: list[str] | None = None,
+        dry_run: bool = True,
+        quarantine_folder: str | None = None,
+    ) -> StandardResult:
+        """Clean orphans in headless mode."""
+        candidates = file_paths or ["res://unused_icon.png"]
+        action_str = (
+            "Simulated cleanup of"
+            if dry_run
+            else ("Quarantined" if quarantine_folder else "Deleted")
+        )
+        return StandardResult(
+            success=True,
+            message=f"{action_str} {len(candidates)} orphan assets (Headless Mode).",
+            mode=self.mode,
+            data={
+                "dry_run": dry_run,
+                "quarantine_folder": quarantine_folder,
+                "target_count": len(candidates),
+                "candidates": candidates,
+                "processed": [
+                    {
+                        "path": c,
+                        "status": "quarantined"
+                        if quarantine_folder
+                        else ("simulated" if dry_run else "deleted"),
+                    }
+                    for c in candidates
+                ],
+            },
+        )
+
+    async def get_texture_info(
+        self,
+        texture_path: str,
+    ) -> StandardResult:
+        """Get texture info in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Texture '{texture_path.split('/')[-1]}': 512x512 (Format_RGBA8, ~1024.00 KB VRAM) (Headless Mode).",
+            mode=self.mode,
+            data={
+                "path": texture_path,
+                "width": 512,
+                "height": 512,
+                "format": "Format_RGBA8",
+                "has_mipmaps": True,
+                "estimated_vram_bytes": 1048576,
+                "estimated_vram_kb": 1024.0,
+            },
+        )

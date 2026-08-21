@@ -1320,3 +1320,40 @@ class LiveBridgeClient(GodotClient):
                 "inspect_primary": inspect_primary,
             },
         )
+
+    async def audit_assets(
+        self,
+        include_extensions: list[str] | None = None,
+        ignore_paths: list[str] | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "audit_assets",
+            {
+                "include_extensions": include_extensions or [],
+                "ignore_paths": ignore_paths or [],
+            },
+        )
+
+    async def clean_orphans(
+        self,
+        file_paths: list[str] | None = None,
+        dry_run: bool = True,
+        quarantine_folder: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "clean_orphans",
+            {
+                "file_paths": file_paths or [],
+                "dry_run": dry_run,
+                "quarantine_folder": quarantine_folder or "",
+            },
+        )
+
+    async def get_texture_info(
+        self,
+        texture_path: str,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_texture_info",
+            {"texture_path": texture_path},
+        )

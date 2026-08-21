@@ -861,3 +861,30 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Set active node selection in the editor SceneTree."""
         ...
+
+    @abstractmethod
+    async def audit_assets(
+        self,
+        include_extensions: list[str] | None = None,
+        ignore_paths: list[str] | None = None,
+    ) -> StandardResult:
+        """Scan project assets for orphans, broken dependencies, and statistics."""
+        ...
+
+    @abstractmethod
+    async def clean_orphans(
+        self,
+        file_paths: list[str] | None = None,
+        dry_run: bool = True,
+        quarantine_folder: str | None = None,
+    ) -> StandardResult:
+        """Clean or quarantine unreferenced orphan files."""
+        ...
+
+    @abstractmethod
+    async def get_texture_info(
+        self,
+        texture_path: str,
+    ) -> StandardResult:
+        """Inspect dimensions, format, mipmaps, and estimated VRAM for a texture."""
+        ...

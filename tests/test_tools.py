@@ -1819,6 +1819,89 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def audit_assets(
+        self,
+        include_extensions: list[str] | None = None,
+        ignore_paths: list[str] | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Asset Audit: 10 total, 2 orphans, 1 broken dependencies.",
+            mode=self.mode,
+            data={
+                "total_assets": 10,
+                "orphan_count": 2,
+                "broken_count": 1,
+                "orphans": ["res://old_texture.png", "res://unused_audio.wav"],
+                "broken_dependencies": [
+                    {
+                        "source": "res://scenes/main.tscn",
+                        "dependency": "uid://broken123",
+                        "reason": "Unresolvable UID",
+                    }
+                ],
+            },
+        )
+
+    async def clean_orphans(
+        self,
+        file_paths: list[str] | None = None,
+        dry_run: bool = True,
+        quarantine_folder: str | None = None,
+    ) -> StandardResult:
+        candidates = file_paths or ["res://old_texture.png", "res://unused_audio.wav"]
+        action_str = (
+            "Simulated Orphan Cleanup (Dry Run)"
+            if dry_run
+            else (
+                "Orphan Files Quarantined"
+                if quarantine_folder
+                else "Orphan Files Deleted"
+            )
+        )
+        return StandardResult(
+            success=True,
+            message=f"{action_str} {len(candidates)} orphan assets.",
+            mode=self.mode,
+            data={
+                "dry_run": dry_run,
+                "quarantine_folder": quarantine_folder,
+                "target_count": len(candidates),
+                "candidates": candidates,
+                "processed": [
+                    {
+                        "path": c,
+                        "status": "quarantined"
+                        if quarantine_folder
+                        else ("simulated" if dry_run else "deleted"),
+                        "destination": f"{quarantine_folder}/{c.split('/')[-1]}"
+                        if quarantine_folder
+                        else None,
+                    }
+                    for c in candidates
+                ],
+            },
+        )
+
+    async def get_texture_info(
+        self,
+        texture_path: str,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Texture 'diffuse.png': 1024x1024 (Format_RGBA8, ~4096.00 KB VRAM).",
+            mode=self.mode,
+            data={
+                "path": texture_path,
+                "width": 1024,
+                "height": 1024,
+                "format": "Format_RGBA8",
+                "has_mipmaps": True,
+                "estimated_vram_bytes": 4194304,
+                "estimated_vram_kb": 4096.0,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

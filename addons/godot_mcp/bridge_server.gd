@@ -37,6 +37,7 @@ const TilesetTerrainOps = preload("res://addons/godot_mcp/operations/tileset_ter
 const SceneDiffOps = preload("res://addons/godot_mcp/operations/scene_diff_ops.gd")
 const EditorHistoryOps = preload("res://addons/godot_mcp/operations/editor_history_ops.gd")
 const EditorSelectionOps = preload("res://addons/godot_mcp/operations/editor_selection_ops.gd")
+const AssetAuditOps = preload("res://addons/godot_mcp/operations/asset_audit_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -75,6 +76,7 @@ var _tileset_terrain_ops: RefCounted
 var _scene_diff_ops: RefCounted
 var _editor_history_ops: RefCounted
 var _editor_selection_ops: RefCounted
+var _asset_audit_ops: RefCounted
 
 var _port: int = PORT
 
@@ -114,6 +116,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_scene_diff_ops = SceneDiffOps.new(_plugin)
 	_editor_history_ops = EditorHistoryOps.new(_plugin)
 	_editor_selection_ops = EditorSelectionOps.new(_plugin)
+	_asset_audit_ops = AssetAuditOps.new(_plugin)
+
 
 
 
@@ -347,6 +351,13 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _editor_selection_ops.get_selected_nodes(params)
 		"set_selected_nodes":
 			result = _editor_selection_ops.set_selected_nodes(params)
+		"audit_assets":
+			result = _asset_audit_ops.audit_assets(params)
+		"clean_orphans":
+			result = _asset_audit_ops.clean_orphans(params)
+		"get_texture_info":
+			result = _asset_audit_ops.get_texture_info(params)
+
 
 
 
