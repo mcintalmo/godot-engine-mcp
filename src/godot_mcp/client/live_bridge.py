@@ -1081,3 +1081,88 @@ class LiveBridgeClient(GodotClient):
                 "input_variables": input_variables or {},
             },
         )
+
+    async def create_shader(
+        self,
+        path: str,
+        shader_type: str = "spatial",
+        code: str | None = None,
+        create_material: bool = True,
+        material_save_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "create_shader",
+            {
+                "path": path,
+                "shader_type": shader_type,
+                "code": code,
+                "create_material": create_material,
+                "material_save_path": material_save_path,
+            },
+        )
+
+    async def set_shader_param(
+        self,
+        parameter_name: str,
+        value: Any,
+        node_path: str | None = None,
+        material_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "set_shader_param",
+            {
+                "parameter_name": parameter_name,
+                "value": value,
+                "node_path": node_path or "",
+                "material_path": material_path or "",
+            },
+        )
+
+    async def configure_animation_tree(
+        self,
+        node_path: str | None = None,
+        parent_path: str | None = None,
+        node_name: str = "AnimationTree",
+        anim_player_path: str | None = None,
+        tree_type: str = "state_machine",
+        active: bool = True,
+        states: list[dict[str, Any]] | None = None,
+        transitions: list[dict[str, Any]] | None = None,
+        save_as_resource_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "configure_animation_tree",
+            {
+                "node_path": node_path or "",
+                "parent_path": parent_path or "",
+                "node_name": node_name,
+                "anim_player_path": anim_player_path or "",
+                "tree_type": tree_type,
+                "active": active,
+                "states": states or [],
+                "transitions": transitions or [],
+                "save_as_resource_path": save_as_resource_path or "",
+            },
+        )
+
+    async def get_translations(
+        self,
+        locale_filter: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_translations",
+            {"locale_filter": locale_filter or ""},
+        )
+
+    async def add_translation(
+        self,
+        translation_path: str,
+        test_locale: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "add_translation",
+            {
+                "translation_path": translation_path,
+                "test_locale": test_locale or "",
+            },
+        )

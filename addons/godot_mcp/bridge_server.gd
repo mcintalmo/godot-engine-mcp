@@ -27,6 +27,9 @@ const BuildOps = preload("res://addons/godot_mcp/operations/build_ops.gd")
 const AutoloadOps = preload("res://addons/godot_mcp/operations/autoload_ops.gd")
 const SignalOps = preload("res://addons/godot_mcp/operations/signal_ops.gd")
 const EvalOps = preload("res://addons/godot_mcp/operations/eval_ops.gd")
+const ShaderOps = preload("res://addons/godot_mcp/operations/shader_ops.gd")
+const AnimTreeOps = preload("res://addons/godot_mcp/operations/anim_tree_ops.gd")
+const LocalizationOps = preload("res://addons/godot_mcp/operations/localization_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -55,6 +58,9 @@ var _build_ops: RefCounted
 var _autoload_ops: RefCounted
 var _signal_ops: RefCounted
 var _eval_ops: RefCounted
+var _shader_ops: RefCounted
+var _anim_tree_ops: RefCounted
+var _localization_ops: RefCounted
 
 var _port: int = PORT
 
@@ -84,6 +90,10 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_autoload_ops = AutoloadOps.new(_plugin)
 	_signal_ops = SignalOps.new(_plugin)
 	_eval_ops = EvalOps.new(_plugin)
+	_shader_ops = ShaderOps.new(_plugin)
+	_anim_tree_ops = AnimTreeOps.new(_plugin)
+	_localization_ops = LocalizationOps.new(_plugin)
+
 
 
 
@@ -279,6 +289,17 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _signal_ops.get_signal_connections(params)
 		"evaluate_expression":
 			result = _eval_ops.evaluate_expression(params)
+		"create_shader":
+			result = _shader_ops.create_shader(params)
+		"set_shader_param":
+			result = _shader_ops.set_shader_param(params)
+		"configure_animation_tree":
+			result = _anim_tree_ops.configure_animation_tree(params)
+		"get_translations":
+			result = _localization_ops.get_translations(params)
+		"add_translation":
+			result = _localization_ops.add_translation(params)
+
 
 
 

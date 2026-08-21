@@ -691,3 +691,59 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Safely evaluate a runtime GDScript expression."""
         ...
+
+    @abstractmethod
+    async def create_shader(
+        self,
+        path: str,
+        shader_type: str = "spatial",
+        code: str | None = None,
+        create_material: bool = True,
+        material_save_path: str | None = None,
+    ) -> StandardResult:
+        """Create a .gdshader file and optional ShaderMaterial."""
+        ...
+
+    @abstractmethod
+    async def set_shader_param(
+        self,
+        parameter_name: str,
+        value: Any,
+        node_path: str | None = None,
+        material_path: str | None = None,
+    ) -> StandardResult:
+        """Inspect and update a uniform parameter on a ShaderMaterial."""
+        ...
+
+    @abstractmethod
+    async def configure_animation_tree(
+        self,
+        node_path: str | None = None,
+        parent_path: str | None = None,
+        node_name: str = "AnimationTree",
+        anim_player_path: str | None = None,
+        tree_type: str = "state_machine",
+        active: bool = True,
+        states: list[dict[str, Any]] | None = None,
+        transitions: list[dict[str, Any]] | None = None,
+        save_as_resource_path: str | None = None,
+    ) -> StandardResult:
+        """Create or configure an AnimationTree and State Machine."""
+        ...
+
+    @abstractmethod
+    async def get_translations(
+        self,
+        locale_filter: str | None = None,
+    ) -> StandardResult:
+        """Query configured translation tables in ProjectSettings."""
+        ...
+
+    @abstractmethod
+    async def add_translation(
+        self,
+        translation_path: str,
+        test_locale: str | None = None,
+    ) -> StandardResult:
+        """Register a translation table in ProjectSettings."""
+        ...

@@ -68,6 +68,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Signal Introspection & Event Wiring (`godot_get_node_signals`, `godot_connect_signal`, `godot_get_signal_connections`)**: Introspect signals on active nodes with argument definitions, bind/unbind method callables with `CONNECT_PERSIST` scene serialization, and inspect incoming/outgoing connection graphs.
 - [x] **Dynamic GDScript Expression Evaluator (`godot_evaluate_expression`)**: Safely parse and execute runtime GDScript math, logical expressions, and method calls against target nodes or global scope.
 
+### Phase 9: Shaders, Animation Trees & Localization
+- [x] **Custom Shader Engineering & Uniforms (`godot_create_shader`, `godot_set_shader_param`)**: Create `.gdshader` files across shader types (Spatial, CanvasItem, Particles, Fog) with starter boilerplate and live-tweak uniform parameters on `ShaderMaterial` instances.
+- [x] **AnimationTree & State Machine Graphs (`godot_configure_animation_tree`)**: Build `AnimationTree` nodes, `AnimationNodeStateMachine` roots, animation states (`AnimationNodeAnimation`), and conditional transitions with advance conditions / advance expressions.
+- [x] **Localization & Translation Tables (`godot_get_translations`, `godot_add_translation`)**: Query configured translation files (`.csv`, `.po`, `.translation`), discover loaded locales, and register new localization tables into `project.godot`.
+
+
 
 
 

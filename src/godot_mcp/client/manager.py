@@ -887,3 +887,78 @@ class ClientManager(GodotClient):
             node_path=node_path,
             input_variables=input_variables,
         )
+
+    async def create_shader(
+        self,
+        path: str,
+        shader_type: str = "spatial",
+        code: str | None = None,
+        create_material: bool = True,
+        material_save_path: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.create_shader(
+            path=path,
+            shader_type=shader_type,
+            code=code,
+            create_material=create_material,
+            material_save_path=material_save_path,
+        )
+
+    async def set_shader_param(
+        self,
+        parameter_name: str,
+        value: Any,
+        node_path: str | None = None,
+        material_path: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.set_shader_param(
+            parameter_name=parameter_name,
+            value=value,
+            node_path=node_path,
+            material_path=material_path,
+        )
+
+    async def configure_animation_tree(
+        self,
+        node_path: str | None = None,
+        parent_path: str | None = None,
+        node_name: str = "AnimationTree",
+        anim_player_path: str | None = None,
+        tree_type: str = "state_machine",
+        active: bool = True,
+        states: list[dict[str, Any]] | None = None,
+        transitions: list[dict[str, Any]] | None = None,
+        save_as_resource_path: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.configure_animation_tree(
+            node_path=node_path,
+            parent_path=parent_path,
+            node_name=node_name,
+            anim_player_path=anim_player_path,
+            tree_type=tree_type,
+            active=active,
+            states=states,
+            transitions=transitions,
+            save_as_resource_path=save_as_resource_path,
+        )
+
+    async def get_translations(
+        self,
+        locale_filter: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_translations(locale_filter=locale_filter)
+
+    async def add_translation(
+        self,
+        translation_path: str,
+        test_locale: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.add_translation(
+            translation_path=translation_path,
+            test_locale=test_locale,
+        )

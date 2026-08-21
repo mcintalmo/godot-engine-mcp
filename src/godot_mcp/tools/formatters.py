@@ -62,9 +62,14 @@ def format_result(
                     for w in node_warns:
                         lines.append(f"  - Warning: {w}")
 
-        elif "material_path" in result.data:
+        elif (
+            "material_path" in result.data
+            and "material_type" in result.data
+            and "shader_path" not in result.data
+        ):
             lines.append(f"**Material Resource**: `{result.data.get('material_path')}`")
             lines.append(f"**Material Type**: `{result.data.get('material_type')}`")
+
             if result.data.get("assigned_to_node"):
                 lines.append(
                     f"**Assigned to Node**: `{result.data.get('assigned_to_node')}`"
@@ -668,6 +673,63 @@ def format_result(
             lines.append(f"- **Type**: `{result.data.get('result_type')}`")
             if result.data.get("context_node"):
                 lines.append(f"- **Context Node**: `{result.data.get('context_node')}`")
+
+        elif "shader_path" in result.data and "shader_type" in result.data:
+            lines.append(f"**Custom Shader**: `{result.data.get('shader_path')}`")
+            lines.append(f"- **Type**: `{result.data.get('shader_type')}`")
+            if result.data.get("material_path"):
+                lines.append(
+                    f"- **Generated Material**: `{result.data.get('material_path')}`"
+                )
+
+        elif "parameter_name" in result.data and "target" in result.data:
+            lines.append("**Shader Parameter Updated**:")
+            lines.append(f"- **Target**: `{result.data.get('target')}`")
+            lines.append(f"- **Parameter**: `{result.data.get('parameter_name')}`")
+            lines.append(f"- **Value**: `{result.data.get('value')}`")
+            if result.data.get("material_path"):
+                lines.append(
+                    f"- **Material File**: `{result.data.get('material_path')}`"
+                )
+
+        elif "tree_type" in result.data and "anim_player" in result.data:
+            lines.append(f"**AnimationTree**: `{result.data.get('node_name')}`")
+            if result.data.get("node_path"):
+                lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+            lines.append(f"- **Tree Type**: `{result.data.get('tree_type')}`")
+            lines.append(f"- **AnimationPlayer**: `{result.data.get('anim_player')}`")
+            lines.append(f"- **Active**: `{result.data.get('active')}`")
+            if result.data.get("saved_resource_path"):
+                lines.append(
+                    f"- **Saved Resource**: `{result.data.get('saved_resource_path')}`"
+                )
+
+        elif "translations" in result.data and "loaded_locales" in result.data:
+            lines.append(
+                f"**Translation Tables ({result.data.get('translation_count', len(result.data['translations']))})**:\n"
+            )
+            lines.append(
+                f"- **Fallback Locale**: `{result.data.get('fallback_locale')}`"
+            )
+            lines.append(
+                f"- **Loaded Locales**: `{', '.join(result.data.get('loaded_locales', []))}`\n"
+            )
+            lines.append("| Translation File | Exists |")
+            lines.append("|---|---|")
+            for t in result.data.get("translations", []):
+                lines.append(f"| `{t.get('path')}` | `{t.get('exists', True)}` |")
+
+        elif "translation_path" in result.data and "total_translations" in result.data:
+            lines.append(
+                f"**Translation Registered**: `{result.data.get('translation_path')}`"
+            )
+            lines.append(
+                f"- **Total Configured Translations**: `{result.data.get('total_translations')}`"
+            )
+            if result.data.get("test_locale_set"):
+                lines.append(
+                    f"- **Active Test Locale**: `{result.data.get('test_locale_set')}`"
+                )
 
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")

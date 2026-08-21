@@ -8,6 +8,7 @@ from mcp.types import ToolAnnotations
 from godot_mcp.client.base import GodotClient
 from godot_mcp.client.manager import ClientManager
 from godot_mcp.config import GodotConfig
+from godot_mcp.models.anim_tree import ConfigureAnimationTreeInput
 from godot_mcp.models.animation import CreateAnimationInput
 from godot_mcp.models.asset import (
     CreateCollisionPolygonInput,
@@ -43,6 +44,10 @@ from godot_mcp.models.export_build import (
 from godot_mcp.models.input_map import (
     ConfigureInputActionInput,
     GetInputActionsInput,
+)
+from godot_mcp.models.localization import (
+    AddTranslationInput,
+    GetTranslationsInput,
 )
 from godot_mcp.models.lsp import (
     LSPQueryInput,
@@ -94,6 +99,10 @@ from godot_mcp.models.script import (
     CreateScriptInput,
     ValidateScriptInput,
 )
+from godot_mcp.models.shader import (
+    CreateShaderInput,
+    SetShaderParamInput,
+)
 from godot_mcp.models.signal_wire import (
     ConnectSignalInput,
     GetNodeSignalsInput,
@@ -108,6 +117,7 @@ from godot_mcp.models.tilemap import (
     GetTileMapCellsInput,
     SetTileMapCellsInput,
 )
+from godot_mcp.tools.anim_tree_tools import handle_configure_animation_tree
 from godot_mcp.tools.animation_tools import handle_create_animation
 from godot_mcp.tools.asset_tools import (
     handle_create_collision_polygon,
@@ -144,6 +154,10 @@ from godot_mcp.tools.eval_tools import handle_evaluate_expression
 from godot_mcp.tools.input_tools import (
     handle_configure_input_action,
     handle_get_input_actions,
+)
+from godot_mcp.tools.localization_tools import (
+    handle_add_translation,
+    handle_get_translations,
 )
 from godot_mcp.tools.lsp_tools import (
     handle_lsp_query,
@@ -193,6 +207,10 @@ from godot_mcp.tools.scene_tools import (
 from godot_mcp.tools.script_tools import (
     handle_create_script,
     handle_validate_script,
+)
+from godot_mcp.tools.shader_tools import (
+    handle_create_shader,
+    handle_set_shader_param,
 )
 from godot_mcp.tools.signal_tools import (
     handle_connect_signal,
@@ -1104,6 +1122,76 @@ def create_server(
     async def evaluate_expression(params: EvaluateExpressionInput) -> str:
         """Safely parse and evaluate runtime GDScript math, logical expressions, or method calls."""
         return await handle_evaluate_expression(active_client, params)
+
+    @server.tool(
+        name="godot_create_shader",
+        annotations=ToolAnnotations(
+            title="Create Custom Shader",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def create_shader(params: CreateShaderInput) -> str:
+        """Create a custom Godot .gdshader file and matching ShaderMaterial."""
+        return await handle_create_shader(active_client, params)
+
+    @server.tool(
+        name="godot_set_shader_param",
+        annotations=ToolAnnotations(
+            title="Set Shader Parameter",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def set_shader_param(params: SetShaderParamInput) -> str:
+        """Inspect and live-update a uniform parameter on a ShaderMaterial."""
+        return await handle_set_shader_param(active_client, params)
+
+    @server.tool(
+        name="godot_configure_animation_tree",
+        annotations=ToolAnnotations(
+            title="Configure AnimationTree",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_animation_tree(params: ConfigureAnimationTreeInput) -> str:
+        """Create or configure an AnimationTree node, state machine graph, and transition conditions."""
+        return await handle_configure_animation_tree(active_client, params)
+
+    @server.tool(
+        name="godot_get_translations",
+        annotations=ToolAnnotations(
+            title="Get Translations",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_translations(params: GetTranslationsInput) -> str:
+        """Query translation tables and active locales configured in ProjectSettings."""
+        return await handle_get_translations(active_client, params)
+
+    @server.tool(
+        name="godot_add_translation",
+        annotations=ToolAnnotations(
+            title="Add Translation",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def add_translation(params: AddTranslationInput) -> str:
+        """Register a translation file (.csv, .po, .translation) in ProjectSettings."""
+        return await handle_add_translation(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 
