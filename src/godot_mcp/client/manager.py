@@ -1153,3 +1153,23 @@ class ClientManager(GodotClient):
             test_file_path=test_file_path,
             test_methods=test_methods,
         )
+
+    async def get_editor_layout(
+        self,
+        include_open_scenes: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_editor_layout(include_open_scenes=include_open_scenes)
+
+    async def set_editor_layout(
+        self,
+        main_screen: str | None = None,
+        distraction_free_mode: bool | None = None,
+        active_scene_path: str | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.set_editor_layout(
+            main_screen=main_screen,
+            distraction_free_mode=distraction_free_mode,
+            active_scene_path=active_scene_path,
+        )

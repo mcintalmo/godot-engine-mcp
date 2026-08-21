@@ -910,3 +910,21 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Scaffold a complete GUT test script inheriting GutTest."""
         ...
+
+    @abstractmethod
+    async def get_editor_layout(
+        self,
+        include_open_scenes: bool = True,
+    ) -> StandardResult:
+        """Query the current Godot Editor workspace layout and open scene tabs."""
+        ...
+
+    @abstractmethod
+    async def set_editor_layout(
+        self,
+        main_screen: str | None = None,
+        distraction_free_mode: bool | None = None,
+        active_scene_path: str | None = None,
+    ) -> StandardResult:
+        """Configure the Godot Editor workspace layout and screen modes."""
+        ...

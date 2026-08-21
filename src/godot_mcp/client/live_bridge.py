@@ -1391,3 +1391,27 @@ class LiveBridgeClient(GodotClient):
                 "test_methods": test_methods or [],
             },
         )
+
+    async def get_editor_layout(
+        self,
+        include_open_scenes: bool = True,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_editor_layout",
+            {"include_open_scenes": include_open_scenes},
+        )
+
+    async def set_editor_layout(
+        self,
+        main_screen: str | None = None,
+        distraction_free_mode: bool | None = None,
+        active_scene_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "set_editor_layout",
+            {
+                "main_screen": main_screen or "",
+                "distraction_free_mode": distraction_free_mode,
+                "active_scene_path": active_scene_path or "",
+            },
+        )

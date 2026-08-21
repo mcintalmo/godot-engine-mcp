@@ -96,6 +96,11 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Headless Engine & GUT Test Runner (`godot_run_gut_tests`)**: Execute Godot Unit Test (GUT) suites or custom test runners headlessly with automated log parsing (passed, failed, pending, assertion counts, durations, and failure stack traces).
 - [x] **GUT Test Suite Scaffolding (`godot_generate_gut_test`)**: Scaffold complete GUT test scripts inheriting `GutTest` for target GDScript scripts or scenes, generating setup/teardown methods and test assertion stubs.
 
+### Phase 15: Editor Layouts, Multi-Window Dock State & Workspace Inspector
+- [x] **Editor Workspace Layout & Screen Query (`godot_get_editor_layout`)**: Query active main screen (`2D`, `3D`, `Script`, `AssetLib`), distraction-free mode state, editor UI scale, open scene tabs, and edited scene root.
+- [x] **Programmatic Workspace Layout Configuration (`godot_set_editor_layout`)**: Switch main screen editor tabs, toggle distraction-free mode, and activate scene tabs.
+
+
 
 
 

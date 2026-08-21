@@ -39,6 +39,7 @@ const EditorHistoryOps = preload("res://addons/godot_mcp/operations/editor_histo
 const EditorSelectionOps = preload("res://addons/godot_mcp/operations/editor_selection_ops.gd")
 const AssetAuditOps = preload("res://addons/godot_mcp/operations/asset_audit_ops.gd")
 const GUTTestOps = preload("res://addons/godot_mcp/operations/gut_test_ops.gd")
+const EditorLayoutOps = preload("res://addons/godot_mcp/operations/editor_layout_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -79,6 +80,7 @@ var _editor_history_ops: RefCounted
 var _editor_selection_ops: RefCounted
 var _asset_audit_ops: RefCounted
 var _gut_test_ops: RefCounted
+var _editor_layout_ops: RefCounted
 
 var _port: int = PORT
 
@@ -120,6 +122,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_editor_selection_ops = EditorSelectionOps.new(_plugin)
 	_asset_audit_ops = AssetAuditOps.new(_plugin)
 	_gut_test_ops = GUTTestOps.new(_plugin)
+	_editor_layout_ops = EditorLayoutOps.new(_plugin)
+
 
 
 
@@ -365,6 +369,11 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _gut_test_ops.run_gut_tests(params)
 		"generate_gut_test":
 			result = _gut_test_ops.generate_gut_test(params)
+		"get_editor_layout":
+			result = _editor_layout_ops.get_editor_layout(params)
+		"set_editor_layout":
+			result = _editor_layout_ops.set_editor_layout(params)
+
 
 
 

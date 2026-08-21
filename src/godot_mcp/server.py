@@ -45,6 +45,10 @@ from godot_mcp.models.editor_history import (
     RedoInput,
     UndoInput,
 )
+from godot_mcp.models.editor_layout import (
+    GetEditorLayoutInput,
+    SetEditorLayoutInput,
+)
 from godot_mcp.models.editor_selection import (
     GetSelectedNodesInput,
     SetSelectedNodesInput,
@@ -182,6 +186,10 @@ from godot_mcp.tools.debug_tools import (
 from godot_mcp.tools.editor_history_tools import (
     handle_redo,
     handle_undo,
+)
+from godot_mcp.tools.editor_layout_tools import (
+    handle_get_editor_layout,
+    handle_set_editor_layout,
 )
 from godot_mcp.tools.editor_selection_tools import (
     handle_get_selected_nodes,
@@ -1494,6 +1502,34 @@ def create_server(
     async def generate_gut_test(params: GenerateGUTTestInput) -> str:
         """Scaffold a complete GUT test script inheriting GutTest for target GDScript scripts or scenes."""
         return await handle_generate_gut_test(active_client, params)
+
+    @server.tool(
+        name="godot_get_editor_layout",
+        annotations=ToolAnnotations(
+            title="Get Editor Layout",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_editor_layout(params: GetEditorLayoutInput) -> str:
+        """Query current Godot Editor workspace layout, active main screen, and open scene tabs."""
+        return await handle_get_editor_layout(active_client, params)
+
+    @server.tool(
+        name="godot_set_editor_layout",
+        annotations=ToolAnnotations(
+            title="Set Editor Layout",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def set_editor_layout(params: SetEditorLayoutInput) -> str:
+        """Configure Godot Editor workspace layout, main screen tabs, and distraction-free mode."""
+        return await handle_set_editor_layout(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

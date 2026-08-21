@@ -944,6 +944,32 @@ def format_result(
                 f"- **Code Size**: `{result.data.get('code_length')} characters`"
             )
 
+        elif "editor_scale" in result.data and "distraction_free_mode" in result.data:
+            lines.append("**Godot Editor Workspace Layout**:\n")
+            lines.append(f"- **UI Scale**: `{result.data.get('editor_scale')}x`")
+            lines.append(
+                f"- **Distraction-Free Mode**: `{result.data.get('distraction_free_mode')}`"
+            )
+            if result.data.get("edited_scene_root"):
+                lines.append(
+                    f"- **Active Edited Scene**: `{result.data.get('edited_scene_root')}`"
+                )
+            scenes = result.data.get("open_scenes", [])
+            lines.append(f"- **Open Scene Tabs ({len(scenes)})**:")
+            for s in scenes:
+                lines.append(f"  - `{s}`")
+
+        elif "changes_applied" in result.data and (
+            "main_screen" in result.data
+            or "distraction_free_mode" in result.data
+            or "active_scene_path" in result.data
+        ):
+            lines.append("**Updated Editor Workspace Layout**:\n")
+            for c in result.data.get("changes_applied", []):
+                lines.append(f"- `{c}`")
+            if not result.data.get("changes_applied"):
+                lines.append("- *No workspace layout modifications requested.*")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

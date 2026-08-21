@@ -3799,3 +3799,49 @@ func _init() -> void:
                 "code_length": 450,
             },
         )
+
+    async def get_editor_layout(
+        self,
+        include_open_scenes: bool = True,
+    ) -> StandardResult:
+        """Get editor layout in headless mode."""
+        return StandardResult(
+            success=True,
+            message="Editor layout retrieved (Scale: 1.00x, Distraction-Free: False, Open Scenes: 1) (Headless Mode).",
+            mode=self.mode,
+            data={
+                "editor_scale": 1.0,
+                "distraction_free_mode": False,
+                "edited_scene_root": "res://scenes/main.tscn",
+                "open_scenes_count": 1 if include_open_scenes else 0,
+                "open_scenes": ["res://scenes/main.tscn"]
+                if include_open_scenes
+                else [],
+            },
+        )
+
+    async def set_editor_layout(
+        self,
+        main_screen: str | None = None,
+        distraction_free_mode: bool | None = None,
+        active_scene_path: str | None = None,
+    ) -> StandardResult:
+        """Set editor layout in headless mode."""
+        changes = []
+        if main_screen:
+            changes.append(f"Main Screen: {main_screen}")
+        if distraction_free_mode is not None:
+            changes.append(f"Distraction-Free: {distraction_free_mode}")
+        if active_scene_path:
+            changes.append(f"Opened Scene: {active_scene_path}")
+        return StandardResult(
+            success=True,
+            message=f"Updated editor layout: {', '.join(changes) or 'No modifications'} (Headless Mode).",
+            mode=self.mode,
+            data={
+                "main_screen": main_screen,
+                "distraction_free_mode": distraction_free_mode,
+                "active_scene_path": active_scene_path,
+                "changes_applied": changes,
+            },
+        )
