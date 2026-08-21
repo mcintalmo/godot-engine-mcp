@@ -788,3 +788,42 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Enable or disable an editor plugin."""
         ...
+
+    @abstractmethod
+    async def configure_navigation_obstacle(
+        self,
+        node_path: str | None = None,
+        parent_path: str | None = None,
+        node_name: str = "NavigationObstacle3D",
+        is_3d: bool = True,
+        radius: float = 1.0,
+        velocity: list[float] | None = None,
+        vertices: list[list[float]] | None = None,
+        avoidance_layers: int = 1,
+        affect_navigation_mesh: bool = False,
+        carve_navigation_mesh: bool = False,
+    ) -> StandardResult:
+        """Create or configure a NavigationObstacle2D/3D node."""
+        ...
+
+    @abstractmethod
+    async def configure_tileset_terrain(
+        self,
+        tileset_path: str,
+        terrain_set: int = 0,
+        mode: str = "match_corners_and_sides",
+        terrains: list[dict[str, Any]] | None = None,
+        tile_peering_bits: list[dict[str, Any]] | None = None,
+        save_path: str | None = None,
+    ) -> StandardResult:
+        """Configure TileSet terrain sets, terrain modes, and autotiling peering bits."""
+        ...
+
+    @abstractmethod
+    async def diff_scene(
+        self,
+        scene_path: str | None = None,
+        target_scene_path: str | None = None,
+    ) -> StandardResult:
+        """Diff active scene against disk or compare two .tscn scene files."""
+        ...

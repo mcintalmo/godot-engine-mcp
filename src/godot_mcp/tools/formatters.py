@@ -764,6 +764,58 @@ def format_result(
             lines.append(f"- **Config**: `{result.data.get('config_path')}`")
             lines.append(f"- **Status**: `{result.data.get('enabled')}`")
 
+        elif "avoidance_layers" in result.data and "vertex_count" in result.data:
+            lines.append(
+                f"**NavigationObstacle**: `{result.data.get('node_name')}` (3D: `{result.data.get('is_3d')}`)"
+            )
+            if result.data.get("node_path"):
+                lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+            lines.append(f"- **Radius**: `{result.data.get('radius')}`")
+            lines.append(
+                f"- **Avoidance Layers**: `{result.data.get('avoidance_layers')}`"
+            )
+            lines.append(f"- **Polygon Vertices**: `{result.data.get('vertex_count')}`")
+
+        elif "terrain_set" in result.data and "terrain_count" in result.data:
+            lines.append(
+                f"**TileSet Terrain Set {result.data.get('terrain_set')}**: `{result.data.get('tileset_path')}`"
+            )
+            lines.append(f"- **Mode**: `{result.data.get('mode')}`")
+            lines.append(
+                f"- **Configured Terrains**: `{result.data.get('terrain_count')}`"
+            )
+            if result.data.get("saved_path"):
+                lines.append(f"- **Saved Resource**: `{result.data.get('saved_path')}`")
+
+        elif "added_nodes" in result.data and "removed_nodes" in result.data:
+            lines.append(
+                f"**Scene Diff**: `{result.data.get('base')}` vs `{result.data.get('target')}`\n"
+            )
+            lines.append(f"- **Added**: {result.data.get('added_count')}")
+            lines.append(f"- **Removed**: {result.data.get('removed_count')}")
+            lines.append(f"- **Modified**: {result.data.get('modified_count')}\n")
+
+            add_list = result.data.get("added_nodes", [])
+            rem_list = result.data.get("removed_nodes", [])
+            mod_list = result.data.get("modified_nodes", [])
+
+            if add_list:
+                lines.append("**Added Nodes**:")
+                for n in add_list:
+                    lines.append(f"+ `{n.get('path')}` ({n.get('class')})")
+            if rem_list:
+                lines.append("\n**Removed Nodes**:")
+                for n in rem_list:
+                    lines.append(f"- `{n.get('path')}` ({n.get('class')})")
+            if mod_list:
+                lines.append("\n**Modified Nodes**:")
+                for n in mod_list:
+                    lines.append(f"* `{n.get('path')}` ({n.get('class')}):")
+                    for c in n.get("changes", []):
+                        lines.append(
+                            f"    - `{c.get('property')}`: `{c.get('base_value')}` -> `{c.get('target_value')}`"
+                        )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

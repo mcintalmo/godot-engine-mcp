@@ -78,6 +78,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Asset Dependency Graph (`godot_get_dependencies`)**: Query the complete dependency list for any scene (`.tscn`), resource (`.tres`), script (`.gd`), or mesh (`.glb`) via `ResourceLoader.get_dependencies()`.
 - [x] **Plugin & Addon Lifecycle Manager (`godot_get_plugins`, `godot_set_plugin_status`)**: Discover all installed editor addons in `res://addons/*/plugin.cfg`, inspect metadata, and dynamically enable/disable plugins via `EditorInterface`.
 
+### Phase 11: Navigation Obstacles, TileSet Terrains & Scene Tree Diffing
+- [x] **2D/3D Navigation Obstacles & Dynamic Avoidance (`godot_configure_navigation_obstacle`)**: Create and configure `NavigationObstacle2D` / `NavigationObstacle3D` nodes with dynamic velocity/radius RVO bubbles, static polygon boundary vertices, avoidance layers, and navmesh carving parameters.
+- [x] **TileSet Terrain & Autotiling Engine (`godot_configure_tileset_terrain`)**: Create and configure `TileSet` terrain sets (`Match Corners`, `Match Sides`, `Match Corners and Sides`), named terrains with debug colors, and autotiling peering bit mappings.
+- [x] **Scene Tree Diff & Audit Helper (`godot_diff_scene`)**: Perform structural hierarchy and property diffs between live edited scenes and disk files, or between two standalone `.tscn` scene files.
+
+
 
 
 

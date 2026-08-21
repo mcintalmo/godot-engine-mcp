@@ -3522,3 +3522,80 @@ func _init() -> void:
                 "enabled": enabled,
             },
         )
+
+    async def configure_navigation_obstacle(
+        self,
+        node_path: str | None = None,
+        parent_path: str | None = None,
+        node_name: str = "NavigationObstacle3D",
+        is_3d: bool = True,
+        radius: float = 1.0,
+        velocity: list[float] | None = None,
+        vertices: list[list[float]] | None = None,
+        avoidance_layers: int = 1,
+        affect_navigation_mesh: bool = False,
+        carve_navigation_mesh: bool = False,
+    ) -> StandardResult:
+        """Configure NavigationObstacle in headless mode."""
+        node_type = "NavigationObstacle3D" if is_3d else "NavigationObstacle2D"
+        target_p = node_path or f"/root/Scene/{node_name}"
+        return StandardResult(
+            success=True,
+            message=f"Configured {node_type} '{node_name}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "node_name": node_name,
+                "node_path": target_p,
+                "is_3d": is_3d,
+                "radius": radius,
+                "avoidance_layers": avoidance_layers,
+                "vertex_count": len(vertices) if vertices else 0,
+            },
+        )
+
+    async def configure_tileset_terrain(
+        self,
+        tileset_path: str,
+        terrain_set: int = 0,
+        mode: str = "match_corners_and_sides",
+        terrains: list[dict[str, Any]] | None = None,
+        tile_peering_bits: list[dict[str, Any]] | None = None,
+        save_path: str | None = None,
+    ) -> StandardResult:
+        """Configure TileSet terrains in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Configured TileSet terrain set {terrain_set} ({mode}) (Headless Mode).",
+            mode=self.mode,
+            data={
+                "tileset_path": tileset_path,
+                "terrain_set": terrain_set,
+                "mode": mode,
+                "terrain_count": len(terrains) if terrains else 1,
+                "saved_path": save_path or tileset_path,
+            },
+        )
+
+    async def diff_scene(
+        self,
+        scene_path: str | None = None,
+        target_scene_path: str | None = None,
+    ) -> StandardResult:
+        """Diff scene in headless mode."""
+        base_name = scene_path or "res://scenes/main.tscn"
+        target_name = target_scene_path or "Live Scene"
+        return StandardResult(
+            success=True,
+            message="Scene Diff: 0 added, 0 removed, 0 modified nodes (Headless Mode).",
+            mode=self.mode,
+            data={
+                "base": base_name,
+                "target": target_name,
+                "added_count": 0,
+                "removed_count": 0,
+                "modified_count": 0,
+                "added_nodes": [],
+                "removed_nodes": [],
+                "modified_nodes": [],
+            },
+        )

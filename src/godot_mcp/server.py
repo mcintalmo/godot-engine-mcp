@@ -54,6 +54,7 @@ from godot_mcp.models.lsp import (
     LSPRenameInput,
 )
 from godot_mcp.models.material import CreateMaterialInput
+from godot_mcp.models.nav_obstacle import ConfigureNavigationObstacleInput
 from godot_mcp.models.navigation import (
     BakeNavMeshInput,
     CreateNavigationRegionInput,
@@ -99,6 +100,7 @@ from godot_mcp.models.scene import (
     OpenSceneInput,
     SaveSceneInput,
 )
+from godot_mcp.models.scene_diff import DiffSceneInput
 from godot_mcp.models.script import (
     CreateScriptInput,
     ValidateScriptInput,
@@ -121,6 +123,7 @@ from godot_mcp.models.tilemap import (
     GetTileMapCellsInput,
     SetTileMapCellsInput,
 )
+from godot_mcp.models.tileset_terrain import ConfigureTileSetTerrainInput
 from godot_mcp.models.uid_dep import (
     GetDependenciesInput,
     GetUIDInput,
@@ -173,6 +176,9 @@ from godot_mcp.tools.lsp_tools import (
     handle_lsp_rename,
 )
 from godot_mcp.tools.material_tools import handle_create_material
+from godot_mcp.tools.nav_obstacle_tools import (
+    handle_configure_navigation_obstacle,
+)
 from godot_mcp.tools.navigation_tools import (
     handle_bake_navmesh,
     handle_create_navigation_region,
@@ -206,6 +212,7 @@ from godot_mcp.tools.reflection_tools import (
     handle_get_documentation,
     handle_validate_shader,
 )
+from godot_mcp.tools.scene_diff_tools import handle_diff_scene
 from godot_mcp.tools.scene_tools import (
     handle_create_node,
     handle_create_scene,
@@ -239,6 +246,7 @@ from godot_mcp.tools.tilemap_tools import (
     handle_get_tilemap_cells,
     handle_set_tilemap_cells,
 )
+from godot_mcp.tools.tileset_terrain_tools import handle_configure_tileset_terrain
 from godot_mcp.tools.uid_tools import (
     handle_get_dependencies,
     handle_get_uid,
@@ -1280,6 +1288,52 @@ def create_server(
     async def set_plugin_status(params: SetPluginStatusInput) -> str:
         """Enable or disable an editor addon dynamically."""
         return await handle_set_plugin_status(active_client, params)
+
+    @server.tool(
+        name="godot_configure_navigation_obstacle",
+        annotations=ToolAnnotations(
+            title="Configure Navigation Obstacle",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_navigation_obstacle(
+        params: ConfigureNavigationObstacleInput,
+    ) -> str:
+        """Create or configure a NavigationObstacle2D/3D node with avoidance radius, velocity, or polygon vertices."""
+        return await handle_configure_navigation_obstacle(active_client, params)
+
+    @server.tool(
+        name="godot_configure_tileset_terrain",
+        annotations=ToolAnnotations(
+            title="Configure TileSet Terrain",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_tileset_terrain(
+        params: ConfigureTileSetTerrainInput,
+    ) -> str:
+        """Create and configure TileSet terrain sets, terrain modes, and autotiling peering bit mappings."""
+        return await handle_configure_tileset_terrain(active_client, params)
+
+    @server.tool(
+        name="godot_diff_scene",
+        annotations=ToolAnnotations(
+            title="Diff Scene Tree",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def diff_scene(params: DiffSceneInput) -> str:
+        """Diff the live edited scene in memory against its saved .tscn file on disk, or compare two .tscn scene files."""
+        return await handle_diff_scene(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

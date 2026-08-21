@@ -1215,3 +1215,66 @@ class LiveBridgeClient(GodotClient):
                 "enabled": enabled,
             },
         )
+
+    async def configure_navigation_obstacle(
+        self,
+        node_path: str | None = None,
+        parent_path: str | None = None,
+        node_name: str = "NavigationObstacle3D",
+        is_3d: bool = True,
+        radius: float = 1.0,
+        velocity: list[float] | None = None,
+        vertices: list[list[float]] | None = None,
+        avoidance_layers: int = 1,
+        affect_navigation_mesh: bool = False,
+        carve_navigation_mesh: bool = False,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "configure_navigation_obstacle",
+            {
+                "node_path": node_path or "",
+                "parent_path": parent_path or "",
+                "node_name": node_name,
+                "is_3d": is_3d,
+                "radius": radius,
+                "velocity": velocity or [],
+                "vertices": vertices or [],
+                "avoidance_layers": avoidance_layers,
+                "affect_navigation_mesh": affect_navigation_mesh,
+                "carve_navigation_mesh": carve_navigation_mesh,
+            },
+        )
+
+    async def configure_tileset_terrain(
+        self,
+        tileset_path: str,
+        terrain_set: int = 0,
+        mode: str = "match_corners_and_sides",
+        terrains: list[dict[str, Any]] | None = None,
+        tile_peering_bits: list[dict[str, Any]] | None = None,
+        save_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "configure_tileset_terrain",
+            {
+                "tileset_path": tileset_path,
+                "terrain_set": terrain_set,
+                "mode": mode,
+                "terrains": terrains or [],
+                "tile_peering_bits": tile_peering_bits or [],
+                "save_path": save_path or "",
+            },
+        )
+
+    async def diff_scene(
+        self,
+        scene_path: str | None = None,
+        target_scene_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "diff_scene",
+            {
+                "scene_path": scene_path or "",
+                "target_scene_path": target_scene_path or "",
+            },
+        )

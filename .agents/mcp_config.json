@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "godot-docs": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/Users/mcint/projects/godot-docs-mcp",
+        "run",
+        "godot-docs-mcp",
+        "serve"
+      ]
+    }
+  }
+}

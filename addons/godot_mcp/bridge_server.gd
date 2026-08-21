@@ -32,6 +32,9 @@ const AnimTreeOps = preload("res://addons/godot_mcp/operations/anim_tree_ops.gd"
 const LocalizationOps = preload("res://addons/godot_mcp/operations/localization_ops.gd")
 const UIDOps = preload("res://addons/godot_mcp/operations/uid_ops.gd")
 const PluginOps = preload("res://addons/godot_mcp/operations/plugin_ops.gd")
+const NavObstacleOps = preload("res://addons/godot_mcp/operations/nav_obstacle_ops.gd")
+const TilesetTerrainOps = preload("res://addons/godot_mcp/operations/tileset_terrain_ops.gd")
+const SceneDiffOps = preload("res://addons/godot_mcp/operations/scene_diff_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -65,6 +68,9 @@ var _anim_tree_ops: RefCounted
 var _localization_ops: RefCounted
 var _uid_ops: RefCounted
 var _plugin_ops: RefCounted
+var _nav_obstacle_ops: RefCounted
+var _tileset_terrain_ops: RefCounted
+var _scene_diff_ops: RefCounted
 
 var _port: int = PORT
 
@@ -99,6 +105,10 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_localization_ops = LocalizationOps.new(_plugin)
 	_uid_ops = UIDOps.new(_plugin)
 	_plugin_ops = PluginOps.new(_plugin)
+	_nav_obstacle_ops = NavObstacleOps.new(_plugin)
+	_tileset_terrain_ops = TilesetTerrainOps.new(_plugin)
+	_scene_diff_ops = SceneDiffOps.new(_plugin)
+
 
 
 
@@ -316,6 +326,13 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _plugin_ops.get_plugins(params)
 		"set_plugin_status":
 			result = _plugin_ops.set_plugin_status(params)
+		"configure_navigation_obstacle":
+			result = _nav_obstacle_ops.configure_navigation_obstacle(params)
+		"configure_tileset_terrain":
+			result = _tileset_terrain_ops.configure_tileset_terrain(params)
+		"diff_scene":
+			result = _scene_diff_ops.diff_scene(params)
+
 
 
 
