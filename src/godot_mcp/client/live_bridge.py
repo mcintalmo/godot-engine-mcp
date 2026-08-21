@@ -1468,3 +1468,36 @@ class LiveBridgeClient(GodotClient):
                 "recursive": recursive,
             },
         )
+
+    async def attach_script(
+        self,
+        node_path: str,
+        script_path: str | None = None,
+        initial_properties: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "attach_script",
+            {
+                "node_path": node_path,
+                "script_path": script_path or "",
+                "initial_properties": initial_properties or {},
+            },
+        )
+
+    async def reload_scripts(
+        self,
+        script_paths: list[str] | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "reload_scripts",
+            {"script_paths": script_paths or []},
+        )
+
+    async def get_node_script_info(
+        self,
+        node_path: str,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "get_node_script_info",
+            {"node_path": node_path},
+        )

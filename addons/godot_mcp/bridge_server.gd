@@ -41,6 +41,7 @@ const AssetAuditOps = preload("res://addons/godot_mcp/operations/asset_audit_ops
 const GUTTestOps = preload("res://addons/godot_mcp/operations/gut_test_ops.gd")
 const EditorLayoutOps = preload("res://addons/godot_mcp/operations/editor_layout_ops.gd")
 const SceneHierarchyOps = preload("res://addons/godot_mcp/operations/scene_hierarchy_ops.gd")
+const ScriptLifecycleOps = preload("res://addons/godot_mcp/operations/script_lifecycle_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -83,6 +84,7 @@ var _asset_audit_ops: RefCounted
 var _gut_test_ops: RefCounted
 var _editor_layout_ops: RefCounted
 var _scene_hierarchy_ops: RefCounted
+var _script_lifecycle_ops: RefCounted
 
 var _port: int = PORT
 
@@ -126,6 +128,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_gut_test_ops = GUTTestOps.new(_plugin)
 	_editor_layout_ops = EditorLayoutOps.new(_plugin)
 	_scene_hierarchy_ops = SceneHierarchyOps.new(_plugin)
+	_script_lifecycle_ops = ScriptLifecycleOps.new(_plugin)
+
 
 
 
@@ -385,6 +389,13 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _scene_hierarchy_ops.instantiate_scene(params)
 		"set_node_owner":
 			result = _scene_hierarchy_ops.set_node_owner(params)
+		"attach_script":
+			result = _script_lifecycle_ops.attach_script(params)
+		"reload_scripts":
+			result = _script_lifecycle_ops.reload_scripts(params)
+		"get_node_script_info":
+			result = _script_lifecycle_ops.get_node_script_info(params)
+
 
 
 

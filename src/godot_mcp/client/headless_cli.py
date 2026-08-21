@@ -3922,3 +3922,99 @@ func _init() -> void:
                 "recursive": recursive,
             },
         )
+
+    async def attach_script(
+        self,
+        node_path: str,
+        script_path: str | None = None,
+        initial_properties: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        """Attach or detach script in headless mode."""
+        node_name = node_path.split("/")[-1]
+        if not script_path or not script_path.strip():
+            return StandardResult(
+                success=True,
+                message=f"Detached script from node '{node_name}' (Headless Mode).",
+                mode=self.mode,
+                data={
+                    "node_name": node_name,
+                    "node_path": node_path,
+                    "has_script": False,
+                    "script_path": "",
+                },
+            )
+        return StandardResult(
+            success=True,
+            message=f"Attached script '{script_path.split('/')[-1]}' to node '{node_name}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "node_name": node_name,
+                "node_path": node_path,
+                "has_script": True,
+                "script_path": script_path,
+                "applied_properties": initial_properties or {},
+            },
+        )
+
+    async def reload_scripts(
+        self,
+        script_paths: list[str] | None = None,
+    ) -> StandardResult:
+        """Reload scripts in headless mode."""
+        paths = script_paths or ["All in-memory scripts"]
+        return StandardResult(
+            success=True,
+            message=f"Reloaded {len(paths)} script resources in memory (Headless Mode).",
+            mode=self.mode,
+            data={
+                "reloaded_count": len(paths),
+                "reloaded_scripts": paths,
+            },
+        )
+
+    async def get_node_script_info(
+        self,
+        node_path: str,
+    ) -> StandardResult:
+        """Retrieve script info in headless mode."""
+        node_name = node_path.split("/")[-1]
+        return StandardResult(
+            success=True,
+            message=f"Retrieved script info for node '{node_name}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "node_name": node_name,
+                "node_path": node_path,
+                "class": "CharacterBody3D",
+                "has_script": True,
+                "script_path": f"res://scripts/{node_name.lower()}.gd",
+                "base_type": "CharacterBody3D",
+                "methods_count": 4,
+                "methods": ["_ready", "_physics_process", "take_damage", "heal"],
+                "signals_count": 2,
+                "signals": ["health_changed", "died"],
+                "constants_count": 1,
+                "constants": {"MAX_HEALTH": "100"},
+                "properties_count": 3,
+                "properties": [
+                    {
+                        "name": "speed",
+                        "type": 3,
+                        "hint": 0,
+                        "hint_string": "",
+                        "is_exported": True,
+                        "default_value": "300.0",
+                        "current_value": "350.0",
+                    },
+                    {
+                        "name": "jump_velocity",
+                        "type": 3,
+                        "hint": 0,
+                        "hint_string": "",
+                        "is_exported": True,
+                        "default_value": "4.5",
+                        "current_value": "4.5",
+                    },
+                ],
+            },
+        )

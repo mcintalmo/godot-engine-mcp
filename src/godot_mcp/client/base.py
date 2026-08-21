@@ -962,3 +962,29 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Set the owner of a node or subtree in the active scene."""
         ...
+
+    @abstractmethod
+    async def attach_script(
+        self,
+        node_path: str,
+        script_path: str | None = None,
+        initial_properties: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        """Attach or detach a script file to/from an active node."""
+        ...
+
+    @abstractmethod
+    async def reload_scripts(
+        self,
+        script_paths: list[str] | None = None,
+    ) -> StandardResult:
+        """Force reload scripts in memory cache."""
+        ...
+
+    @abstractmethod
+    async def get_node_script_info(
+        self,
+        node_path: str,
+    ) -> StandardResult:
+        """Retrieve attached script metadata, methods, signals, constants, and exported properties."""
+        ...

@@ -105,6 +105,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Deep Node Duplication (`godot_duplicate_node`)**: Deep clone nodes with custom flags for signal connections, group memberships, and attached script state.
 - [x] **Scene Node Ownership Management (`godot_set_node_owner`)**: Programmatically assign node ownership across hierarchy subtrees to ensure proper serialization upon `.tscn` save.
 
+### Phase 17: Live Script Lifecycle, Hot-Reload & Exported Property Reflection
+- [x] **Live Script Attachment & Detachment (`godot_attach_script`)**: Attach or detach `.gd` / `.cs` script files to/from live nodes and assign initial exported property values.
+- [x] **In-Memory Script Hot-Reloading (`godot_reload_scripts`)**: Force reload of GDScript resources in memory cache without restarting the editor.
+- [x] **Script Introspection & Exported Properties (`godot_get_node_script_info`)**: Inspect attached script methods, signals, declared constants, and all `@export` properties with their default vs current values.
+
+
 
 
 

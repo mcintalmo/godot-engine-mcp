@@ -1220,3 +1220,34 @@ class ClientManager(GodotClient):
             owner_node_path=owner_node_path,
             recursive=recursive,
         )
+
+    async def attach_script(
+        self,
+        node_path: str,
+        script_path: str | None = None,
+        initial_properties: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.attach_script(
+            node_path=node_path,
+            script_path=script_path,
+            initial_properties=initial_properties,
+        )
+
+    async def reload_scripts(
+        self,
+        script_paths: list[str] | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.reload_scripts(
+            script_paths=script_paths,
+        )
+
+    async def get_node_script_info(
+        self,
+        node_path: str,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.get_node_script_info(
+            node_path=node_path,
+        )

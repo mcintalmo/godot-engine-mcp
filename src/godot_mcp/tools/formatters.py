@@ -1006,6 +1006,42 @@ def format_result(
             lines.append(f"- **New Owner**: `{result.data.get('owner_path')}`")
             lines.append(f"- **Recursive**: `{result.data.get('recursive')}`")
 
+        elif "reloaded_scripts" in result.data:
+            lines.append(
+                f"**Reloaded {result.data.get('reloaded_count', 0)} Script Resources**:\n"
+            )
+            for sp in result.data.get("reloaded_scripts", []):
+                lines.append(f"- `{sp}`")
+
+        elif "has_script" in result.data and "methods" in result.data:
+            lines.append(
+                f"**Attached Script Info**: `{result.data.get('node_name')}`\n"
+            )
+            lines.append(f"- **Script Path**: `{result.data.get('script_path')}`")
+            lines.append(f"- **Base Type**: `{result.data.get('base_type')}`")
+            lines.append(
+                f"- **Methods ({result.data.get('methods_count')})**: `{', '.join(result.data.get('methods', [])) or 'None'}`"
+            )
+            lines.append(
+                f"- **Signals ({result.data.get('signals_count')})**: `{', '.join(result.data.get('signals', [])) or 'None'}`"
+            )
+            if result.data.get("properties"):
+                lines.append("\n**Exported Properties**:")
+                for p in result.data.get("properties", []):
+                    lines.append(
+                        f"- `{p.get('name')}`: default `{p.get('default_value')}`, current `{p.get('current_value')}`"
+                    )
+
+        elif "has_script" in result.data and "applied_properties" in result.data:
+            lines.append(
+                f"**Script Attached to Node**: `{result.data.get('node_name')}`\n"
+            )
+            lines.append(f"- **Script Path**: `{result.data.get('script_path')}`")
+            if result.data.get("applied_properties"):
+                lines.append("- **Initial Properties Applied**:")
+                for k, v in result.data.get("applied_properties", {}).items():
+                    lines.append(f"  - `{k}`: `{v}`")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

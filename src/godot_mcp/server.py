@@ -131,6 +131,11 @@ from godot_mcp.models.script import (
     CreateScriptInput,
     ValidateScriptInput,
 )
+from godot_mcp.models.script_lifecycle import (
+    AttachScriptInput,
+    GetNodeScriptInfoInput,
+    ReloadScriptsInput,
+)
 from godot_mcp.models.shader import (
     CreateShaderInput,
     SetShaderParamInput,
@@ -275,6 +280,11 @@ from godot_mcp.tools.scene_tools import (
     handle_modify_node,
     handle_open_scene,
     handle_save_scene,
+)
+from godot_mcp.tools.script_lifecycle_tools import (
+    handle_attach_script,
+    handle_get_node_script_info,
+    handle_reload_scripts,
 )
 from godot_mcp.tools.script_tools import (
     handle_create_script,
@@ -1582,6 +1592,48 @@ def create_server(
     async def set_node_owner(params: SetNodeOwnerInput) -> str:
         """Set the owner node of a target node or subtree for scene file persistence."""
         return await handle_set_node_owner(active_client, params)
+
+    @server.tool(
+        name="godot_attach_script",
+        annotations=ToolAnnotations(
+            title="Attach Script",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def attach_script(params: AttachScriptInput) -> str:
+        """Attach a script file (.gd/.cs) to a live node or detach existing script."""
+        return await handle_attach_script(active_client, params)
+
+    @server.tool(
+        name="godot_reload_scripts",
+        annotations=ToolAnnotations(
+            title="Reload Scripts",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def reload_scripts(params: ReloadScriptsInput) -> str:
+        """Force reload GDScript resources in memory cache without restarting the editor."""
+        return await handle_reload_scripts(active_client, params)
+
+    @server.tool(
+        name="godot_get_node_script_info",
+        annotations=ToolAnnotations(
+            title="Get Node Script Info",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def get_node_script_info(params: GetNodeScriptInfoInput) -> str:
+        """Inspect attached script methods, signals, constants, and exported properties with default vs current values."""
+        return await handle_get_node_script_info(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 
