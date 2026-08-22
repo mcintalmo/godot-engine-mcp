@@ -125,12 +125,15 @@ def install_addon(
         console.print(f"[red]Error:[/red] No project.godot found at {target}")
         raise typer.Exit(code=1)
 
-    addon_source = (
-        Path(__file__).resolve().parent.parent.parent / "addons" / "godot_mcp"
-    )
-    if not addon_source.is_dir():
+    candidate_sources = [
+        Path(__file__).resolve().parent / "addons" / "godot_mcp",
+        Path(__file__).resolve().parent.parent / "addons" / "godot_mcp",
+        Path(__file__).resolve().parent.parent.parent / "addons" / "godot_mcp",
+    ]
+    addon_source = next((p for p in candidate_sources if p.is_dir()), None)
+    if not addon_source:
         console.print(
-            f"[red]Error:[/red] Source addon directory not found at {addon_source}"
+            f"[red]Error:[/red] Source addon directory not found in candidates: {candidate_sources}"
         )
         raise typer.Exit(code=1)
 

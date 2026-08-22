@@ -1,9 +1,33 @@
 [project]
 name = "godot-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "Model Context Protocol (MCP) server and live Editor Bridge for Godot Engine 4.7+"
 readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.14"
+authors = [
+    { name = "Godot MCP Authors" }
+]
+keywords = [
+    "godot",
+    "godot-engine",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "game-development",
+    "gdscript",
+    "fastmcp",
+    "claude",
+    "cursor"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Games/Entertainment",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.14",
+]
 dependencies = [
     "httpx>=0.28.1",
     "mcp>=2.0.0",
@@ -11,15 +35,12 @@ dependencies = [
     "websockets>=17.0.1",
 ]
 
-
 [project.scripts]
 godot-mcp = "godot_mcp.cli:app"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-
 
 [dependency-groups]
 dev = [
@@ -41,12 +62,7 @@ exclude = [
 [tool.ty.src]
 include = ["src", "tests"]
 
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src", "."]
 asyncio_mode = "auto"
-
-
-
-
