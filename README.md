@@ -28,7 +28,7 @@ Godot Engine MCP operates across three complementary layers:
 3. **Semantic GDScript Language Server (LSP)**:
    Connects directly to Godot's built-in Language Server (`tcp://127.0.0.1:6005`) with offline AST fallback for symbol definition queries, references, hover documentation, and cross-file semantic renames.
 
-```
+```text
 ┌────────────────────────────────────────────────────────┐
 │                      AI Client                         │
 │         (Cursor / Claude / Gemini / Antigravity)       │
@@ -45,7 +45,7 @@ Godot Engine MCP operates across three complementary layers:
 │ - Live SceneTree & Editor │ │ - Headless test runner   │
 │ - Undo/Redo & Viewports   │ │ - project.godot edits    │
 └───────────────────────────┘ └──────────────────────────┘
-```
+```text
 
 ---
 
@@ -240,7 +240,7 @@ uvx --from git+https://github.com/mcintalmo/godot-engine-mcp godot-engine-mcp in
 
 # Check connection status:
 uvx --from git+https://github.com/mcintalmo/godot-engine-mcp godot-engine-mcp probe
-```
+```text
 
 Or if developing locally from source:
 
@@ -254,7 +254,7 @@ uv sync
 
 # Install addon to project
 uv run godot-engine-mcp install-addon /path/to/your/godot/project
-```
+```text
 
 ---
 
@@ -265,6 +265,7 @@ uv run godot-engine-mcp install-addon /path/to/your/godot/project
 Add to `claude_desktop_config.json`:
 
 #### Option A: Direct via GitHub (Recommended)
+
 ```json
 {
   "mcpServers": {
@@ -282,9 +283,10 @@ Add to `claude_desktop_config.json`:
     }
   }
 }
-```
+```text
 
 #### Option B: From Local Clone
+
 ```json
 {
   "mcpServers": {
@@ -303,7 +305,7 @@ Add to `claude_desktop_config.json`:
     }
   }
 }
-```
+```text
 
 ### Cursor / Windsurf
 
@@ -326,7 +328,7 @@ Add to `.cursor/mcp.json` or `~/.codeium/windsurf/mcp_config.json`:
     }
   }
 }
-```
+```text
 
 ### Gemini Antigravity IDE
 
@@ -349,7 +351,7 @@ Add to `.gemini/antigravity-ide/mcp_config.json`:
     }
   }
 }
-```
+```text
 
 ---
 
@@ -365,7 +367,7 @@ uv run ty check
 # Check linting and formatting
 uv run ruff check
 uv run ruff format --check
-```
+```text
 
 ---
 
