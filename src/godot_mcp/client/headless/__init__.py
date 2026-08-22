@@ -1,4 +1,4 @@
-"""Headless CLI client executing Godot operations via subprocess and domain mixins."""
+"""Modular Headless CLI client components and domain mixins."""
 
 from godot_mcp.client.headless.base import BaseHeadlessClient
 from godot_mcp.client.headless.diagnostics_automation_mixin import (
@@ -11,15 +11,13 @@ from godot_mcp.client.headless.scene_mixin import SceneHeadlessMixin
 from godot_mcp.client.headless.script_lsp_mixin import ScriptLSPHeadlessMixin
 from godot_mcp.client.headless.world_audio_mixin import WorldAudioHeadlessMixin
 
-
-class HeadlessCLIClient(
-    ProjectHeadlessMixin,
-    SceneHeadlessMixin,
-    ScriptLSPHeadlessMixin,
-    PhysicsHeadlessMixin,
-    RenderingHeadlessMixin,
-    WorldAudioHeadlessMixin,
-    DiagnosticsAutomationHeadlessMixin,
-    BaseHeadlessClient,
-):
-    """Fallback client executing Godot commands and operations headlessly via CLI subprocess."""
+__all__ = [
+    "BaseHeadlessClient",
+    "DiagnosticsAutomationHeadlessMixin",
+    "PhysicsHeadlessMixin",
+    "ProjectHeadlessMixin",
+    "RenderingHeadlessMixin",
+    "SceneHeadlessMixin",
+    "ScriptLSPHeadlessMixin",
+    "WorldAudioHeadlessMixin",
+]
