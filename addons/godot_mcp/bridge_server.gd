@@ -45,6 +45,7 @@ const ScriptLifecycleOps = preload("res://addons/godot_mcp/operations/script_lif
 const CameraRenderingOps = preload("res://addons/godot_mcp/operations/camera_rendering_ops.gd")
 const InputSimulationOps = preload("res://addons/godot_mcp/operations/input_simulation_ops.gd")
 const E2EAutomationOps = preload("res://addons/godot_mcp/operations/e2e_automation_ops.gd")
+const GridMapPathOps = preload("res://addons/godot_mcp/operations/gridmap_path_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -91,6 +92,7 @@ var _script_lifecycle_ops: RefCounted
 var _camera_rendering_ops: RefCounted
 var _input_simulation_ops: RefCounted
 var _e2e_automation_ops: RefCounted
+var _gridmap_path_ops: RefCounted
 
 var _port: int = PORT
 
@@ -138,6 +140,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_camera_rendering_ops = CameraRenderingOps.new(_plugin)
 	_input_simulation_ops = InputSimulationOps.new(_plugin)
 	_e2e_automation_ops = E2EAutomationOps.new(_plugin)
+	_gridmap_path_ops = GridMapPathOps.new(_plugin)
+
 
 
 
@@ -427,6 +431,11 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _e2e_automation_ops.wait_for_condition(params)
 		"assert_node_state":
 			result = _e2e_automation_ops.assert_node_state(params)
+		"configure_gridmap":
+			result = _gridmap_path_ops.configure_gridmap(params)
+		"create_curve_path":
+			result = _gridmap_path_ops.create_curve_path(params)
+
 
 
 

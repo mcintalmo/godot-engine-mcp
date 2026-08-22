@@ -1429,3 +1429,47 @@ class ClientManager(GodotClient):
             node_path=node_path,
             assertions=assertions,
         )
+
+    async def configure_gridmap(
+        self,
+        gridmap_node_path: str,
+        mesh_library_path: str | None = None,
+        cell_size: list[float] | None = None,
+        cells_to_set: list[dict[str, Any]] | None = None,
+        cells_to_clear: list[list[int]] | None = None,
+        clear_all: bool = False,
+        collision_layer: int | None = None,
+        collision_mask: int | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.configure_gridmap(
+            gridmap_node_path=gridmap_node_path,
+            mesh_library_path=mesh_library_path,
+            cell_size=cell_size,
+            cells_to_set=cells_to_set,
+            cells_to_clear=cells_to_clear,
+            clear_all=clear_all,
+            collision_layer=collision_layer,
+            collision_mask=collision_mask,
+        )
+
+    async def create_curve_path(
+        self,
+        path_type: str = "3d",
+        node_name: str = "Path3D",
+        parent_path: str = ".",
+        points: list[dict[str, Any]] | None = None,
+        closed: bool = False,
+        add_path_follow: bool = False,
+        path_follow_name: str = "PathFollow",
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.create_curve_path(
+            path_type=path_type,
+            node_name=node_name,
+            parent_path=parent_path,
+            points=points,
+            closed=closed,
+            add_path_follow=add_path_follow,
+            path_follow_name=path_follow_name,
+        )

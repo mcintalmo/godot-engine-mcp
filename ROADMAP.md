@@ -126,6 +126,11 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Autonomous State Transition Waiting (`godot_wait_for_condition`)**: Polling/waiting engine for node existence, visibility, property equals, and arbitrary boolean expressions with configurable timeout.
 - [x] **Multi-Property State Assertions (`godot_assert_node_state`)**: Structured assertion runner comparing expected vs actual runtime states for autonomous CI/E2E test validation.
 
+### Phase 21: 3D GridMaps & Procedural Bezier Paths
+- [x] **3D Voxel GridMap Engine (`godot_configure_gridmap`)**: Batch placement, clearing, mesh library assignment, cell sizing, orientations, and collision layer setup.
+- [x] **Procedural Bezier Curve Geometry (`godot_create_curve_path`)**: Create 2D/3D bezier curves (Path2D/Path3D) with tangent handles, tilt angles, closed loop paths, and automatic child PathFollow attachments.
+
+
 
 
 

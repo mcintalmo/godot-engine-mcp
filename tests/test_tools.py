@@ -2416,6 +2416,66 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def configure_gridmap(
+        self,
+        gridmap_node_path: str,
+        mesh_library_path: str | None = None,
+        cell_size: list[float] | None = None,
+        cells_to_set: list[dict[str, Any]] | None = None,
+        cells_to_clear: list[list[int]] | None = None,
+        clear_all: bool = False,
+        collision_layer: int | None = None,
+        collision_mask: int | None = None,
+    ) -> StandardResult:
+        node_name = gridmap_node_path.split("/")[-1]
+        set_count = len(cells_to_set) if cells_to_set else 0
+        cleared_count = len(cells_to_clear) if cells_to_clear else 0
+        changes = []
+        if mesh_library_path:
+            changes.append(f"MeshLibrary: {mesh_library_path}")
+        if set_count:
+            changes.append(f"Placed/Updated {set_count} cells")
+        if clear_all:
+            changes.append("Cleared all cells")
+        return StandardResult(
+            success=True,
+            message=f"Configured GridMap '{node_name}': {', '.join(changes) or 'No modifications'}.",
+            mode=self.mode,
+            data={
+                "gridmap_name": node_name,
+                "gridmap_path": gridmap_node_path,
+                "cells_set": set_count,
+                "cells_cleared": cleared_count,
+                "total_used_cells": set_count,
+                "changes_applied": changes,
+            },
+        )
+
+    async def create_curve_path(
+        self,
+        path_type: str = "3d",
+        node_name: str = "Path3D",
+        parent_path: str = ".",
+        points: list[dict[str, Any]] | None = None,
+        closed: bool = False,
+        add_path_follow: bool = False,
+        path_follow_name: str = "PathFollow",
+    ) -> StandardResult:
+        pts = points or []
+        return StandardResult(
+            success=True,
+            message=f"Created {path_type.upper()} curve '{node_name}' with {len(pts)} control points under '{parent_path}'.",
+            mode=self.mode,
+            data={
+                "node_name": node_name,
+                "node_path": f"{parent_path}/{node_name}".replace("./", ""),
+                "path_type": path_type,
+                "points_count": len(pts),
+                "has_path_follow": add_path_follow,
+                "is_closed": closed,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

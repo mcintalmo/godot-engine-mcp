@@ -69,6 +69,10 @@ from godot_mcp.models.export_build import (
     ExportProjectInput,
     GetExportPresetsInput,
 )
+from godot_mcp.models.gridmap_path import (
+    ConfigureGridMapInput,
+    CreateCurvePathInput,
+)
 from godot_mcp.models.gut_test import (
     GenerateGUTTestInput,
     RunGUTTestsInput,
@@ -238,6 +242,10 @@ from godot_mcp.tools.editor_tools import (
 )
 from godot_mcp.tools.environment_tools import handle_configure_environment
 from godot_mcp.tools.eval_tools import handle_evaluate_expression
+from godot_mcp.tools.gridmap_path_tools import (
+    handle_configure_gridmap,
+    handle_create_curve_path,
+)
 from godot_mcp.tools.gut_test_tools import (
     handle_generate_gut_test,
     handle_run_gut_tests,
@@ -1806,6 +1814,34 @@ def create_server(
     async def assert_node_state(params: AssertNodeStateInput) -> str:
         """Assert multiple expected properties and states against a scene node for autonomous verification."""
         return await handle_assert_node_state(active_client, params)
+
+    @server.tool(
+        name="godot_configure_gridmap",
+        annotations=ToolAnnotations(
+            title="Configure GridMap",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_gridmap(params: ConfigureGridMapInput) -> str:
+        """Batch place, clear, and configure 3D voxel cells on GridMap nodes."""
+        return await handle_configure_gridmap(active_client, params)
+
+    @server.tool(
+        name="godot_create_curve_path",
+        annotations=ToolAnnotations(
+            title="Create Curve Path",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def create_curve_path(params: CreateCurvePathInput) -> str:
+        """Create 2D or 3D Bezier curve paths (Path2D/Path3D) with handles, tilt, and PathFollow attachment."""
+        return await handle_create_curve_path(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

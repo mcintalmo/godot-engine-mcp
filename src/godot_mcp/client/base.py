@@ -1112,3 +1112,32 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Assert multiple expected properties and states against a scene node."""
         ...
+
+    @abstractmethod
+    async def configure_gridmap(
+        self,
+        gridmap_node_path: str,
+        mesh_library_path: str | None = None,
+        cell_size: list[float] | None = None,
+        cells_to_set: list[dict[str, Any]] | None = None,
+        cells_to_clear: list[list[int]] | None = None,
+        clear_all: bool = False,
+        collision_layer: int | None = None,
+        collision_mask: int | None = None,
+    ) -> StandardResult:
+        """Configure 3D GridMap nodes and batch place or erase voxel cells."""
+        ...
+
+    @abstractmethod
+    async def create_curve_path(
+        self,
+        path_type: str = "3d",
+        node_name: str = "Path3D",
+        parent_path: str = ".",
+        points: list[dict[str, Any]] | None = None,
+        closed: bool = False,
+        add_path_follow: bool = False,
+        path_follow_name: str = "PathFollow",
+    ) -> StandardResult:
+        """Create 2D or 3D Bezier curve paths and attach PathFollow nodes."""
+        ...

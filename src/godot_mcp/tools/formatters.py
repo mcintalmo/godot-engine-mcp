@@ -1132,6 +1132,41 @@ def format_result(
                     f"- {sym} `{a.get('property')}`: Expected `{a.get('expected')}`, Actual `{a.get('actual')}`"
                 )
 
+        elif "gridmap_name" in result.data and "total_used_cells" in result.data:
+            lines.append(
+                f"**Configured GridMap**: `{result.data.get('gridmap_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('gridmap_path')}`")
+            lines.append(
+                f"- **Cells Placed/Updated**: `{result.data.get('cells_set', 0)}`"
+            )
+            lines.append(
+                f"- **Cells Cleared**: `{result.data.get('cells_cleared', 0)}`"
+            )
+            lines.append(
+                f"- **Total Active Cells**: `{result.data.get('total_used_cells', 0)}`"
+            )
+            if result.data.get("changes_applied"):
+                lines.append("- **Changes**:")
+                for c in result.data.get("changes_applied", []):
+                    lines.append(f"  - `{c}`")
+
+        elif (
+            "node_name" in result.data
+            and "path_type" in result.data
+            and "points_count" in result.data
+        ):
+            ptype = result.data.get("path_type", "3d").upper()
+            lines.append(
+                f"**Created {ptype} Curve Path**: `{result.data.get('node_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+            lines.append(f"- **Control Points**: `{result.data.get('points_count')}`")
+            lines.append(f"- **Closed Loop**: `{result.data.get('is_closed')}`")
+            lines.append(
+                f"- **Attached PathFollow Node**: `{result.data.get('has_path_follow')}`"
+            )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 
