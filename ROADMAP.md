@@ -169,6 +169,11 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Low-Level GPU Compute Dispatcher (`godot_dispatch_compute_shader`)**: Execute custom GLSL compute shaders on GPU storage buffers via Godot's `RenderingDevice` API with automatic uniform creation and data readback.
 - [x] **RenderingDevice Telemetry Inspector (`godot_inspect_rendering_device`)**: Query low-level GPU hardware limits, compute workgroup capacities, memory budgets, and driver capabilities.
 
+### Phase 31: GPU MultiMesh Scattering & Foliage Systems
+- [x] **GPU Instanced MultiMesh Foliage Scatterer (`godot_scatter_multimesh`)**: High-performance procedural scattering of dense foliage, rocks, and instances across custom bounding regions with randomized scales and rotations.
+- [x] **Geometry LOD & Draw Distance Manager (`godot_configure_lod_manager`)**: Configure visibility ranges, cross-fade thresholds, and draw distances on `GeometryInstance3D` nodes for open-world rendering optimization.
+
+
 
 
 

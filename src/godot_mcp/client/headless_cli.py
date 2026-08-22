@@ -4902,3 +4902,58 @@ func _init() -> void:
                 "supports_storage_buffers": True,
             },
         )
+
+    async def scatter_multimesh(
+        self,
+        mesh_path: str | None = None,
+        node_name: str = "MultiMeshInstance3D",
+        parent_path: str = ".",
+        instance_count: int = 100,
+        area_size: list[float] | None = None,
+        min_scale: float = 0.8,
+        max_scale: float = 1.3,
+        random_yaw: bool = True,
+        align_to_surface: bool = False,
+    ) -> StandardResult:
+        """Scatter MultiMesh in headless mode."""
+        area = area_size or [50.0, 50.0]
+        return StandardResult(
+            success=True,
+            message=f"Scattered {instance_count} GPU MultiMesh instances across area [{area[0]}m x {area[1]}m] under '{parent_path}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "node_name": node_name,
+                "node_path": f"{parent_path}/{node_name}"
+                if parent_path != "."
+                else node_name,
+                "instance_count": instance_count,
+                "area_size": area,
+                "scale_range": [min_scale, max_scale],
+                "mesh_path": mesh_path or "",
+            },
+        )
+
+    async def configure_lod_manager(
+        self,
+        node_path: str = "GeometryInstance3D",
+        visibility_range_begin: float = 0.0,
+        visibility_range_end: float = 150.0,
+        visibility_range_begin_margin: float = 10.0,
+        visibility_range_end_margin: float = 10.0,
+        fade_mode: str = "self",
+    ) -> StandardResult:
+        """Configure LOD visibility range in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Configured LOD visibility range [{visibility_range_begin}m to {visibility_range_end}m] for '{node_path.split('/')[-1]}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "node_name": node_path.split("/")[-1],
+                "node_path": node_path,
+                "visibility_range_begin": visibility_range_begin,
+                "visibility_range_end": visibility_range_end,
+                "visibility_range_begin_margin": visibility_range_begin_margin,
+                "visibility_range_end_margin": visibility_range_end_margin,
+                "fade_mode": fade_mode,
+            },
+        )

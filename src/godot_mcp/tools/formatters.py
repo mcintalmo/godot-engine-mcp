@@ -1498,6 +1498,35 @@ def format_result(
                 f"- **Compute Shared Memory**: `{result.data.get('max_compute_shared_memory_bytes')} bytes`"
             )
 
+        elif "instance_count" in result.data and "scale_range" in result.data:
+            lines.append(
+                f"**Scattered GPU MultiMesh**: `{result.data.get('node_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+            lines.append(f"- **Instance Count**: `{result.data.get('instance_count')}`")
+            lines.append(f"- **Area Dimensions**: `{result.data.get('area_size')}`")
+            lines.append(f"- **Scale Range**: `{result.data.get('scale_range')}`")
+            if result.data.get("mesh_path"):
+                lines.append(f"- **Source Mesh**: `{result.data.get('mesh_path')}`")
+
+        elif (
+            "visibility_range_begin" in result.data
+            and "visibility_range_end" in result.data
+        ):
+            lines.append(
+                f"**Configured Geometry LOD Settings**: `{result.data.get('node_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+            lines.append(
+                f"- **Visibility Range**: `{result.data.get('visibility_range_begin')}m to {result.data.get('visibility_range_end')}m`"
+            )
+            lines.append(
+                f"- **Margins**: `[Begin: {result.data.get('visibility_range_begin_margin')}m, End: {result.data.get('visibility_range_end_margin')}m]`"
+            )
+            lines.append(
+                f"- **Fade Mode**: `{result.data.get('fade_mode', '').upper()}`"
+            )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

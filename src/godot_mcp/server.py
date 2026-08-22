@@ -103,6 +103,10 @@ from godot_mcp.models.lsp import (
     LSPRenameInput,
 )
 from godot_mcp.models.material import CreateMaterialInput
+from godot_mcp.models.multimesh_scatter import (
+    ConfigureLODManagerInput,
+    ScatterMultiMeshInput,
+)
 from godot_mcp.models.multiplayer import (
     ConfigureMultiplayerSpawnerInput,
     ConfigureMultiplayerSynchronizerInput,
@@ -315,6 +319,10 @@ from godot_mcp.tools.lsp_tools import (
     handle_lsp_rename,
 )
 from godot_mcp.tools.material_tools import handle_create_material
+from godot_mcp.tools.multimesh_scatter_tools import (
+    handle_configure_lod_manager,
+    handle_scatter_multimesh,
+)
 from godot_mcp.tools.multiplayer_tools import (
     handle_configure_multiplayer_spawner,
     handle_configure_multiplayer_synchronizer,
@@ -2250,6 +2258,38 @@ def create_server(
     ) -> str:
         """Query GPU RenderingDevice device name, vendor, limits, and capabilities."""
         return await handle_inspect_rendering_device(active_client, params)
+
+    @server.tool(
+        name="godot_scatter_multimesh",
+        annotations=ToolAnnotations(
+            title="Scatter MultiMesh",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def scatter_multimesh(
+        params: ScatterMultiMeshInput,
+    ) -> str:
+        """High-performance GPU instanced scattering across a 3D bounding area."""
+        return await handle_scatter_multimesh(active_client, params)
+
+    @server.tool(
+        name="godot_configure_lod_manager",
+        annotations=ToolAnnotations(
+            title="Configure LOD Manager",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_lod_manager(
+        params: ConfigureLODManagerInput,
+    ) -> str:
+        """Configure visibility ranges, LOD distance thresholds, and cross-fade modes."""
+        return await handle_configure_lod_manager(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

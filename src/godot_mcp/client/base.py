@@ -1397,3 +1397,32 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Query GPU RenderingDevice device name, vendor, limits, and capabilities."""
         ...
+
+    @abstractmethod
+    async def scatter_multimesh(
+        self,
+        mesh_path: str | None = None,
+        node_name: str = "MultiMeshInstance3D",
+        parent_path: str = ".",
+        instance_count: int = 100,
+        area_size: list[float] | None = None,
+        min_scale: float = 0.8,
+        max_scale: float = 1.3,
+        random_yaw: bool = True,
+        align_to_surface: bool = False,
+    ) -> StandardResult:
+        """High-performance GPU instanced scattering across a 3D bounding area."""
+        ...
+
+    @abstractmethod
+    async def configure_lod_manager(
+        self,
+        node_path: str = "GeometryInstance3D",
+        visibility_range_begin: float = 0.0,
+        visibility_range_end: float = 150.0,
+        visibility_range_begin_margin: float = 10.0,
+        visibility_range_end_margin: float = 10.0,
+        fade_mode: str = "self",
+    ) -> StandardResult:
+        """Configure visibility ranges, LOD distance thresholds, and cross-fade modes."""
+        ...

@@ -55,6 +55,7 @@ const PhysicsConstraintsOps = preload("res://addons/godot_mcp/operations/physics
 const LightmapGIOps = preload("res://addons/godot_mcp/operations/lightmap_gi_ops.gd")
 const OpenXROps = preload("res://addons/godot_mcp/operations/openxr_ops.gd")
 const RenderingDeviceOps = preload("res://addons/godot_mcp/operations/rendering_device_ops.gd")
+const MultiMeshScatterOps = preload("res://addons/godot_mcp/operations/multimesh_scatter_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -111,6 +112,66 @@ var _physics_constraints_ops: RefCounted
 var _lightmap_gi_ops: RefCounted
 var _openxr_ops: RefCounted
 var _rendering_device_ops: RefCounted
+var _multimesh_scatter_ops: RefCounted
+
+var _port: int = PORT
+
+func _init(plugin: Node = null, port: int = PORT) -> void:
+	_plugin = plugin
+	_port = port
+	_scene_ops = SceneOps.new(_plugin)
+	_project_ops = ProjectOps.new(_plugin)
+	_screenshot_ops = ScreenshotOps.new(_plugin)
+	_reflection_ops = ReflectionOps.new(_plugin)
+	_material_ops = MaterialOps.new(_plugin)
+	_asset_ops = AssetOps.new(_plugin)
+	_animation_ops = AnimationOps.new(_plugin)
+	_tilemap_ops = TileMapOps.new(_plugin)
+	_navigation_ops = NavigationOps.new(_plugin)
+	_performance_ops = PerformanceOps.new(_plugin)
+	_theme_ops = ThemeOps.new(_plugin)
+	_audio_ops = AudioOps.new(_plugin)
+	_play_ops = PlayOps.new(_plugin)
+	_physics_ops = PhysicsOps.new(_plugin)
+	_input_ops = InputOps.new(_plugin)
+	_environment_ops = EnvironmentOps.new(_plugin)
+	_editor_ops = EditorOps.new(_plugin)
+	_dcc_ops = DCCOps.new(_plugin)
+	_particle_ops = ParticleOps.new(_plugin)
+	_build_ops = BuildOps.new(_plugin)
+	_autoload_ops = AutoloadOps.new(_plugin)
+	_signal_ops = SignalOps.new(_plugin)
+	_eval_ops = EvalOps.new(_plugin)
+	_shader_ops = ShaderOps.new(_plugin)
+	_anim_tree_ops = AnimTreeOps.new(_plugin)
+	_localization_ops = LocalizationOps.new(_plugin)
+	_uid_ops = UIDOps.new(_plugin)
+	_plugin_ops = PluginOps.new(_plugin)
+	_nav_obstacle_ops = NavObstacleOps.new(_plugin)
+	_tileset_terrain_ops = TilesetTerrainOps.new(_plugin)
+	_scene_diff_ops = SceneDiffOps.new(_plugin)
+	_editor_history_ops = EditorHistoryOps.new(_plugin)
+	_editor_selection_ops = EditorSelectionOps.new(_plugin)
+	_asset_audit_ops = AssetAuditOps.new(_plugin)
+	_gut_test_ops = GUTTestOps.new(_plugin)
+	_editor_layout_ops = EditorLayoutOps.new(_plugin)
+	_scene_hierarchy_ops = SceneHierarchyOps.new(_plugin)
+	_script_lifecycle_ops = ScriptLifecycleOps.new(_plugin)
+	_camera_rendering_ops = CameraRenderingRenderingOps.new(_plugin) if false else CameraRenderingOps.new(_plugin)
+	_input_simulation_ops = InputSimulationOps.new(_plugin)
+	_e2e_automation_ops = E2EAutomationOps.new(_plugin)
+	_gridmap_path_ops = GridMapPathOps.new(_plugin)
+	_profiling_diagnostics_ops = ProfilingDiagnosticsOps.new(_plugin)
+	_multiplayer_ops = MultiplayerOps.new(_plugin)
+	_gameplay_scaffolding_ops = GameplayScaffoldingOps.new(_plugin)
+	_procedural_geometry_ops = ProceduralGeometryOps.new(_plugin)
+	_skeleton_ik_ops = SkeletonIKOps.new(_plugin)
+	_physics_constraints_ops = PhysicsConstraintsOps.new(_plugin)
+	_lightmap_gi_ops = LightmapGIOps.new(_plugin)
+	_openxr_ops = OpenXROps.new(_plugin)
+	_rendering_device_ops = RenderingDeviceOps.new(_plugin)
+	_multimesh_scatter_ops = MultiMeshScatterOps.new(_plugin)
+
 
 var _port: int = PORT
 
@@ -678,6 +739,11 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _rendering_device_ops.dispatch_compute_shader(params)
 		"inspect_rendering_device":
 			result = _rendering_device_ops.inspect_rendering_device(params)
+		"scatter_multimesh":
+			result = _multimesh_scatter_ops.scatter_multimesh(params)
+		"configure_lod_manager":
+			result = _multimesh_scatter_ops.configure_lod_manager(params)
+
 
 
 
