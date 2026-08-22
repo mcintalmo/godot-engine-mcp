@@ -1,5 +1,5 @@
 [project]
-name = "godot-mcp"
+name = "godot-engine-mcp"
 version = "0.1.0"
 description = "Model Context Protocol (MCP) server and live Editor Bridge for Godot Engine 4.7+"
 readme = "README.md"
@@ -36,11 +36,12 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/mcintalmo/godot-mcp"
-Repository = "https://github.com/mcintalmo/godot-mcp"
-Issues = "https://github.com/mcintalmo/godot-mcp/issues"
+Homepage = "https://github.com/mcintalmo/godot-engine-mcp"
+Repository = "https://github.com/mcintalmo/godot-engine-mcp"
+Issues = "https://github.com/mcintalmo/godot-engine-mcp/issues"
 
 [project.scripts]
+godot-engine-mcp = "godot_mcp.cli:app"
 godot-mcp = "godot_mcp.cli:app"
 
 [build-system]
