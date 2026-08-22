@@ -7,8 +7,8 @@ import logging
 import uuid
 from typing import Any
 
-import websockets.exceptions
-from websockets.legacy.client import connect
+from websockets.asyncio.client import connect
+from websockets.exceptions import WebSocketException
 
 from godot_mcp.client.base import GodotClient
 from godot_mcp.client.lsp_client import GodotLSPClient
@@ -73,7 +73,7 @@ class LiveBridgeClient(GodotClient):
                         or data.get("id") == "ping"
                     )
         except (
-            websockets.exceptions.WebSocketException,
+            WebSocketException,
             OSError,
             TimeoutError,
             json.JSONDecodeError,
@@ -132,7 +132,7 @@ class LiveBridgeClient(GodotClient):
                 actionable_hint="The Godot Editor might be blocked on a modal dialog or heavy computation.",
             )
         except (
-            websockets.exceptions.WebSocketException,
+            WebSocketException,
             OSError,
             json.JSONDecodeError,
         ) as e:

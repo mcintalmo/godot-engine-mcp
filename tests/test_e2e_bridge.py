@@ -5,9 +5,9 @@ import json
 from typing import Any
 
 import pytest
-import websockets.exceptions
 from mcp.types import CallToolResult
-from websockets.legacy.server import WebSocketServerProtocol, serve
+from websockets.asyncio.server import ServerConnection, serve
+from websockets.exceptions import ConnectionClosed
 
 from godot_mcp.client.manager import ClientManager
 from godot_mcp.config import GodotConfig
@@ -31,7 +31,7 @@ class MockGodotEditorBridgeServer:
             self._server.close()
             await self._server.wait_closed()
 
-    async def _handler(self, websocket: WebSocketServerProtocol) -> None:
+    async def _handler(self, websocket: ServerConnection) -> None:
         try:
             async for message in websocket:
                 req = json.loads(message)
@@ -133,7 +133,7 @@ class MockGodotEditorBridgeServer:
                             }
                         )
                     )
-        except websockets.exceptions.ConnectionClosed, OSError:
+        except ConnectionClosed, OSError:
             return
 
 
