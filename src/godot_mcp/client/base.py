@@ -1223,3 +1223,40 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Generate structured branching dialogue trees in JSON or Godot Resource format."""
         ...
+
+    @abstractmethod
+    async def create_csg_shape(
+        self,
+        shape_type: str = "box",
+        node_name: str = "CSGShape",
+        parent_path: str = ".",
+        operation: str = "union",
+        size: list[float] | None = None,
+        radius: float | None = None,
+        height: float | None = None,
+        polygon_points: list[list[float]] | None = None,
+        position: list[float] | None = None,
+        rotation_deg: list[float] | None = None,
+        use_collision: bool = True,
+        material_path: str | None = None,
+    ) -> StandardResult:
+        """Create and compose CSG boolean primitives with collision support."""
+        ...
+
+    @abstractmethod
+    async def generate_procedural_mesh(
+        self,
+        mesh_type: str = "grid",
+        node_name: str = "ProceduralMesh",
+        parent_path: str = ".",
+        size: list[float] | None = None,
+        subdivisions: list[int] | None = None,
+        vertices: list[list[float]] | None = None,
+        indices: list[int] | None = None,
+        generate_normals: bool = True,
+        generate_tangents: bool = True,
+        material_path: str | None = None,
+        save_to_resource_path: str | None = None,
+    ) -> StandardResult:
+        """Procedurally construct custom 3D ArrayMesh geometry via SurfaceTool."""
+        ...

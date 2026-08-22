@@ -144,6 +144,11 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Hierarchical State Machine Scaffolding (`godot_scaffold_state_machine`)**: Generate standard GDScript `State` and `StateMachine` scripts with enter/exit/update hooks and automatic node tree creation.
 - [x] **Branching Dialogue Tree Generator (`godot_create_dialogue_resource`)**: Generate JSON or Godot Resource dialogue trees with speaker IDs, conditions, branching choices, and signal triggers.
 
+### Phase 25: CSG Whiteboxing & Procedural Mesh Generation
+- [x] **CSG Boolean Geometry Builder (`godot_create_csg_shape`)**: Create and compose CSG boolean primitives (Box, Cylinder, Sphere, Polygon, Torus, Combiner) with Union, Intersection, and Subtraction operations for level blockout.
+- [x] **SurfaceTool Procedural Mesh Generator (`godot_generate_procedural_mesh`)**: Construct custom 3D `ArrayMesh` geometry (terrain grids, pyramids, prisms, custom vertex buffers) with automated normals, tangents, and asset persistence.
+
+
 
 
 

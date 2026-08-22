@@ -1293,6 +1293,31 @@ def format_result(
                 f"- **Total Dialogue Nodes**: `{result.data.get('dialogue_nodes_count')}`"
             )
 
+        elif "shape_type" in result.data and "operation" in result.data:
+            lines.append(f"**Created CSG Shape**: `{result.data.get('node_name')}`\n")
+            lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+            lines.append(f"- **Type**: `{result.data.get('shape_type', '').upper()}`")
+            lines.append(
+                f"- **Operation**: `{result.data.get('operation', '').upper()}`"
+            )
+            lines.append(f"- **Collision**: `{result.data.get('use_collision')}`")
+            if result.data.get("position"):
+                lines.append(f"- **Position**: `{result.data.get('position')}`")
+
+        elif "mesh_type" in result.data and "mesh_vertex_count" in result.data:
+            lines.append(
+                f"**Generated Procedural Mesh**: `{result.data.get('node_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+            lines.append(
+                f"- **Mesh Type**: `{result.data.get('mesh_type', '').upper()}`"
+            )
+            lines.append(f"- **Vertices**: `{result.data.get('mesh_vertex_count')}`")
+            if result.data.get("saved_resource_path"):
+                lines.append(
+                    f"- **Saved Resource**: `{result.data.get('saved_resource_path')}`"
+                )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

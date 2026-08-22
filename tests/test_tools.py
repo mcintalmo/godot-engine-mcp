@@ -2668,6 +2668,68 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def create_csg_shape(
+        self,
+        shape_type: str = "box",
+        node_name: str = "CSGShape",
+        parent_path: str = ".",
+        operation: str = "union",
+        size: list[float] | None = None,
+        radius: float | None = None,
+        height: float | None = None,
+        polygon_points: list[list[float]] | None = None,
+        position: list[float] | None = None,
+        rotation_deg: list[float] | None = None,
+        use_collision: bool = True,
+        material_path: str | None = None,
+    ) -> StandardResult:
+        pos = position or [0.0, 0.0, 0.0]
+        return StandardResult(
+            success=True,
+            message=f"Created CSG shape '{node_name}' ({shape_type.upper()}, op: {operation.upper()}) under '{parent_path}'.",
+            mode=self.mode,
+            data={
+                "node_name": node_name,
+                "node_path": f"{parent_path}/{node_name}"
+                if parent_path != "."
+                else node_name,
+                "shape_type": shape_type,
+                "operation": operation,
+                "use_collision": use_collision,
+                "position": pos,
+            },
+        )
+
+    async def generate_procedural_mesh(
+        self,
+        mesh_type: str = "grid",
+        node_name: str = "ProceduralMesh",
+        parent_path: str = ".",
+        size: list[float] | None = None,
+        subdivisions: list[int] | None = None,
+        vertices: list[list[float]] | None = None,
+        indices: list[int] | None = None,
+        generate_normals: bool = True,
+        generate_tangents: bool = True,
+        material_path: str | None = None,
+        save_to_resource_path: str | None = None,
+    ) -> StandardResult:
+        v_count = len(vertices) if vertices else (len(indices) if indices else 24)
+        return StandardResult(
+            success=True,
+            message=f"Generated procedural {mesh_type.upper()} mesh '{node_name}' with {v_count} vertices under '{parent_path}'.",
+            mode=self.mode,
+            data={
+                "node_name": node_name,
+                "node_path": f"{parent_path}/{node_name}"
+                if parent_path != "."
+                else node_name,
+                "mesh_type": mesh_type,
+                "mesh_vertex_count": v_count,
+                "saved_resource_path": save_to_resource_path or "",
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

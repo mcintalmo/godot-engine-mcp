@@ -1861,3 +1861,67 @@ class LiveBridgeClient(GodotClient):
                 "dialogue_nodes": dialogue_nodes or [],
             },
         )
+
+    async def create_csg_shape(
+        self,
+        shape_type: str = "box",
+        node_name: str = "CSGShape",
+        parent_path: str = ".",
+        operation: str = "union",
+        size: list[float] | None = None,
+        radius: float | None = None,
+        height: float | None = None,
+        polygon_points: list[list[float]] | None = None,
+        position: list[float] | None = None,
+        rotation_deg: list[float] | None = None,
+        use_collision: bool = True,
+        material_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "create_csg_shape",
+            {
+                "shape_type": shape_type,
+                "node_name": node_name,
+                "parent_path": parent_path,
+                "operation": operation,
+                "size": size,
+                "radius": radius,
+                "height": height,
+                "polygon_points": polygon_points,
+                "position": position,
+                "rotation_deg": rotation_deg,
+                "use_collision": use_collision,
+                "material_path": material_path,
+            },
+        )
+
+    async def generate_procedural_mesh(
+        self,
+        mesh_type: str = "grid",
+        node_name: str = "ProceduralMesh",
+        parent_path: str = ".",
+        size: list[float] | None = None,
+        subdivisions: list[int] | None = None,
+        vertices: list[list[float]] | None = None,
+        indices: list[int] | None = None,
+        generate_normals: bool = True,
+        generate_tangents: bool = True,
+        material_path: str | None = None,
+        save_to_resource_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "generate_procedural_mesh",
+            {
+                "mesh_type": mesh_type,
+                "node_name": node_name,
+                "parent_path": parent_path,
+                "size": size,
+                "subdivisions": subdivisions,
+                "vertices": vertices,
+                "indices": indices,
+                "generate_normals": generate_normals,
+                "generate_tangents": generate_tangents,
+                "material_path": material_path,
+                "save_to_resource_path": save_to_resource_path,
+            },
+        )

@@ -127,6 +127,10 @@ from godot_mcp.models.plugin_mgr import (
     GetPluginsInput,
     SetPluginStatusInput,
 )
+from godot_mcp.models.procedural_geometry import (
+    CreateCSGShapeInput,
+    GenerateProceduralMeshInput,
+)
 from godot_mcp.models.profiling_diagnostics import (
     AuditOrphanNodesInput,
     CaptureProfilerTraceInput,
@@ -315,6 +319,10 @@ from godot_mcp.tools.play_tools import (
 from godot_mcp.tools.plugin_tools import (
     handle_get_plugins,
     handle_set_plugin_status,
+)
+from godot_mcp.tools.procedural_geometry_tools import (
+    handle_create_csg_shape,
+    handle_generate_procedural_mesh,
 )
 from godot_mcp.tools.profiling_diagnostics_tools import (
     handle_audit_orphan_nodes,
@@ -1992,6 +2000,38 @@ def create_server(
     ) -> str:
         """Generate structured branching dialogue trees in JSON or Godot Resource format."""
         return await handle_create_dialogue_resource(active_client, params)
+
+    @server.tool(
+        name="godot_create_csg_shape",
+        annotations=ToolAnnotations(
+            title="Create CSG Shape",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def create_csg_shape(
+        params: CreateCSGShapeInput,
+    ) -> str:
+        """Create and compose CSG boolean primitives (Box, Cylinder, Sphere, Polygon, Torus, Combiner)."""
+        return await handle_create_csg_shape(active_client, params)
+
+    @server.tool(
+        name="godot_generate_procedural_mesh",
+        annotations=ToolAnnotations(
+            title="Generate Procedural Mesh",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def generate_procedural_mesh(
+        params: GenerateProceduralMeshInput,
+    ) -> str:
+        """Procedurally construct custom 3D ArrayMesh geometry via SurfaceTool."""
+        return await handle_generate_procedural_mesh(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

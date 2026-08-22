@@ -49,6 +49,7 @@ const GridMapPathOps = preload("res://addons/godot_mcp/operations/gridmap_path_o
 const ProfilingDiagnosticsOps = preload("res://addons/godot_mcp/operations/profiling_diagnostics_ops.gd")
 const MultiplayerOps = preload("res://addons/godot_mcp/operations/multiplayer_ops.gd")
 const GameplayScaffoldingOps = preload("res://addons/godot_mcp/operations/gameplay_scaffolding_ops.gd")
+const ProceduralGeometryOps = preload("res://addons/godot_mcp/operations/procedural_geometry_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -99,6 +100,7 @@ var _gridmap_path_ops: RefCounted
 var _profiling_diagnostics_ops: RefCounted
 var _multiplayer_ops: RefCounted
 var _gameplay_scaffolding_ops: RefCounted
+var _procedural_geometry_ops: RefCounted
 
 var _port: int = PORT
 
@@ -150,6 +152,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_profiling_diagnostics_ops = ProfilingDiagnosticsOps.new(_plugin)
 	_multiplayer_ops = MultiplayerOps.new(_plugin)
 	_gameplay_scaffolding_ops = GameplayScaffoldingOps.new(_plugin)
+	_procedural_geometry_ops = ProceduralGeometryOps.new(_plugin)
+
 
 
 
@@ -463,6 +467,11 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _gameplay_scaffolding_ops.scaffold_state_machine(params)
 		"create_dialogue_resource":
 			result = _gameplay_scaffolding_ops.create_dialogue_resource(params)
+		"create_csg_shape":
+			result = _procedural_geometry_ops.create_csg_shape(params)
+		"generate_procedural_mesh":
+			result = _procedural_geometry_ops.generate_procedural_mesh(params)
+
 
 
 
