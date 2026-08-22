@@ -2076,3 +2076,41 @@ class LiveBridgeClient(GodotClient):
                 "save_path": save_path,
             },
         )
+
+    async def setup_xr_rig(
+        self,
+        rig_name: str = "XROrigin3D",
+        parent_path: str = ".",
+        enable_controllers: bool = True,
+        enable_hand_tracking: bool = False,
+        action_map_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "setup_xr_rig",
+            {
+                "rig_name": rig_name,
+                "parent_path": parent_path,
+                "enable_controllers": enable_controllers,
+                "enable_hand_tracking": enable_hand_tracking,
+                "action_map_path": action_map_path,
+            },
+        )
+
+    async def configure_xr_passthrough(
+        self,
+        xr_origin_path: str = "XROrigin3D",
+        enable_passthrough: bool = True,
+        reference_space: str = "stage",
+        foveated_rendering_level: str = "high",
+        dynamic_foveation: bool = True,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "configure_xr_passthrough",
+            {
+                "xr_origin_path": xr_origin_path,
+                "enable_passthrough": enable_passthrough,
+                "reference_space": reference_space,
+                "foveated_rendering_level": foveated_rendering_level,
+                "dynamic_foveation": dynamic_foveation,
+            },
+        )

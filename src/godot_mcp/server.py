@@ -113,6 +113,10 @@ from godot_mcp.models.navigation import (
     BakeNavMeshInput,
     CreateNavigationRegionInput,
 )
+from godot_mcp.models.openxr import (
+    ConfigureXRPassthroughInput,
+    SetupXRRigInput,
+)
 from godot_mcp.models.particles import ConfigureParticlesInput
 from godot_mcp.models.performance import GetPerformanceMetricsInput
 from godot_mcp.models.physics import (
@@ -318,6 +322,10 @@ from godot_mcp.tools.nav_obstacle_tools import (
 from godot_mcp.tools.navigation_tools import (
     handle_bake_navmesh,
     handle_create_navigation_region,
+)
+from godot_mcp.tools.openxr_tools import (
+    handle_configure_xr_passthrough,
+    handle_setup_xr_rig,
 )
 from godot_mcp.tools.particle_tools import handle_configure_particles
 from godot_mcp.tools.performance_tools import handle_get_performance_metrics
@@ -2170,6 +2178,38 @@ def create_server(
     ) -> str:
         """Trigger lightmap or voxel GI baking for the active scene."""
         return await handle_bake_lightmaps(active_client, params)
+
+    @server.tool(
+        name="godot_setup_xr_rig",
+        annotations=ToolAnnotations(
+            title="Setup OpenXR Rig",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def setup_xr_rig(
+        params: SetupXRRigInput,
+    ) -> str:
+        """Scaffold XROrigin3D, XRCamera3D, and XRController3D rig with spatial tracking."""
+        return await handle_setup_xr_rig(active_client, params)
+
+    @server.tool(
+        name="godot_configure_xr_passthrough",
+        annotations=ToolAnnotations(
+            title="Configure OpenXR Passthrough",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_xr_passthrough(
+        params: ConfigureXRPassthroughInput,
+    ) -> str:
+        """Configure OpenXR passthrough mode, foveated rendering, and reference spaces."""
+        return await handle_configure_xr_passthrough(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

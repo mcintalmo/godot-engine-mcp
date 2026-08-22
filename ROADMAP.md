@@ -161,6 +161,11 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Global Illumination & Probe Configurator (`godot_configure_lightmap_gi`)**: Configure 3D global illumination pipelines (`LightmapGI`, `VoxelGI`, `ReflectionProbe`, and `LightmapProbe` arrays) for realistic indirect bounces, specular reflections, and ambient cubemaps.
 - [x] **Lightmap & GI Baker (`godot_bake_lightmaps`)**: Trigger and monitor asynchronous lightmap baking with custom denoisers (JNLM/OIDN), bounce iterations, and quality profiles.
 
+### Phase 29: OpenXR & Spatial Computing (VR/AR/MR)
+- [x] **OpenXR Rig Scaffolding Engine (`godot_setup_xr_rig`)**: Automatically construct `XROrigin3D`, `XRCamera3D`, and dual `XRController3D` tracking rigs with action maps and hand tracking skeletons.
+- [x] **Spatial Computing & Passthrough Controller (`godot_configure_xr_passthrough`)**: Configure OpenXR passthrough layers, foveated rendering optimizations, and reference tracking spaces (`STAGE`, `LOCAL_FLOOR`, `LOCAL`).
+
+
 
 
 

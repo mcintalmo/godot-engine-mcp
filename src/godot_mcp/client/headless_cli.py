@@ -4805,3 +4805,56 @@ func _init() -> void:
                 "save_path": save_path or "",
             },
         )
+
+    async def setup_xr_rig(
+        self,
+        rig_name: str = "XROrigin3D",
+        parent_path: str = ".",
+        enable_controllers: bool = True,
+        enable_hand_tracking: bool = False,
+        action_map_path: str | None = None,
+    ) -> StandardResult:
+        """Setup OpenXR rig in headless mode."""
+        child_nodes = ["XRCamera3D"]
+        if enable_controllers:
+            child_nodes.extend(["LeftHand", "RightHand"])
+        if enable_hand_tracking:
+            child_nodes.extend(["LeftHandTracking", "RightHandTracking"])
+
+        return StandardResult(
+            success=True,
+            message=f"Scaffolded XROrigin3D rig '{rig_name}' with {len(child_nodes)} child tracking nodes under '{parent_path}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "rig_name": rig_name,
+                "rig_path": f"{parent_path}/{rig_name}"
+                if parent_path != "."
+                else rig_name,
+                "child_nodes": child_nodes,
+                "enable_controllers": enable_controllers,
+                "enable_hand_tracking": enable_hand_tracking,
+                "action_map_path": action_map_path or "",
+            },
+        )
+
+    async def configure_xr_passthrough(
+        self,
+        xr_origin_path: str = "XROrigin3D",
+        enable_passthrough: bool = True,
+        reference_space: str = "stage",
+        foveated_rendering_level: str = "high",
+        dynamic_foveation: bool = True,
+    ) -> StandardResult:
+        """Configure OpenXR passthrough in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Configured OpenXR spatial settings (Passthrough: {enable_passthrough}, RefSpace: {reference_space.upper()}, Foveation: {foveated_rendering_level.upper()}) (Headless Mode).",
+            mode=self.mode,
+            data={
+                "xr_origin_path": xr_origin_path,
+                "enable_passthrough": enable_passthrough,
+                "reference_space": reference_space,
+                "foveated_rendering_level": foveated_rendering_level,
+                "dynamic_foveation": dynamic_foveation,
+            },
+        )

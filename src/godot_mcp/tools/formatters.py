@@ -1433,6 +1433,40 @@ def format_result(
             if result.data.get("save_path"):
                 lines.append(f"- **Saved Resource**: `{result.data.get('save_path')}`")
 
+        elif "rig_name" in result.data and "child_nodes" in result.data:
+            lines.append(
+                f"**Scaffolded OpenXR Rig**: `{result.data.get('rig_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('rig_path')}`")
+            lines.append(
+                f"- **Tracking Nodes ({len(result.data.get('child_nodes', []))})**:"
+            )
+            for node in result.data.get("child_nodes", []):
+                lines.append(f"  - `{node}`")
+            lines.append(
+                f"- **Controllers Enabled**: `{result.data.get('enable_controllers')}`"
+            )
+            lines.append(
+                f"- **Hand Tracking**: `{result.data.get('enable_hand_tracking')}`"
+            )
+            if result.data.get("action_map_path"):
+                lines.append(
+                    f"- **Action Map**: `{result.data.get('action_map_path')}`"
+                )
+
+        elif "xr_origin_path" in result.data and "reference_space" in result.data:
+            lines.append("**Configured OpenXR Spatial Settings**\n")
+            lines.append(f"- **Target Rig**: `{result.data.get('xr_origin_path')}`")
+            lines.append(
+                f"- **Passthrough Enabled**: `{result.data.get('enable_passthrough')}`"
+            )
+            lines.append(
+                f"- **Reference Space**: `{result.data.get('reference_space', '').upper()}`"
+            )
+            lines.append(
+                f"- **Foveated Rendering**: `{result.data.get('foveated_rendering_level', '').upper()}` (Dynamic: `{result.data.get('dynamic_foveation')}`)"
+            )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

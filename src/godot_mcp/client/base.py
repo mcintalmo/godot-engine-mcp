@@ -1353,3 +1353,27 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Trigger lightmap or voxel GI baking for the active scene."""
         ...
+
+    @abstractmethod
+    async def setup_xr_rig(
+        self,
+        rig_name: str = "XROrigin3D",
+        parent_path: str = ".",
+        enable_controllers: bool = True,
+        enable_hand_tracking: bool = False,
+        action_map_path: str | None = None,
+    ) -> StandardResult:
+        """Scaffold XROrigin3D, XRCamera3D, and XRController3D rig with spatial tracking."""
+        ...
+
+    @abstractmethod
+    async def configure_xr_passthrough(
+        self,
+        xr_origin_path: str = "XROrigin3D",
+        enable_passthrough: bool = True,
+        reference_space: str = "stage",
+        foveated_rendering_level: str = "high",
+        dynamic_foveation: bool = True,
+    ) -> StandardResult:
+        """Configure OpenXR passthrough mode, foveated rendering, and reference spaces."""
+        ...
