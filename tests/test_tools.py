@@ -2817,6 +2817,58 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def configure_physics_joint(
+        self,
+        joint_type: str = "hinge_3d",
+        node_name: str = "PhysicsJoint",
+        parent_path: str = ".",
+        node_a_path: str = "",
+        node_b_path: str = "",
+        position: list[float] | None = None,
+        rotation_deg: list[float] | None = None,
+        parameters: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Configured physics joint '{node_name}' ({joint_type.upper()}) connecting '{node_a_path}' and '{node_b_path}'.",
+            mode=self.mode,
+            data={
+                "joint_name": node_name,
+                "joint_path": f"{parent_path}/{node_name}"
+                if parent_path != "."
+                else node_name,
+                "joint_type": joint_type,
+                "node_a": node_a_path,
+                "node_b": node_b_path,
+                "applied_parameters": list((parameters or {}).keys()),
+            },
+        )
+
+    async def generate_ragdoll(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+        bone_names: list[str] | None = None,
+        shape_type: str = "capsule",
+        mass_per_bone: float = 5.0,
+        friction: float = 0.5,
+        bounce: float = 0.0,
+    ) -> StandardResult:
+        bones = bone_names or ["Root", "Hips", "Spine", "Head", "UpperArm_R", "Hand_R"]
+        pb_names = [f"PhysicalBone_{b}" for b in bones]
+        return StandardResult(
+            success=True,
+            message=f"Generated ragdoll with {len(pb_names)} PhysicalBone3D nodes on Skeleton3D '{skeleton_node_path}'.",
+            mode=self.mode,
+            data={
+                "skeleton_name": skeleton_node_path.split("/")[-1],
+                "skeleton_path": skeleton_node_path,
+                "physical_bones_count": len(pb_names),
+                "physical_bones": pb_names,
+                "shape_type": shape_type,
+                "mass_per_bone": mass_per_bone,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

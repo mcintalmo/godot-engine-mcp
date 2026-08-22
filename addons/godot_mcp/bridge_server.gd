@@ -51,6 +51,7 @@ const MultiplayerOps = preload("res://addons/godot_mcp/operations/multiplayer_op
 const GameplayScaffoldingOps = preload("res://addons/godot_mcp/operations/gameplay_scaffolding_ops.gd")
 const ProceduralGeometryOps = preload("res://addons/godot_mcp/operations/procedural_geometry_ops.gd")
 const SkeletonIKOps = preload("res://addons/godot_mcp/operations/skeleton_ik_ops.gd")
+const PhysicsConstraintsOps = preload("res://addons/godot_mcp/operations/physics_constraints_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -103,6 +104,7 @@ var _multiplayer_ops: RefCounted
 var _gameplay_scaffolding_ops: RefCounted
 var _procedural_geometry_ops: RefCounted
 var _skeleton_ik_ops: RefCounted
+var _physics_constraints_ops: RefCounted
 
 var _port: int = PORT
 
@@ -156,6 +158,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_gameplay_scaffolding_ops = GameplayScaffoldingOps.new(_plugin)
 	_procedural_geometry_ops = ProceduralGeometryOps.new(_plugin)
 	_skeleton_ik_ops = SkeletonIKOps.new(_plugin)
+	_physics_constraints_ops = PhysicsConstraintsOps.new(_plugin)
+
 
 
 
@@ -481,6 +485,11 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _skeleton_ik_ops.configure_bone_attachment(params)
 		"setup_inverse_kinematics":
 			result = _skeleton_ik_ops.setup_inverse_kinematics(params)
+		"configure_physics_joint":
+			result = _physics_constraints_ops.configure_physics_joint(params)
+		"generate_ragdoll":
+			result = _physics_constraints_ops.generate_ragdoll(params)
+
 
 
 

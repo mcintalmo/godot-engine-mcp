@@ -1696,3 +1696,45 @@ class ClientManager(GodotClient):
             use_magnet=use_magnet,
             magnet_position=magnet_position,
         )
+
+    async def configure_physics_joint(
+        self,
+        joint_type: str = "hinge_3d",
+        node_name: str = "PhysicsJoint",
+        parent_path: str = ".",
+        node_a_path: str = "",
+        node_b_path: str = "",
+        position: list[float] | None = None,
+        rotation_deg: list[float] | None = None,
+        parameters: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.configure_physics_joint(
+            joint_type=joint_type,
+            node_name=node_name,
+            parent_path=parent_path,
+            node_a_path=node_a_path,
+            node_b_path=node_b_path,
+            position=position,
+            rotation_deg=rotation_deg,
+            parameters=parameters,
+        )
+
+    async def generate_ragdoll(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+        bone_names: list[str] | None = None,
+        shape_type: str = "capsule",
+        mass_per_bone: float = 5.0,
+        friction: float = 0.5,
+        bounce: float = 0.0,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.generate_ragdoll(
+            skeleton_node_path=skeleton_node_path,
+            bone_names=bone_names,
+            shape_type=shape_type,
+            mass_per_bone=mass_per_bone,
+            friction=friction,
+            bounce=bounce,
+        )

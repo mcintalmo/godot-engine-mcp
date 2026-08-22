@@ -1298,3 +1298,31 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Configure SkeletonIK3D inverse kinematics chains on Skeleton3D nodes."""
         ...
+
+    @abstractmethod
+    async def configure_physics_joint(
+        self,
+        joint_type: str = "hinge_3d",
+        node_name: str = "PhysicsJoint",
+        parent_path: str = ".",
+        node_a_path: str = "",
+        node_b_path: str = "",
+        position: list[float] | None = None,
+        rotation_deg: list[float] | None = None,
+        parameters: dict[str, Any] | None = None,
+    ) -> StandardResult:
+        """Configure 2D or 3D physics constraint joints connecting bodies."""
+        ...
+
+    @abstractmethod
+    async def generate_ragdoll(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+        bone_names: list[str] | None = None,
+        shape_type: str = "capsule",
+        mass_per_bone: float = 5.0,
+        friction: float = 0.5,
+        bounce: float = 0.0,
+    ) -> StandardResult:
+        """Generate PhysicalBone3D ragdoll simulation hierarchy from Skeleton3D."""
+        ...

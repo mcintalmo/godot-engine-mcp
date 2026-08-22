@@ -117,6 +117,10 @@ from godot_mcp.models.physics import (
     GetBodyPhysicsState3DInput,
     SetPhysicsDebugModeInput,
 )
+from godot_mcp.models.physics_constraints import (
+    ConfigurePhysicsJointInput,
+    GenerateRagdollInput,
+)
 from godot_mcp.models.play import (
     GetPlayStateInput,
     PlaySceneInput,
@@ -309,6 +313,10 @@ from godot_mcp.tools.navigation_tools import (
 )
 from godot_mcp.tools.particle_tools import handle_configure_particles
 from godot_mcp.tools.performance_tools import handle_get_performance_metrics
+from godot_mcp.tools.physics_constraints_tools import (
+    handle_configure_physics_joint,
+    handle_generate_ragdoll,
+)
 from godot_mcp.tools.physics_tools import (
     handle_cast_ray_3d,
     handle_cast_shape_3d,
@@ -2090,6 +2098,38 @@ def create_server(
     ) -> str:
         """Configure SkeletonIK3D inverse kinematics chains on Skeleton3D nodes."""
         return await handle_setup_inverse_kinematics(active_client, params)
+
+    @server.tool(
+        name="godot_configure_physics_joint",
+        annotations=ToolAnnotations(
+            title="Configure Physics Joint",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_physics_joint(
+        params: ConfigurePhysicsJointInput,
+    ) -> str:
+        """Configure 2D or 3D physics constraint joints connecting physics bodies."""
+        return await handle_configure_physics_joint(active_client, params)
+
+    @server.tool(
+        name="godot_generate_ragdoll",
+        annotations=ToolAnnotations(
+            title="Generate Ragdoll",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def generate_ragdoll(
+        params: GenerateRagdollInput,
+    ) -> str:
+        """Generate PhysicalBone3D ragdoll simulation hierarchy from Skeleton3D."""
+        return await handle_generate_ragdoll(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

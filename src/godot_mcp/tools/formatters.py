@@ -1368,6 +1368,42 @@ def format_result(
             lines.append(f"- **Interpolation**: `{result.data.get('interpolation')}`")
             lines.append(f"- **Magnet Enabled**: `{result.data.get('use_magnet')}`")
 
+        elif "joint_name" in result.data and "joint_type" in result.data:
+            lines.append(
+                f"**Configured Physics Joint**: `{result.data.get('joint_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('joint_path')}`")
+            lines.append(
+                f"- **Joint Type**: `{result.data.get('joint_type', '').upper()}`"
+            )
+            lines.append(f"- **Node A**: `{result.data.get('node_a')}`")
+            lines.append(f"- **Node B**: `{result.data.get('node_b')}`")
+            if result.data.get("applied_parameters"):
+                params_str = ", ".join(
+                    str(p) for p in result.data.get("applied_parameters", [])
+                )
+                lines.append(f"- **Parameters Configured**: `{params_str}`")
+
+        elif "physical_bones_count" in result.data and "physical_bones" in result.data:
+            lines.append("**Generated Ragdoll Physical Bones**\n")
+            lines.append(f"- **Skeleton**: `{result.data.get('skeleton_name')}`")
+            lines.append(
+                f"- **Physical Bones Created**: `{result.data.get('physical_bones_count')}`"
+            )
+            lines.append(
+                f"- **Shape Type**: `{result.data.get('shape_type', '').upper()}`"
+            )
+            lines.append(
+                f"- **Mass per Bone**: `{result.data.get('mass_per_bone')} kg`"
+            )
+            lines.append("- **Bones**:")
+            for pb in result.data.get("physical_bones", [])[:10]:
+                lines.append(f"  - `{pb}`")
+            if len(result.data.get("physical_bones", [])) > 10:
+                lines.append(
+                    f"  - *... and {len(result.data.get('physical_bones', [])) - 10} more physical bones*"
+                )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

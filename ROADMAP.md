@@ -153,6 +153,11 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Bone Socket & Equipment Attachment (`godot_configure_bone_attachment`)**: Create and configure `BoneAttachment3D` nodes attached to specific bones with local transform offsets.
 - [x] **Inverse Kinematics Solver Setup (`godot_setup_inverse_kinematics`)**: Configure `SkeletonIK3D` solvers with root/tip bones, targets, interpolation, and magnet constraints.
 
+### Phase 27: Physics Joints, Constraints & Ragdoll Simulation
+- [x] **2D/3D Constraint Joint Configurator (`godot_configure_physics_joint`)**: Programmatic setup of mechanical joints (Pin, Hinge, Slider, ConeTwist, 6DOF, DampedSpring) between physics bodies.
+- [x] **Procedural Ragdoll Simulation Generator (`godot_generate_ragdoll`)**: Automatically construct `PhysicalBone3D` ragdoll simulation hierarchies from `Skeleton3D` rigs with collision shapes and masses.
+
+
 
 
 
