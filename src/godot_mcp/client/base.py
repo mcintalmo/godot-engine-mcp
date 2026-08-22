@@ -1201,3 +1201,25 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Configure simulated network latency, packet loss, jitter, or offline mode."""
         ...
+
+    @abstractmethod
+    async def scaffold_state_machine(
+        self,
+        target_dir: str = "res://scripts/state_machine",
+        machine_name: str = "CharacterStateMachine",
+        states: list[str] | None = None,
+        generate_node_hierarchy: bool = True,
+        parent_node_path: str = ".",
+    ) -> StandardResult:
+        """Scaffold GDScript state machine architectures and instantiate node hierarchy."""
+        ...
+
+    @abstractmethod
+    async def create_dialogue_resource(
+        self,
+        resource_path: str,
+        format: str = "json",
+        dialogue_nodes: list[dict[str, Any]] | None = None,
+    ) -> StandardResult:
+        """Generate structured branching dialogue trees in JSON or Godot Resource format."""
+        ...

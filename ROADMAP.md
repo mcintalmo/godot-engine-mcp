@@ -140,6 +140,11 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **State Replication Engine (`godot_configure_multiplayer_synchronizer`)**: Configure `MultiplayerSynchronizer` property replication tables, sync intervals, and visibility modes.
 - [x] **Adverse Netcode Simulation (`godot_simulate_network_conditions`)**: Simulate ping latency, packet loss, jitter variance, and offline modes for multiplayer testing.
 
+### Phase 24: Gameplay AI & State Machine Scaffolding
+- [x] **Hierarchical State Machine Scaffolding (`godot_scaffold_state_machine`)**: Generate standard GDScript `State` and `StateMachine` scripts with enter/exit/update hooks and automatic node tree creation.
+- [x] **Branching Dialogue Tree Generator (`godot_create_dialogue_resource`)**: Generate JSON or Godot Resource dialogue trees with speaker IDs, conditions, branching choices, and signal triggers.
+
+
 
 
 

@@ -1269,6 +1269,30 @@ def format_result(
             lines.append(f"- **Jitter**: `{result.data.get('jitter_ms')} ms`")
             lines.append(f"- **Offline Mode**: `{result.data.get('offline_mode')}`")
 
+        elif "machine_name" in result.data and "states_count" in result.data:
+            lines.append(
+                f"**Scaffolded State Machine**: `{result.data.get('machine_name')}`\n"
+            )
+            lines.append(f"- **Target Directory**: `{result.data.get('target_dir')}`")
+            lines.append(f"- **States Generated**: `{result.data.get('states_count')}`")
+            lines.append(
+                f"- **Node Hierarchy Attached**: `{result.data.get('hierarchy_attached')}`"
+            )
+            if result.data.get("files_created"):
+                lines.append("- **Files Created**:")
+                for f in result.data.get("files_created", []):
+                    lines.append(f"  - `{f}`")
+
+        elif "dialogue_path" in result.data and "dialogue_nodes_count" in result.data:
+            lines.append("**Created Dialogue Tree Resource**\n")
+            lines.append(f"- **Path**: `{result.data.get('dialogue_path')}`")
+            lines.append(
+                f"- **Format**: `{result.data.get('dialogue_format', 'json').upper()}`"
+            )
+            lines.append(
+                f"- **Total Dialogue Nodes**: `{result.data.get('dialogue_nodes_count')}`"
+            )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

@@ -1551,3 +1551,33 @@ class ClientManager(GodotClient):
             jitter_ms=jitter_ms,
             offline_mode=offline_mode,
         )
+
+    async def scaffold_state_machine(
+        self,
+        target_dir: str = "res://scripts/state_machine",
+        machine_name: str = "CharacterStateMachine",
+        states: list[str] | None = None,
+        generate_node_hierarchy: bool = True,
+        parent_node_path: str = ".",
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.scaffold_state_machine(
+            target_dir=target_dir,
+            machine_name=machine_name,
+            states=states,
+            generate_node_hierarchy=generate_node_hierarchy,
+            parent_node_path=parent_node_path,
+        )
+
+    async def create_dialogue_resource(
+        self,
+        resource_path: str,
+        format: str = "json",
+        dialogue_nodes: list[dict[str, Any]] | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.create_dialogue_resource(
+            resource_path=resource_path,
+            format=format,
+            dialogue_nodes=dialogue_nodes,
+        )

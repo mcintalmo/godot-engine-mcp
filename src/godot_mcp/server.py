@@ -69,6 +69,10 @@ from godot_mcp.models.export_build import (
     ExportProjectInput,
     GetExportPresetsInput,
 )
+from godot_mcp.models.gameplay_scaffolding import (
+    CreateDialogueResourceInput,
+    ScaffoldStateMachineInput,
+)
 from godot_mcp.models.gridmap_path import (
     ConfigureGridMapInput,
     CreateCurvePathInput,
@@ -252,6 +256,10 @@ from godot_mcp.tools.editor_tools import (
 )
 from godot_mcp.tools.environment_tools import handle_configure_environment
 from godot_mcp.tools.eval_tools import handle_evaluate_expression
+from godot_mcp.tools.gameplay_scaffolding_tools import (
+    handle_create_dialogue_resource,
+    handle_scaffold_state_machine,
+)
 from godot_mcp.tools.gridmap_path_tools import (
     handle_configure_gridmap,
     handle_create_curve_path,
@@ -1952,6 +1960,38 @@ def create_server(
     ) -> str:
         """Simulate network latency, packet loss, jitter, or offline mode for multiplayer testing."""
         return await handle_simulate_network_conditions(active_client, params)
+
+    @server.tool(
+        name="godot_scaffold_state_machine",
+        annotations=ToolAnnotations(
+            title="Scaffold State Machine",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def scaffold_state_machine(
+        params: ScaffoldStateMachineInput,
+    ) -> str:
+        """Scaffold GDScript state machine architecture files and optionally build the node hierarchy."""
+        return await handle_scaffold_state_machine(active_client, params)
+
+    @server.tool(
+        name="godot_create_dialogue_resource",
+        annotations=ToolAnnotations(
+            title="Create Dialogue Resource",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def create_dialogue_resource(
+        params: CreateDialogueResourceInput,
+    ) -> str:
+        """Generate structured branching dialogue trees in JSON or Godot Resource format."""
+        return await handle_create_dialogue_resource(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

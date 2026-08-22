@@ -48,6 +48,7 @@ const E2EAutomationOps = preload("res://addons/godot_mcp/operations/e2e_automati
 const GridMapPathOps = preload("res://addons/godot_mcp/operations/gridmap_path_ops.gd")
 const ProfilingDiagnosticsOps = preload("res://addons/godot_mcp/operations/profiling_diagnostics_ops.gd")
 const MultiplayerOps = preload("res://addons/godot_mcp/operations/multiplayer_ops.gd")
+const GameplayScaffoldingOps = preload("res://addons/godot_mcp/operations/gameplay_scaffolding_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -97,6 +98,7 @@ var _e2e_automation_ops: RefCounted
 var _gridmap_path_ops: RefCounted
 var _profiling_diagnostics_ops: RefCounted
 var _multiplayer_ops: RefCounted
+var _gameplay_scaffolding_ops: RefCounted
 
 var _port: int = PORT
 
@@ -147,6 +149,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_gridmap_path_ops = GridMapPathOps.new(_plugin)
 	_profiling_diagnostics_ops = ProfilingDiagnosticsOps.new(_plugin)
 	_multiplayer_ops = MultiplayerOps.new(_plugin)
+	_gameplay_scaffolding_ops = GameplayScaffoldingOps.new(_plugin)
+
 
 
 
@@ -455,6 +459,11 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _multiplayer_ops.configure_multiplayer_synchronizer(params)
 		"simulate_network_conditions":
 			result = _multiplayer_ops.simulate_network_conditions(params)
+		"scaffold_state_machine":
+			result = _gameplay_scaffolding_ops.scaffold_state_machine(params)
+		"create_dialogue_resource":
+			result = _gameplay_scaffolding_ops.create_dialogue_resource(params)
+
 
 
 

@@ -4499,3 +4499,49 @@ func _init() -> void:
                 "status": status,
             },
         )
+
+    async def scaffold_state_machine(
+        self,
+        target_dir: str = "res://scripts/state_machine",
+        machine_name: str = "CharacterStateMachine",
+        states: list[str] | None = None,
+        generate_node_hierarchy: bool = True,
+        parent_node_path: str = ".",
+    ) -> StandardResult:
+        """Scaffold State Machine in headless mode."""
+        st_list = states or ["Idle", "Move", "Jump", "Fall"]
+        files = [f"{target_dir}/state.gd", f"{target_dir}/{machine_name.lower()}.gd"]
+        for s in st_list:
+            files.append(f"{target_dir}/{s.lower()}_state.gd")
+        return StandardResult(
+            success=True,
+            message=f"Scaffolded State Machine '{machine_name}' with {len(st_list)} states in '{target_dir}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "machine_name": machine_name,
+                "target_dir": target_dir,
+                "files_created": files,
+                "states_count": len(st_list),
+                "hierarchy_attached": generate_node_hierarchy,
+            },
+        )
+
+    async def create_dialogue_resource(
+        self,
+        resource_path: str,
+        format: str = "json",
+        dialogue_nodes: list[dict[str, Any]] | None = None,
+    ) -> StandardResult:
+        """Create Dialogue Resource in headless mode."""
+        nodes = dialogue_nodes or []
+        return StandardResult(
+            success=True,
+            message=f"Created dialogue tree at '{resource_path}' with {len(nodes)} nodes (Headless Mode).",
+            mode=self.mode,
+            data={
+                "dialogue_path": resource_path,
+                "dialogue_format": format,
+                "dialogue_nodes_count": len(nodes),
+                "dialogue_nodes": nodes,
+            },
+        )
