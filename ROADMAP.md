@@ -165,6 +165,11 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **OpenXR Rig Scaffolding Engine (`godot_setup_xr_rig`)**: Automatically construct `XROrigin3D`, `XRCamera3D`, and dual `XRController3D` tracking rigs with action maps and hand tracking skeletons.
 - [x] **Spatial Computing & Passthrough Controller (`godot_configure_xr_passthrough`)**: Configure OpenXR passthrough layers, foveated rendering optimizations, and reference tracking spaces (`STAGE`, `LOCAL_FLOOR`, `LOCAL`).
 
+### Phase 30: GPU Compute Shaders & RenderingDevice Pipelines
+- [x] **Low-Level GPU Compute Dispatcher (`godot_dispatch_compute_shader`)**: Execute custom GLSL compute shaders on GPU storage buffers via Godot's `RenderingDevice` API with automatic uniform creation and data readback.
+- [x] **RenderingDevice Telemetry Inspector (`godot_inspect_rendering_device`)**: Query low-level GPU hardware limits, compute workgroup capacities, memory budgets, and driver capabilities.
+
+
 
 
 

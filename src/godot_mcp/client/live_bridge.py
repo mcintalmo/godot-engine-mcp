@@ -2114,3 +2114,33 @@ class LiveBridgeClient(GodotClient):
                 "dynamic_foveation": dynamic_foveation,
             },
         )
+
+    async def dispatch_compute_shader(
+        self,
+        shader_code: str,
+        input_buffers: list[dict[str, Any]] | None = None,
+        workgroup_size: list[int] | None = None,
+        output_binding: int = 0,
+        output_element_count: int = 16,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "dispatch_compute_shader",
+            {
+                "shader_code": shader_code,
+                "input_buffers": input_buffers,
+                "workgroup_size": workgroup_size,
+                "output_binding": output_binding,
+                "output_element_count": output_element_count,
+            },
+        )
+
+    async def inspect_rendering_device(
+        self,
+        extended_info: bool = True,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "inspect_rendering_device",
+            {
+                "extended_info": extended_info,
+            },
+        )

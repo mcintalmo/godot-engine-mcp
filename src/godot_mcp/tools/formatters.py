@@ -1467,6 +1467,37 @@ def format_result(
                 f"- **Foveated Rendering**: `{result.data.get('foveated_rendering_level', '').upper()}` (Dynamic: `{result.data.get('dynamic_foveation')}`)"
             )
 
+        elif "workgroup_size" in result.data and "output_elements_read" in result.data:
+            lines.append("**Dispatched Compute Shader**\n")
+            lines.append(f"- **Workgroup Size**: `{result.data.get('workgroup_size')}`")
+            lines.append(f"- **Output Binding**: `{result.data.get('output_binding')}`")
+            lines.append(
+                f"- **Elements Read Back**: `{result.data.get('output_elements_read')}`"
+            )
+            out_data = result.data.get("output_data", [])
+            preview_vals = ", ".join(
+                f"{v:.3f}" if isinstance(v, float) else str(v) for v in out_data[:12]
+            )
+            lines.append(
+                f"- **Buffer Output**: `[{preview_vals}{'...' if len(out_data) > 12 else ''}]`"
+            )
+
+        elif (
+            "device_name" in result.data
+            and "vendor_name" in result.data
+            and "max_compute_workgroup_size" in result.data
+        ):
+            lines.append("**RenderingDevice Hardware Telemetry**\n")
+            lines.append(f"- **Device**: `{result.data.get('device_name')}`")
+            lines.append(f"- **Vendor**: `{result.data.get('vendor_name')}`")
+            lines.append(f"- **Driver**: `{result.data.get('driver_name')}`")
+            lines.append(
+                f"- **Max Workgroup Size**: `{result.data.get('max_compute_workgroup_size')}`"
+            )
+            lines.append(
+                f"- **Compute Shared Memory**: `{result.data.get('max_compute_shared_memory_bytes')} bytes`"
+            )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

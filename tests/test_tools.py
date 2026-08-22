@@ -2970,6 +2970,48 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def dispatch_compute_shader(
+        self,
+        shader_code: str,
+        input_buffers: list[dict[str, Any]] | None = None,
+        workgroup_size: list[int] | None = None,
+        output_binding: int = 0,
+        output_element_count: int = 16,
+    ) -> StandardResult:
+        wg = workgroup_size or [1, 1, 1]
+        total_wg = wg[0] * wg[1] * wg[2]
+        simulated_data = [float(i * 2.0) for i in range(output_element_count)]
+        return StandardResult(
+            success=True,
+            message=f"Successfully dispatched compute shader with {total_wg} workgroups.",
+            mode=self.mode,
+            data={
+                "workgroup_size": wg,
+                "output_binding": output_binding,
+                "output_elements_read": len(simulated_data),
+                "output_data": simulated_data,
+            },
+        )
+
+    async def inspect_rendering_device(
+        self,
+        extended_info: bool = True,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Inspected RenderingDevice 'Apple M-Series GPU' (Apple Metal Driver).",
+            mode=self.mode,
+            data={
+                "device_name": "Apple M-Series GPU",
+                "vendor_name": "Apple",
+                "driver_name": "Metal / Vulkan",
+                "max_compute_workgroup_size": [1024, 1024, 64],
+                "max_compute_shared_memory_bytes": 32768,
+                "supports_compute_shaders": True,
+                "supports_storage_buffers": True,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

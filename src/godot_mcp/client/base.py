@@ -1377,3 +1377,23 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Configure OpenXR passthrough mode, foveated rendering, and reference spaces."""
         ...
+
+    @abstractmethod
+    async def dispatch_compute_shader(
+        self,
+        shader_code: str,
+        input_buffers: list[dict[str, Any]] | None = None,
+        workgroup_size: list[int] | None = None,
+        output_binding: int = 0,
+        output_element_count: int = 16,
+    ) -> StandardResult:
+        """Execute compute shader on GPU via low-level RenderingDevice API."""
+        ...
+
+    @abstractmethod
+    async def inspect_rendering_device(
+        self,
+        extended_info: bool = True,
+    ) -> StandardResult:
+        """Query GPU RenderingDevice device name, vendor, limits, and capabilities."""
+        ...

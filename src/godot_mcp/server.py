@@ -159,6 +159,10 @@ from godot_mcp.models.reflection import (
     GetDocumentationInput,
     ValidateShaderInput,
 )
+from godot_mcp.models.rendering_device import (
+    DispatchComputeShaderInput,
+    InspectRenderingDeviceInput,
+)
 from godot_mcp.models.runtime_eval import EvaluateExpressionInput
 from godot_mcp.models.scene import (
     CreateNodeInput,
@@ -368,6 +372,10 @@ from godot_mcp.tools.reflection_tools import (
     handle_get_class_info,
     handle_get_documentation,
     handle_validate_shader,
+)
+from godot_mcp.tools.rendering_device_tools import (
+    handle_dispatch_compute_shader,
+    handle_inspect_rendering_device,
 )
 from godot_mcp.tools.scene_diff_tools import handle_diff_scene
 from godot_mcp.tools.scene_hierarchy_tools import (
@@ -2210,6 +2218,38 @@ def create_server(
     ) -> str:
         """Configure OpenXR passthrough mode, foveated rendering, and reference spaces."""
         return await handle_configure_xr_passthrough(active_client, params)
+
+    @server.tool(
+        name="godot_dispatch_compute_shader",
+        annotations=ToolAnnotations(
+            title="Dispatch Compute Shader",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def dispatch_compute_shader(
+        params: DispatchComputeShaderInput,
+    ) -> str:
+        """Execute compute shader on GPU via low-level RenderingDevice API."""
+        return await handle_dispatch_compute_shader(active_client, params)
+
+    @server.tool(
+        name="godot_inspect_rendering_device",
+        annotations=ToolAnnotations(
+            title="Inspect RenderingDevice",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def inspect_rendering_device(
+        params: InspectRenderingDeviceInput,
+    ) -> str:
+        """Query GPU RenderingDevice device name, vendor, limits, and capabilities."""
+        return await handle_inspect_rendering_device(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

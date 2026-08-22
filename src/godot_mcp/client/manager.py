@@ -1812,3 +1812,29 @@ class ClientManager(GodotClient):
             foveated_rendering_level=foveated_rendering_level,
             dynamic_foveation=dynamic_foveation,
         )
+
+    async def dispatch_compute_shader(
+        self,
+        shader_code: str,
+        input_buffers: list[dict[str, Any]] | None = None,
+        workgroup_size: list[int] | None = None,
+        output_binding: int = 0,
+        output_element_count: int = 16,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.dispatch_compute_shader(
+            shader_code=shader_code,
+            input_buffers=input_buffers,
+            workgroup_size=workgroup_size,
+            output_binding=output_binding,
+            output_element_count=output_element_count,
+        )
+
+    async def inspect_rendering_device(
+        self,
+        extended_info: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.inspect_rendering_device(
+            extended_info=extended_info,
+        )
