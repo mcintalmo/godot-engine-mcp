@@ -1,9 +1,13 @@
 """FastMCP Server setup and tool registrations for Godot Engine."""
 
 import json
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
 
 from mcp.server import MCPServer
 from mcp.types import ToolAnnotations
+from pydantic import BaseModel
 
 from godot_mcp.client.base import GodotClient
 from godot_mcp.client.manager import ClientManager
@@ -132,12 +136,6 @@ from godot_mcp.models.physics import (
 from godot_mcp.models.physics_constraints import (
     ConfigurePhysicsJointInput,
     GenerateRagdollInput,
-)
-from godot_mcp.models.play import (
-    GetPlayStateInput,
-    PlaySceneInput,
-    SetPlayStateInput,
-    StopSceneInput,
 )
 from godot_mcp.models.plugin_mgr import (
     GetPluginsInput,
@@ -351,12 +349,6 @@ from godot_mcp.tools.physics_tools import (
     handle_get_body_physics_state_3d,
     handle_set_physics_debug_mode,
 )
-from godot_mcp.tools.play_tools import (
-    handle_get_play_state,
-    handle_play_scene,
-    handle_set_play_state,
-    handle_stop_scene,
-)
 from godot_mcp.tools.plugin_tools import (
     handle_get_plugins,
     handle_set_plugin_status,
@@ -442,6 +434,979 @@ from godot_mcp.tools.uid_tools import (
 )
 
 
+@dataclass(frozen=True)
+class ToolDef:
+    """Declarative specification for an MCP tool endpoint."""
+
+    name: str
+    title: str
+    description: str
+    input_model: type[BaseModel]
+    handler: Callable[..., Any]
+    read_only: bool = False
+    idempotent: bool = False
+    destructive: bool = False
+
+
+TOOL_DEFINITIONS: list[ToolDef] = [
+    # Project & Version
+    ToolDef(
+        "godot_get_version",
+        "Get Godot Engine Version",
+        "Get current Godot Engine version, build info, mode, and project path.",
+        GetVersionInput,
+        handle_get_version,
+        read_only=True,
+        idempotent=True,
+    ),
+    ToolDef(
+        "godot_get_project_settings",
+        "Get Project Settings",
+        "Query settings from project.godot (application name, display, physics, etc).",
+        GetProjectSettingsInput,
+        handle_get_project_settings,
+        read_only=True,
+        idempotent=True,
+    ),
+    ToolDef(
+        "godot_set_project_setting",
+        "Set Project Setting",
+        "Write or update a configuration setting in project.godot.",
+        SetProjectSettingInput,
+        handle_set_project_setting,
+        idempotent=True,
+    ),
+    ToolDef(
+        "godot_list_project_files",
+        "List Project Files",
+        "List files in the Godot project tree matching patterns and extensions.",
+        ListProjectFilesInput,
+        handle_list_project_files,
+        read_only=True,
+        idempotent=True,
+    ),
+    # Scene & Nodes
+    ToolDef(
+        "godot_list_nodes",
+        "List Nodes in Scene Tree",
+        "List all nodes in the active scene tree with hierarchy, types, and properties.",
+        ListNodesInput,
+        handle_list_nodes,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_get_node",
+        "Get Node Details",
+        "Inspect a specific node's type, script, groups, signals, and properties.",
+        GetNodeInput,
+        handle_get_node,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_create_node",
+        "Create Node",
+        "Create and add a new node of any Godot class to the active scene.",
+        CreateNodeInput,
+        handle_create_node,
+    ),
+    ToolDef(
+        "godot_modify_node",
+        "Modify Node Properties",
+        "Update properties on an existing node in the active scene.",
+        ModifyNodeInput,
+        handle_modify_node,
+    ),
+    ToolDef(
+        "godot_delete_node",
+        "Delete Node",
+        "Remove a node from the active scene tree.",
+        DeleteNodeInput,
+        handle_delete_node,
+        destructive=True,
+    ),
+    ToolDef(
+        "godot_connect_signal",
+        "Connect Node Signal",
+        "Connect a signal from a source node to a target node method.",
+        ConnectSignalInput,
+        handle_connect_signal,
+    ),
+    ToolDef(
+        "godot_instantiate_scene",
+        "Instantiate Scene",
+        "Instantiate a packed scene (.tscn / .scn) as a child node.",
+        InstantiateSceneInput,
+        handle_instantiate_scene,
+    ),
+    ToolDef(
+        "godot_save_scene",
+        "Save Active Scene",
+        "Save the currently edited scene to disk.",
+        SaveSceneInput,
+        handle_save_scene,
+    ),
+    ToolDef(
+        "godot_open_scene",
+        "Open Scene in Editor",
+        "Open a scene file (.tscn) in the Godot Editor workspace.",
+        OpenSceneInput,
+        handle_open_scene,
+    ),
+    ToolDef(
+        "godot_create_scene",
+        "Create New Scene",
+        "Create a brand new scene file with root node and save to disk.",
+        CreateSceneInput,
+        handle_create_scene,
+    ),
+    # Scene Hierarchy & Mutation
+    ToolDef(
+        "godot_reparent_node",
+        "Reparent Node",
+        "Move a node to a new parent in the active scene tree.",
+        ReparentNodeInput,
+        handle_reparent_node,
+    ),
+    ToolDef(
+        "godot_duplicate_node",
+        "Duplicate Node",
+        "Deep duplicate a node with signal and script flags.",
+        DuplicateNodeInput,
+        handle_duplicate_node,
+    ),
+    ToolDef(
+        "godot_set_node_owner",
+        "Set Node Owner",
+        "Set or synchronize the owner property of a node.",
+        SetNodeOwnerInput,
+        handle_set_node_owner,
+    ),
+    ToolDef(
+        "godot_diff_scene",
+        "Diff Scene Files",
+        "Compare two scene files (.tscn) and generate structural diffs.",
+        DiffSceneInput,
+        handle_diff_scene,
+        read_only=True,
+    ),
+    # Script & LSP
+    ToolDef(
+        "godot_validate_script",
+        "Validate GDScript",
+        "Parse and validate GDScript code for syntax and type errors.",
+        ValidateScriptInput,
+        handle_validate_script,
+        read_only=True,
+        idempotent=True,
+    ),
+    ToolDef(
+        "godot_create_script",
+        "Create GDScript",
+        "Create a new GDScript file with template code and class extends.",
+        CreateScriptInput,
+        handle_create_script,
+    ),
+    ToolDef(
+        "godot_attach_script",
+        "Attach Script to Node",
+        "Attach or detach a GDScript to/from an active node.",
+        AttachScriptInput,
+        handle_attach_script,
+    ),
+    ToolDef(
+        "godot_reload_scripts",
+        "Reload Scripts in Memory",
+        "Force reload modified GDScript resources in memory.",
+        ReloadScriptsInput,
+        handle_reload_scripts,
+    ),
+    ToolDef(
+        "godot_get_node_script_info",
+        "Get Node Script Reflection",
+        "Inspect exported properties, methods, constants, and signals.",
+        GetNodeScriptInfoInput,
+        handle_get_node_script_info,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_lsp_query",
+        "LSP Semantic Query",
+        "Query symbols, definitions, references, or hover documentation.",
+        LSPQueryInput,
+        handle_lsp_query,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_lsp_rename",
+        "LSP Semantic Rename",
+        "Perform cross-file semantic symbol rename.",
+        LSPRenameInput,
+        handle_lsp_rename,
+    ),
+    # Reflection & Documentation
+    ToolDef(
+        "godot_get_class_info",
+        "Get Godot Class Info",
+        "Query class inheritance, properties, methods, and signals from ClassDB.",
+        GetClassInfoInput,
+        handle_get_class_info,
+        read_only=True,
+        idempotent=True,
+    ),
+    ToolDef(
+        "godot_get_documentation",
+        "Get Engine Documentation",
+        "Fetch built-in documentation for classes, methods, and properties.",
+        GetDocumentationInput,
+        handle_get_documentation,
+        read_only=True,
+        idempotent=True,
+    ),
+    ToolDef(
+        "godot_evaluate_expression",
+        "Evaluate Expression at Runtime",
+        "Evaluate arbitrary GDScript expression safely at runtime.",
+        EvaluateExpressionInput,
+        handle_evaluate_expression,
+    ),
+    # Debug, Play & Testing
+    ToolDef(
+        "godot_run_project",
+        "Run Godot Project",
+        "Launch project or scene in debug mode via CLI.",
+        RunProjectInput,
+        handle_run_project,
+    ),
+    ToolDef(
+        "godot_run_tests",
+        "Run Automated Tests",
+        "Execute test scenes or unit test runners headlessly.",
+        RunTestsInput,
+        handle_run_tests,
+    ),
+    ToolDef(
+        "godot_take_screenshot",
+        "Take Viewport Screenshot",
+        "Capture full screenshot of active game or editor viewport.",
+        TakeScreenshotInput,
+        handle_take_screenshot,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_generate_gut_test",
+        "Generate GUT Unit Test",
+        "Scaffold GUT test script for a target class or script.",
+        GenerateGUTTestInput,
+        handle_generate_gut_test,
+    ),
+    ToolDef(
+        "godot_run_gut_tests",
+        "Run GUT Unit Tests",
+        "Execute GUT test suites and capture test results.",
+        RunGUTTestsInput,
+        handle_run_gut_tests,
+    ),
+    # Materials, Shaders & Rendering
+    ToolDef(
+        "godot_validate_shader",
+        "Validate Shader Code",
+        "Compile and check Godot Shader Language code for errors.",
+        ValidateShaderInput,
+        handle_validate_shader,
+        read_only=True,
+        idempotent=True,
+    ),
+    ToolDef(
+        "godot_create_material",
+        "Create Material Resource",
+        "Create StandardMaterial3D, ORMMaterial3D, ShaderMaterial, or CanvasItemMaterial.",
+        CreateMaterialInput,
+        handle_create_material,
+    ),
+    ToolDef(
+        "godot_create_shader",
+        "Create Custom Shader",
+        "Create custom Godot shader (.gdshader) with matching material.",
+        CreateShaderInput,
+        handle_create_shader,
+    ),
+    ToolDef(
+        "godot_set_shader_param",
+        "Set Shader Uniform Parameter",
+        "Set shader parameter uniform values on a ShaderMaterial.",
+        SetShaderParamInput,
+        handle_set_shader_param,
+    ),
+    ToolDef(
+        "godot_configure_particles",
+        "Configure Particles",
+        "Configure GPUParticles2D/3D or CPUParticles2D/3D node emission.",
+        ConfigureParticlesInput,
+        handle_configure_particles,
+    ),
+    ToolDef(
+        "godot_configure_environment",
+        "Configure World Environment",
+        "Adjust WorldEnvironment background, glow, tonemap, and ambient light.",
+        ConfigureEnvironmentInput,
+        handle_configure_environment,
+    ),
+    ToolDef(
+        "godot_configure_camera",
+        "Configure Camera",
+        "Create and configure Camera2D or Camera3D viewports and FOV.",
+        ConfigureCameraInput,
+        handle_configure_camera,
+    ),
+    ToolDef(
+        "godot_configure_render_settings",
+        "Configure Render Settings",
+        "Tune anti-aliasing, shadow quality, V-Sync, and upscaling.",
+        ConfigureRenderSettingsInput,
+        handle_configure_render_settings,
+    ),
+    ToolDef(
+        "godot_capture_viewport",
+        "Capture High-Res Viewport",
+        "Capture high-resolution viewport frame for AI Vision inspection.",
+        CaptureViewportInput,
+        handle_capture_viewport,
+        read_only=True,
+    ),
+    # Global Illumination & Spatial XR
+    ToolDef(
+        "godot_configure_lightmap_gi",
+        "Configure Global Illumination",
+        "Configure 3D GI pipelines (LightmapGI, VoxelGI, ReflectionProbe).",
+        ConfigureLightmapGIInput,
+        handle_configure_lightmap_gi,
+    ),
+    ToolDef(
+        "godot_bake_lightmaps",
+        "Bake Lightmaps",
+        "Trigger lightmap or voxel GI baking for the active scene.",
+        BakeLightmapsInput,
+        handle_bake_lightmaps,
+    ),
+    ToolDef(
+        "godot_setup_xr_rig",
+        "Setup OpenXR Rig",
+        "Scaffold XROrigin3D, XRCamera3D, and XRController3D tracking rig.",
+        SetupXRRigInput,
+        handle_setup_xr_rig,
+    ),
+    ToolDef(
+        "godot_configure_xr_passthrough",
+        "Configure OpenXR Passthrough",
+        "Configure OpenXR passthrough mode and foveated rendering.",
+        ConfigureXRPassthroughInput,
+        handle_configure_xr_passthrough,
+    ),
+    # Low-Level GPU Compute & MultiMesh
+    ToolDef(
+        "godot_dispatch_compute_shader",
+        "Dispatch Compute Shader",
+        "Execute compute shader on GPU via low-level RenderingDevice API.",
+        DispatchComputeShaderInput,
+        handle_dispatch_compute_shader,
+    ),
+    ToolDef(
+        "godot_inspect_rendering_device",
+        "Inspect RenderingDevice",
+        "Query GPU RenderingDevice device name, vendor, limits, and capabilities.",
+        InspectRenderingDeviceInput,
+        handle_inspect_rendering_device,
+        read_only=True,
+        idempotent=True,
+    ),
+    ToolDef(
+        "godot_scatter_multimesh",
+        "Scatter MultiMesh",
+        "High-performance GPU instanced scattering across a 3D bounding area.",
+        ScatterMultiMeshInput,
+        handle_scatter_multimesh,
+    ),
+    ToolDef(
+        "godot_configure_lod_manager",
+        "Configure LOD Manager",
+        "Configure visibility ranges, LOD distance thresholds, and cross-fade modes.",
+        ConfigureLODManagerInput,
+        handle_configure_lod_manager,
+    ),
+    # Assets & DCC Imports
+    ToolDef(
+        "godot_reimport_asset",
+        "Reimport Asset",
+        "Trigger reimport of asset files with custom import parameters.",
+        ReimportAssetInput,
+        handle_reimport_asset,
+    ),
+    ToolDef(
+        "godot_create_collision_polygon",
+        "Create Collision Polygon",
+        "Generate CollisionPolygon2D/3D shapes from sprite alpha or mesh.",
+        CreateCollisionPolygonInput,
+        handle_create_collision_polygon,
+    ),
+    ToolDef(
+        "godot_configure_gltf_import",
+        "Configure GLTF Import",
+        "Configure GLTF/GLB 3D model import presets.",
+        ConfigureGLTFImportInput,
+        handle_configure_gltf_import,
+    ),
+    ToolDef(
+        "godot_instantiate_model",
+        "Instantiate 3D Model",
+        "Instantiate a 3D model asset into the active scene.",
+        InstantiateModelInput,
+        handle_instantiate_model,
+    ),
+    ToolDef(
+        "godot_audit_assets",
+        "Audit Asset Usage",
+        "Scan project for unused assets, missing dependencies, or broken paths.",
+        AuditAssetsInput,
+        handle_audit_assets,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_clean_orphans",
+        "Clean Orphan Resources",
+        "Remove or quarantine unreferenced and orphaned asset files.",
+        CleanOrphansInput,
+        handle_clean_orphans,
+        destructive=True,
+    ),
+    ToolDef(
+        "godot_get_texture_info",
+        "Get Texture Metadata",
+        "Query dimensions, format, VRAM compression, and mipmaps.",
+        GetTextureInfoInput,
+        handle_get_texture_info,
+        read_only=True,
+    ),
+    # Animation & Audio
+    ToolDef(
+        "godot_create_animation",
+        "Create Animation Track",
+        "Create or modify tracks and keyframes in an AnimationPlayer.",
+        CreateAnimationInput,
+        handle_create_animation,
+    ),
+    ToolDef(
+        "godot_configure_animation_tree",
+        "Configure AnimationTree",
+        "Setup state machines, blend spaces, and transitions in AnimationTree.",
+        ConfigureAnimationTreeInput,
+        handle_configure_animation_tree,
+    ),
+    ToolDef(
+        "godot_configure_audio_bus",
+        "Configure Audio Bus",
+        "Add, rename, mute, solo, or route AudioServer buses.",
+        ConfigureAudioBusInput,
+        handle_configure_audio_bus,
+    ),
+    ToolDef(
+        "godot_set_bus_effect",
+        "Set Audio Bus Effect",
+        "Add or adjust real-time audio effects on an audio bus.",
+        SetBusEffectInput,
+        handle_set_bus_effect,
+    ),
+    ToolDef(
+        "godot_get_audio_layout",
+        "Get Audio Layout",
+        "Query complete AudioServer bus hierarchy and effect chains.",
+        GetAudioLayoutInput,
+        handle_get_audio_layout,
+        read_only=True,
+        idempotent=True,
+    ),
+    # World Building & 2D/3D Navigation
+    ToolDef(
+        "godot_create_tilemap_layer",
+        "Create TileMapLayer",
+        "Add a TileMapLayer node with TileSet binding.",
+        CreateTileMapLayerInput,
+        handle_create_tilemap_layer,
+    ),
+    ToolDef(
+        "godot_set_tilemap_cells",
+        "Set TileMap Cells",
+        "Place or clear tiles on a TileMapLayer coordinate grid.",
+        SetTileMapCellsInput,
+        handle_set_tilemap_cells,
+    ),
+    ToolDef(
+        "godot_get_tilemap_cells",
+        "Get TileMap Cells",
+        "Read placed cell coordinates and atlas coords from TileMapLayer.",
+        GetTileMapCellsInput,
+        handle_get_tilemap_cells,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_configure_tileset_terrain",
+        "Configure TileSet Terrain",
+        "Configure TileSet terrain sets, terrain modes, and auto-tiling.",
+        ConfigureTileSetTerrainInput,
+        handle_configure_tileset_terrain,
+    ),
+    ToolDef(
+        "godot_create_navigation_region",
+        "Create Navigation Region",
+        "Create NavigationRegion2D or NavigationRegion3D with NavigationMesh.",
+        CreateNavigationRegionInput,
+        handle_create_navigation_region,
+    ),
+    ToolDef(
+        "godot_bake_navmesh",
+        "Bake Navigation Mesh",
+        "Trigger navigation mesh baking on a NavigationRegion.",
+        BakeNavMeshInput,
+        handle_bake_navmesh,
+    ),
+    ToolDef(
+        "godot_configure_navigation_obstacle",
+        "Configure Navigation Obstacle",
+        "Configure NavigationObstacle2D or NavigationObstacle3D dynamic avoidance.",
+        ConfigureNavigationObstacleInput,
+        handle_configure_navigation_obstacle,
+    ),
+    ToolDef(
+        "godot_configure_gridmap",
+        "Configure GridMap",
+        "Assign MeshLibrary, set cell sizes, and place 3D grid tiles.",
+        ConfigureGridMapInput,
+        handle_configure_gridmap,
+    ),
+    ToolDef(
+        "godot_create_curve_path",
+        "Create Curve Path",
+        "Construct Path2D or Path3D curves with control points.",
+        CreateCurvePathInput,
+        handle_create_curve_path,
+    ),
+    # Physics & Simulation
+    ToolDef(
+        "godot_cast_ray_3d",
+        "Cast Ray 3D",
+        "Perform 3D raycast query against PhysicsDirectSpaceState3D.",
+        CastRay3DInput,
+        handle_cast_ray_3d,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_cast_shape_3d",
+        "Cast Shape 3D",
+        "Perform 3D shapecast (sweep test) in physics space.",
+        CastShape3DInput,
+        handle_cast_shape_3d,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_get_body_physics_state_3d",
+        "Get Body Physics State 3D",
+        "Inspect transform, linear/angular velocity, and contacts.",
+        GetBodyPhysicsState3DInput,
+        handle_get_body_physics_state_3d,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_set_physics_debug_mode",
+        "Set Physics Debug Mode",
+        "Enable/disable visual physics collision shape debugging.",
+        SetPhysicsDebugModeInput,
+        handle_set_physics_debug_mode,
+    ),
+    ToolDef(
+        "godot_inspect_skeleton",
+        "Inspect Skeleton3D",
+        "Query bone hierarchies, rest poses, transforms, and socket names.",
+        InspectSkeletonInput,
+        handle_inspect_skeleton,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_configure_bone_attachment",
+        "Configure BoneAttachment3D",
+        "Attach props, weapons, or collision nodes to named Skeleton3D bones.",
+        ConfigureBoneAttachmentInput,
+        handle_configure_bone_attachment,
+    ),
+    ToolDef(
+        "godot_setup_inverse_kinematics",
+        "Setup Inverse Kinematics",
+        "Configure SkeletonIK3D chains with target nodes and magnet vectors.",
+        SetupInverseKinematicsInput,
+        handle_setup_inverse_kinematics,
+    ),
+    ToolDef(
+        "godot_configure_physics_joint",
+        "Configure Physics Joint",
+        "Create and configure 3D physics joints (Pin, Hinge, Slider, ConeTwist, 6DOF).",
+        ConfigurePhysicsJointInput,
+        handle_configure_physics_joint,
+    ),
+    ToolDef(
+        "godot_generate_ragdoll",
+        "Generate Physical Ragdoll",
+        "Automatically construct PhysicalBone3D hierarchies from Skeleton3D.",
+        GenerateRagdollInput,
+        handle_generate_ragdoll,
+    ),
+    # UI Automation & E2E Testing ("Playwright for Godot")
+    ToolDef(
+        "godot_find_elements",
+        "Find UI Elements",
+        "Locate UI elements by text, name, class, group, or role.",
+        FindElementsInput,
+        handle_find_elements,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_interact_node",
+        "Interact with Node",
+        "Perform click, type_text, drag_to, or scroll on a located node.",
+        InteractNodeInput,
+        handle_interact_node,
+    ),
+    ToolDef(
+        "godot_wait_for_condition",
+        "Wait for Condition",
+        "Auto-wait for node appearance, property thresholds, or signals.",
+        WaitForConditionInput,
+        handle_wait_for_condition,
+    ),
+    ToolDef(
+        "godot_assert_node_state",
+        "Assert Node State",
+        "Assert properties, visibility, disabled state, or bounds.",
+        AssertNodeStateInput,
+        handle_assert_node_state,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_simulate_input",
+        "Simulate Input Events",
+        "Inject simulated mouse, keyboard, or joypad events.",
+        SimulateInputInput,
+        handle_simulate_input,
+    ),
+    ToolDef(
+        "godot_draw_debug_shapes",
+        "Draw Debug Shapes",
+        "Render temporary 2D/3D debug shapes with colors and durations.",
+        DrawDebugShapesInput,
+        handle_draw_debug_shapes,
+    ),
+    ToolDef(
+        "godot_clear_debug_shapes",
+        "Clear Debug Shapes",
+        "Remove all active runtime debug drawing shapes.",
+        ClearDebugShapesInput,
+        handle_clear_debug_shapes,
+    ),
+    # Multiplayer & Networking
+    ToolDef(
+        "godot_configure_multiplayer_spawner",
+        "Configure MultiplayerSpawner",
+        "Setup automated network node spawning paths.",
+        ConfigureMultiplayerSpawnerInput,
+        handle_configure_multiplayer_spawner,
+    ),
+    ToolDef(
+        "godot_configure_multiplayer_synchronizer",
+        "Configure MultiplayerSynchronizer",
+        "Configure synced properties and replication intervals.",
+        ConfigureMultiplayerSynchronizerInput,
+        handle_configure_multiplayer_synchronizer,
+    ),
+    ToolDef(
+        "godot_simulate_network_conditions",
+        "Simulate Network Conditions",
+        "Inject simulated latency, jitter, and packet loss.",
+        SimulateNetworkConditionsInput,
+        handle_simulate_network_conditions,
+    ),
+    # Gameplay & Architecture
+    ToolDef(
+        "godot_scaffold_state_machine",
+        "Scaffold State Machine",
+        "Construct modular hierarchical finite state machine nodes.",
+        ScaffoldStateMachineInput,
+        handle_scaffold_state_machine,
+    ),
+    ToolDef(
+        "godot_create_dialogue_resource",
+        "Create Dialogue Resource",
+        "Generate branching dialogue JSON / Resource files.",
+        CreateDialogueResourceInput,
+        handle_create_dialogue_resource,
+    ),
+    ToolDef(
+        "godot_create_csg_shape",
+        "Create CSG Shape",
+        "Construct Constructive Solid Geometry (CSGBox, CSGSphere, etc).",
+        CreateCSGShapeInput,
+        handle_create_csg_shape,
+    ),
+    ToolDef(
+        "godot_generate_procedural_mesh",
+        "Generate Procedural Mesh",
+        "Generate custom procedural 3D meshes using SurfaceTool.",
+        GenerateProceduralMeshInput,
+        handle_generate_procedural_mesh,
+    ),
+    # Profiling & Diagnostics
+    ToolDef(
+        "godot_get_performance_metrics",
+        "Get Performance Metrics",
+        "Query FPS, memory, draw calls, and physics monitors.",
+        GetPerformanceMetricsInput,
+        handle_get_performance_metrics,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_audit_orphan_nodes",
+        "Audit Orphan Nodes",
+        "Detect memory leaks from unparented orphan nodes in SceneTree.",
+        AuditOrphanNodesInput,
+        handle_audit_orphan_nodes,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_inspect_vram_usage",
+        "Inspect VRAM Allocations",
+        "Query VRAM texture, buffer, and render target allocations.",
+        InspectVRAMUsageInput,
+        handle_inspect_vram_usage,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_capture_profiler_trace",
+        "Capture Profiler Trace",
+        "Record engine frame timeline trace slices for performance bottleneck analysis.",
+        CaptureProfilerTraceInput,
+        handle_capture_profiler_trace,
+        read_only=True,
+    ),
+    # Editor Integration, Themes & Settings
+    ToolDef(
+        "godot_create_theme",
+        "Create Theme Resource",
+        "Create Theme resource with color, font, and stylebox overrides.",
+        CreateThemeInput,
+        handle_create_theme,
+    ),
+    ToolDef(
+        "godot_apply_theme_override",
+        "Apply Theme Override",
+        "Apply theme override directly to a Control node in active scene.",
+        ApplyThemeOverrideInput,
+        handle_apply_theme_override,
+    ),
+    ToolDef(
+        "godot_get_input_actions",
+        "Get Input Map Actions",
+        "Query all configured project input actions and key bindings.",
+        GetInputActionsInput,
+        handle_get_input_actions,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_configure_input_action",
+        "Configure Input Action",
+        "Add, remove, or modify input actions and event bindings.",
+        ConfigureInputActionInput,
+        handle_configure_input_action,
+    ),
+    ToolDef(
+        "godot_get_autoloads",
+        "Get Autoload Singletons",
+        "Query all registered Autoload singletons.",
+        GetAutoloadsInput,
+        handle_get_autoloads,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_set_autoload",
+        "Configure Autoload Singleton",
+        "Add, remove, or reorder Autoload singletons in project.godot.",
+        SetAutoloadInput,
+        handle_set_autoload,
+    ),
+    ToolDef(
+        "godot_get_plugins",
+        "Get Editor Plugins",
+        "Discover installed editor plugins in res://addons/.",
+        GetPluginsInput,
+        handle_get_plugins,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_set_plugin_status",
+        "Set Plugin Status",
+        "Enable or disable an editor plugin.",
+        SetPluginStatusInput,
+        handle_set_plugin_status,
+    ),
+    ToolDef(
+        "godot_get_translations",
+        "Get Translation Files",
+        "Query registered localization files (.translation / .csv).",
+        GetTranslationsInput,
+        handle_get_translations,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_add_translation",
+        "Add Translation File",
+        "Register a localization translation file in project.godot.",
+        AddTranslationInput,
+        handle_add_translation,
+    ),
+    ToolDef(
+        "godot_get_uid",
+        "Get Resource UID",
+        "Convert resource path to native Godot uid:// identifier.",
+        GetUIDInput,
+        handle_get_uid,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_resolve_uid",
+        "Resolve Resource UID",
+        "Resolve uid:// identifier back into its file path.",
+        ResolveUIDInput,
+        handle_resolve_uid,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_get_dependencies",
+        "Get Resource Dependencies",
+        "Query dependency list for a scene, resource, or script.",
+        GetDependenciesInput,
+        handle_get_dependencies,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_get_export_presets",
+        "Get Export Presets",
+        "Query export presets defined in export_presets.cfg.",
+        GetExportPresetsInput,
+        handle_get_export_presets,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_export_project",
+        "Export Project Binary",
+        "Export project binary for target preset via CLI.",
+        ExportProjectInput,
+        handle_export_project,
+    ),
+    ToolDef(
+        "godot_focus_node",
+        "Focus Node in Inspector",
+        "Select node in scene tree and focus in Inspector dock.",
+        FocusNodeInput,
+        handle_focus_node,
+    ),
+    ToolDef(
+        "godot_set_editor_selection",
+        "Set Editor Selection",
+        "Set selected nodes in the 2D/3D editor viewport.",
+        SetEditorSelectionInput,
+        handle_set_editor_selection,
+    ),
+    ToolDef(
+        "godot_get_selected_nodes",
+        "Get Editor Selected Nodes",
+        "Query paths of all nodes currently selected in Editor.",
+        GetSelectedNodesInput,
+        handle_get_selected_nodes,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_set_selected_nodes",
+        "Set Editor Node Selection",
+        "Replace current editor node selection.",
+        SetSelectedNodesInput,
+        handle_set_selected_nodes,
+    ),
+    ToolDef(
+        "godot_undo",
+        "Editor Undo",
+        "Trigger undo on the active Godot Editor undo/redo manager.",
+        UndoInput,
+        handle_undo,
+    ),
+    ToolDef(
+        "godot_redo",
+        "Editor Redo",
+        "Trigger redo on the active Godot Editor undo/redo manager.",
+        RedoInput,
+        handle_redo,
+    ),
+    ToolDef(
+        "godot_get_editor_layout",
+        "Get Editor Layout",
+        "Query active editor dock positions and open main screens.",
+        GetEditorLayoutInput,
+        handle_get_editor_layout,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_set_editor_layout",
+        "Set Editor Layout",
+        "Switch editor main screen or dock arrangements.",
+        SetEditorLayoutInput,
+        handle_set_editor_layout,
+    ),
+    ToolDef(
+        "godot_get_node_signals",
+        "Get Node Signals",
+        "Query all signals declared or inherited on a live node.",
+        GetNodeSignalsInput,
+        handle_get_node_signals,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_get_signal_connections",
+        "Get Signal Connections",
+        "Query all incoming and outgoing signal connections.",
+        GetSignalConnectionsInput,
+        handle_get_signal_connections,
+        read_only=True,
+    ),
+]
+
+
+def _register_tool(server: MCPServer, client: GodotClient, tool_def: ToolDef) -> None:
+    """Register a single ToolDef on the MCPServer."""
+    handler = tool_def.handler
+
+    async def _endpoint(params: Any) -> str:
+        return await handler(client, params)
+
+    _endpoint.__name__ = tool_def.name
+    _endpoint.__doc__ = tool_def.description
+    _endpoint.__annotations__ = {"params": tool_def.input_model, "return": str}
+
+    server.tool(
+        name=tool_def.name,
+        annotations=ToolAnnotations(
+            title=tool_def.title,
+            read_only_hint=tool_def.read_only,
+            destructive_hint=tool_def.destructive,
+            idempotent_hint=tool_def.idempotent,
+            open_world_hint=False,
+        ),
+    )(_endpoint)
+
+
 def create_server(
     client: GodotClient | None = None, config: GodotConfig | None = None
 ) -> MCPServer:
@@ -453,1843 +1418,9 @@ def create_server(
         instructions="Model Context Protocol (MCP) server for inspecting and controlling the Godot Engine 4.7+.",
     )
 
-    # --- Project & Version Tools ---
-
-    @server.tool(
-        name="godot_get_version",
-        annotations=ToolAnnotations(
-            title="Get Godot Engine Version",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_version(params: GetVersionInput) -> str:
-        """Get the current Godot Engine version, build info, connection mode, and project path."""
-        return await handle_get_version(active_client, params)
-
-    @server.tool(
-        name="godot_get_project_settings",
-        annotations=ToolAnnotations(
-            title="Get Project Settings",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_project_settings(params: GetProjectSettingsInput) -> str:
-        """Query settings from project.godot (e.g. application name, display window, physics, autoloads)."""
-        return await handle_get_project_settings(active_client, params)
-
-    @server.tool(
-        name="godot_set_project_setting",
-        annotations=ToolAnnotations(
-            title="Set Project Setting",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def set_project_setting(params: SetProjectSettingInput) -> str:
-        """Write or update a configuration setting in project.godot."""
-        return await handle_set_project_setting(active_client, params)
-
-    @server.tool(
-        name="godot_list_project_files",
-        annotations=ToolAnnotations(
-            title="List Project Files",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def list_project_files(params: ListProjectFilesInput) -> str:
-        """List and search files, scenes (.tscn), scripts (.gd), and assets in the Godot project."""
-        return await handle_list_project_files(active_client, params)
-
-    # --- Scene & Node Manipulation Tools ---
-
-    @server.tool(
-        name="godot_list_nodes",
-        annotations=ToolAnnotations(
-            title="List Scene Nodes",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def list_nodes(params: ListNodesInput) -> str:
-        """List the node hierarchy of the active scene in the Godot editor."""
-        return await handle_list_nodes(active_client, params)
-
-    @server.tool(
-        name="godot_get_node",
-        annotations=ToolAnnotations(
-            title="Get Node Details",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_node(params: GetNodeInput) -> str:
-        """Retrieve detailed information about a specific node (type, properties, attached script, signals)."""
-        return await handle_get_node(active_client, params)
-
-    @server.tool(
-        name="godot_create_node",
-        annotations=ToolAnnotations(
-            title="Create Node in Scene",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_node(params: CreateNodeInput) -> str:
-        """Add a new node of any Godot class (e.g. Sprite2D, CharacterBody2D, Camera3D, Control) to the active scene."""
-        return await handle_create_node(active_client, params)
-
-    @server.tool(
-        name="godot_modify_node",
-        annotations=ToolAnnotations(
-            title="Modify Node Properties",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def modify_node(params: ModifyNodeInput) -> str:
-        """Update properties (transform, visibility, exports) of an existing node in the active scene."""
-        return await handle_modify_node(active_client, params)
-
-    @server.tool(
-        name="godot_delete_node",
-        annotations=ToolAnnotations(
-            title="Delete Node from Scene",
-            read_only_hint=False,
-            destructive_hint=True,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def delete_node(params: DeleteNodeInput) -> str:
-        """Safely remove a node from the active scene with Undo/Redo support."""
-        return await handle_delete_node(active_client, params)
-
-    @server.tool(
-        name="godot_connect_signal",
-        annotations=ToolAnnotations(
-            title="Connect Node Signal",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def connect_signal(params: ConnectSignalInput) -> str:
-        """Connect a signal from a source node to a target node method."""
-        return await handle_connect_signal(active_client, params)
-
-    @server.tool(
-        name="godot_instantiate_scene",
-        annotations=ToolAnnotations(
-            title="Instantiate Packed Scene",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def instantiate_scene(params: InstantiateSceneInput) -> str:
-        """Instantiate a .tscn packed scene resource into the active scene tree."""
-        return await handle_instantiate_scene(active_client, params)
-
-    @server.tool(
-        name="godot_save_scene",
-        annotations=ToolAnnotations(
-            title="Save Scene",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def save_scene(params: SaveSceneInput) -> str:
-        """Save the active scene or save to a specified .tscn file."""
-        return await handle_save_scene(active_client, params)
-
-    @server.tool(
-        name="godot_open_scene",
-        annotations=ToolAnnotations(
-            title="Open Scene in Editor",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def open_scene(params: OpenSceneInput) -> str:
-        """Open a .tscn scene file in the active Godot Editor session."""
-        return await handle_open_scene(active_client, params)
-
-    @server.tool(
-        name="godot_create_scene",
-        annotations=ToolAnnotations(
-            title="Create New Scene",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_scene(params: CreateSceneInput) -> str:
-        """Create a brand new scene file with its own dedicated root node and open it in editor."""
-        return await handle_create_scene(active_client, params)
-
-    # --- Script Tools ---
-
-    @server.tool(
-        name="godot_validate_script",
-        annotations=ToolAnnotations(
-            title="Validate GDScript",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def validate_script(params: ValidateScriptInput) -> str:
-        """Check GDScript code or file for syntax errors, type errors, and compilation diagnostics."""
-        return await handle_validate_script(active_client, params)
-
-    @server.tool(
-        name="godot_create_script",
-        annotations=ToolAnnotations(
-            title="Create GDScript",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def create_script(params: CreateScriptInput) -> str:
-        """Create or update a GDScript file and optionally attach it to a node in the active scene."""
-        return await handle_create_script(active_client, params)
-
-    @server.tool(
-        name="godot_validate_shader",
-        annotations=ToolAnnotations(
-            title="Validate GDShader",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def validate_shader(params: ValidateShaderInput) -> str:
-        """Check .gdshader code or file for syntax errors and compilation diagnostics."""
-        return await handle_validate_shader(active_client, params)
-
-    # --- Reflection & Documentation Tools ---
-
-    @server.tool(
-        name="godot_get_class_info",
-        annotations=ToolAnnotations(
-            title="Get ClassDB Metadata",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_class_info(params: GetClassInfoInput) -> str:
-        """Query Godot ClassDB for class inheritance, properties, methods, signals, enums, and constants."""
-        return await handle_get_class_info(active_client, params)
-
-    @server.tool(
-        name="godot_get_documentation",
-        annotations=ToolAnnotations(
-            title="Get Engine Documentation",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_documentation(params: GetDocumentationInput) -> str:
-        """Retrieve official Godot API documentation, method signatures, and property specifications."""
-        return await handle_get_documentation(active_client, params)
-
-    # --- Debugging & Execution Tools ---
-
-    @server.tool(
-        name="godot_run_project",
-        annotations=ToolAnnotations(
-            title="Run Project in Debug Mode",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=True,
-        ),
-    )
-    async def run_project(params: RunProjectInput) -> str:
-        """Launch the Godot project in debug mode, streaming execution logs and error output."""
-        return await handle_run_project(active_client, params)
-
-    @server.tool(
-        name="godot_run_tests",
-        annotations=ToolAnnotations(
-            title="Run Headless Tests",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=True,
-        ),
-    )
-    async def run_tests(params: RunTestsInput) -> str:
-        """Execute headless test suites or GDScript test runners and parse test results."""
-        return await handle_run_tests(active_client, params)
-
-    @server.tool(
-        name="godot_take_screenshot",
-        annotations=ToolAnnotations(
-            title="Take Viewport Screenshot",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def take_screenshot(params: TakeScreenshotInput) -> str:
-        """Capture a screenshot of the active Godot 2D/3D viewport or running game for visual inspection."""
-        return await handle_take_screenshot(active_client, params)
-
-    # --- Material & Shader Tools ---
-
-    @server.tool(
-        name="godot_create_material",
-        annotations=ToolAnnotations(
-            title="Create and Configure Material",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_material(params: CreateMaterialInput) -> str:
-        """Create and configure a Godot Material resource (.tres) (StandardMaterial3D, ShaderMaterial, CanvasItemMaterial, ORMMaterial3D) with PBR properties and optional scene node attachment."""
-        return await handle_create_material(active_client, params)
-
-    @server.tool(
-        name="godot_reimport_asset",
-        annotations=ToolAnnotations(
-            title="Reimport Asset with Configuration Presets",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def reimport_asset(params: ReimportAssetInput) -> str:
-        """Reimport an asset in Godot with optional import presets (e.g. pixel_art_2d, high_quality_3d, uncompressed_audio) or custom .import parameter overrides."""
-        return await handle_reimport_asset(active_client, params)
-
-    @server.tool(
-        name="godot_create_collision_polygon",
-        annotations=ToolAnnotations(
-            title="Generate Collision Polygon",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_collision_polygon(
-        params: CreateCollisionPolygonInput,
-    ) -> str:
-        """Generate a 2D or 3D collision polygon (CollisionPolygon2D or CollisionPolygon3D) from vertex coordinates and attach to the target parent node in the active scene."""
-        return await handle_create_collision_polygon(active_client, params)
-
-    @server.tool(
-        name="godot_create_animation",
-        annotations=ToolAnnotations(
-            title="Create Animation Tracks and Keyframes",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_animation(params: CreateAnimationInput) -> str:
-        """Create and configure a Godot Animation resource with property tracks, 3D transform tracks, or method call tracks, with keyframes, easing curves, and optional AnimationPlayer attachment or .tres disk saving."""
-        return await handle_create_animation(active_client, params)
-
-    @server.tool(
-        name="godot_create_tilemap_layer",
-        annotations=ToolAnnotations(
-            title="Create TileMapLayer Node",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_tilemap_layer(params: CreateTileMapLayerInput) -> str:
-        """Create a TileMapLayer node in the active scene and optionally attach an existing TileSet resource (.tres)."""
-        return await handle_create_tilemap_layer(active_client, params)
-
-    @server.tool(
-        name="godot_set_tilemap_cells",
-        annotations=ToolAnnotations(
-            title="Batch-Paint TileMapLayer Cells",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def set_tilemap_cells(params: SetTileMapCellsInput) -> str:
-        """Batch-paint or erase tile cells on a TileMapLayer or TileMap node with grid coordinates, source IDs, atlas coordinates, and alternative tile IDs."""
-        return await handle_set_tilemap_cells(active_client, params)
-
-    @server.tool(
-        name="godot_get_tilemap_cells",
-        annotations=ToolAnnotations(
-            title="Query TileMapLayer Cells",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_tilemap_cells(params: GetTileMapCellsInput) -> str:
-        """Query used tile cells, source IDs, atlas coordinates, and bounding rectangles from a TileMapLayer or TileMap node."""
-        return await handle_get_tilemap_cells(active_client, params)
-
-    @server.tool(
-        name="godot_create_navigation_region",
-        annotations=ToolAnnotations(
-            title="Create Navigation Region",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_navigation_region(
-        params: CreateNavigationRegionInput,
-    ) -> str:
-        """Create a NavigationRegion3D or NavigationRegion2D node in the active scene and attach a NavigationMesh / NavigationPolygon resource."""
-        return await handle_create_navigation_region(active_client, params)
-
-    @server.tool(
-        name="godot_bake_navmesh",
-        annotations=ToolAnnotations(
-            title="Bake Navigation Mesh",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def bake_navmesh(params: BakeNavMeshInput) -> str:
-        """Configure agent parameters (radius, height, climb, slope, cell size) and bake a 2D or 3D navigation mesh on a target NavigationRegion node."""
-        return await handle_bake_navmesh(active_client, params)
-
-    @server.tool(
-        name="godot_lsp_query",
-        annotations=ToolAnnotations(
-            title="Godot LSP Semantic Query",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def lsp_query(params: LSPQueryInput) -> str:
-        """Query GDScript semantic symbols, go-to-definition, find all references, or inspect hover docstrings and type signatures via Godot LSP."""
-        return await handle_lsp_query(active_client, params)
-
-    @server.tool(
-        name="godot_lsp_rename",
-        annotations=ToolAnnotations(
-            title="Godot LSP Semantic Rename",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def lsp_rename(params: LSPRenameInput) -> str:
-        """Perform a cross-file semantic rename of a GDScript symbol across all referencing project files."""
-        return await handle_lsp_rename(active_client, params)
-
-    @server.tool(
-        name="godot_get_performance_metrics",
-        annotations=ToolAnnotations(
-            title="Get Performance Metrics",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_performance_metrics(params: GetPerformanceMetricsInput) -> str:
-        """Query real-time Godot engine performance metrics (FPS, process/physics frame times, draw calls, VRAM, static memory, and orphan node leak tracking)."""
-        return await handle_get_performance_metrics(active_client, params)
-
-    @server.tool(
-        name="godot_create_theme",
-        annotations=ToolAnnotations(
-            title="Create Theme Resource",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_theme(params: CreateThemeInput) -> str:
-        """Create and configure a Godot 4 Theme resource (.tres) with custom StyleBoxFlat definitions, colors, constants, and fonts."""
-        return await handle_create_theme(active_client, params)
-
-    @server.tool(
-        name="godot_apply_theme_override",
-        annotations=ToolAnnotations(
-            title="Apply Theme Override to Node",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def apply_theme_override(params: ApplyThemeOverrideInput) -> str:
-        """Apply a styling override (StyleBoxFlat, color, constant, font_size) directly to a target Control node in the active scene."""
-        return await handle_apply_theme_override(active_client, params)
-
-    @server.tool(
-        name="godot_get_audio_layout",
-        annotations=ToolAnnotations(
-            title="Get Audio Bus Layout",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_audio_layout(params: GetAudioLayoutInput) -> str:
-        """Query all AudioServer buses, volume levels, routing send destinations, and active effect chains."""
-        return await handle_get_audio_layout(active_client, params)
-
-    @server.tool(
-        name="godot_configure_audio_bus",
-        annotations=ToolAnnotations(
-            title="Configure Audio Bus",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_audio_bus(params: ConfigureAudioBusInput) -> str:
-        """Create or configure an audio bus in AudioServer (volume, routing send, mute, solo, effect bypass, .tres layout export)."""
-        return await handle_configure_audio_bus(active_client, params)
-
-    @server.tool(
-        name="godot_set_bus_effect",
-        annotations=ToolAnnotations(
-            title="Set Audio Bus Effect",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def set_bus_effect(params: SetBusEffectInput) -> str:
-        """Add or configure an AudioEffect (Reverb, Chorus, Delay, LowPassFilter, EQ, Compressor, Limiter) on an audio bus."""
-        return await handle_set_bus_effect(active_client, params)
-
-    @server.tool(
-        name="godot_play_scene",
-        annotations=ToolAnnotations(
-            title="Play Scene",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def play_scene(params: PlaySceneInput) -> str:
-        """Launch interactive game playback (main scene, active tab scene, or custom .tscn)."""
-        return await handle_play_scene(active_client, params)
-
-    @server.tool(
-        name="godot_stop_scene",
-        annotations=ToolAnnotations(
-            title="Stop Scene Playback",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def stop_scene(params: StopSceneInput) -> str:
-        """Stop currently running interactive scene playback."""
-        return await handle_stop_scene(active_client, params)
-
-    @server.tool(
-        name="godot_get_play_state",
-        annotations=ToolAnnotations(
-            title="Get Play State",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_play_state(params: GetPlayStateInput) -> str:
-        """Query current interactive playback status, simulation speed (time_scale), and pause state."""
-        return await handle_get_play_state(active_client, params)
-
-    @server.tool(
-        name="godot_set_play_state",
-        annotations=ToolAnnotations(
-            title="Set Play State & Simulation Speed",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def set_play_state(params: SetPlayStateInput) -> str:
-        """Control pause state, simulation speed (Engine.time_scale), or step game physics/process frames."""
-        return await handle_set_play_state(active_client, params)
-
-    @server.tool(
-        name="godot_cast_ray_3d",
-        annotations=ToolAnnotations(
-            title="Cast 3D Physics Ray",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def cast_ray_3d(params: CastRay3DInput) -> str:
-        """Query 3D physics world by casting a ray from start to target position with collision layer masks and exclude lists."""
-        return await handle_cast_ray_3d(active_client, params)
-
-    @server.tool(
-        name="godot_cast_shape_3d",
-        annotations=ToolAnnotations(
-            title="Cast 3D Physics Shape",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def cast_shape_3d(params: CastShape3DInput) -> str:
-        """Query 3D physics world with a shape volume (Sphere, Box, Capsule, Cylinder) overlap or motion sweep."""
-        return await handle_cast_shape_3d(active_client, params)
-
-    @server.tool(
-        name="godot_get_body_physics_state_3d",
-        annotations=ToolAnnotations(
-            title="Get 3D Body Physics State",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_body_physics_state_3d(params: GetBodyPhysicsState3DInput) -> str:
-        """Retrieve live physics body telemetry (linear/angular velocities, mass, sleeping, contacts, collision layers)."""
-        return await handle_get_body_physics_state_3d(active_client, params)
-
-    @server.tool(
-        name="godot_set_physics_debug_mode",
-        annotations=ToolAnnotations(
-            title="Set Physics Debug Visualization",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def set_physics_debug_mode(params: SetPhysicsDebugModeInput) -> str:
-        """Toggle visible collision wireframe shapes, paths, and navigation meshes in editor / runtime preview."""
-        return await handle_set_physics_debug_mode(active_client, params)
-
-    @server.tool(
-        name="godot_get_input_actions",
-        annotations=ToolAnnotations(
-            title="Get Input Actions",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_input_actions(params: GetInputActionsInput) -> str:
-        """Query project input actions and bound triggers (Keys, Mouse, Gamepad buttons/axes)."""
-        return await handle_get_input_actions(active_client, params)
-
-    @server.tool(
-        name="godot_configure_input_action",
-        annotations=ToolAnnotations(
-            title="Configure Input Action",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_input_action(params: ConfigureInputActionInput) -> str:
-        """Create or configure an input action with key/mouse/gamepad bindings and save into project.godot."""
-        return await handle_configure_input_action(active_client, params)
-
-    @server.tool(
-        name="godot_configure_environment",
-        annotations=ToolAnnotations(
-            title="Configure WorldEnvironment & Post-Processing",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_environment(params: ConfigureEnvironmentInput) -> str:
-        """Configure post-processing (tonemap, glow, SSAO, SSIL, SSR, volumetric fog, skybox) in Environment resource or WorldEnvironment node."""
-        return await handle_configure_environment(active_client, params)
-
-    @server.tool(
-        name="godot_set_editor_selection",
-        annotations=ToolAnnotations(
-            title="Set Editor Scene Selection",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def set_editor_selection(params: SetEditorSelectionInput) -> str:
-        """Select nodes in the Godot Scene dock."""
-        return await handle_set_editor_selection(active_client, params)
-
-    @server.tool(
-        name="godot_focus_node",
-        annotations=ToolAnnotations(
-            title="Focus Node in Inspector & Viewport",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def focus_node(params: FocusNodeInput) -> str:
-        """Focus a node in the Inspector and switch to active 2D/3D viewport workspace."""
-        return await handle_focus_node(active_client, params)
-
-    @server.tool(
-        name="godot_instantiate_model",
-        annotations=ToolAnnotations(
-            title="Instantiate 3D Model Asset",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def instantiate_model(params: InstantiateModelInput) -> str:
-        """Instantiate a 3D model asset (.glb, .gltf, .blend) into the scene with transform and collision generation."""
-        return await handle_instantiate_model(active_client, params)
-
-    @server.tool(
-        name="godot_configure_gltf_import",
-        annotations=ToolAnnotations(
-            title="Configure GLTF/3D Model Import",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_gltf_import(params: ConfigureGLTFImportInput) -> str:
-        """Configure .import settings for a 3D model (LODs, shadow meshes, skeleton bones, material extraction) and reimport."""
-        return await handle_configure_gltf_import(active_client, params)
-
-    @server.tool(
-        name="godot_configure_particles",
-        annotations=ToolAnnotations(
-            title="Configure VFX Particles",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_particles(params: ConfigureParticlesInput) -> str:
-        """Create or configure a GPUParticles3D/2D or CPUParticles system and ParticleProcessMaterial resource."""
-        return await handle_configure_particles(active_client, params)
-
-    @server.tool(
-        name="godot_get_export_presets",
-        annotations=ToolAnnotations(
-            title="Get Export Presets",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_export_presets(params: GetExportPresetsInput) -> str:
-        """Query all build presets and platforms configured in export_presets.cfg."""
-        return await handle_get_export_presets(active_client, params)
-
-    @server.tool(
-        name="godot_export_project",
-        annotations=ToolAnnotations(
-            title="Export Project Build",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def export_project(params: ExportProjectInput) -> str:
-        """Export project binary headlessly for specified preset target."""
-        return await handle_export_project(active_client, params)
-
-    @server.tool(
-        name="godot_get_autoloads",
-        annotations=ToolAnnotations(
-            title="Get Autoload Singletons",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_autoloads(params: GetAutoloadsInput) -> str:
-        """Query all global autoload singletons configured in project.godot."""
-        return await handle_get_autoloads(active_client, params)
-
-    @server.tool(
-        name="godot_set_autoload",
-        annotations=ToolAnnotations(
-            title="Configure Autoload Singleton",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def set_autoload(params: SetAutoloadInput) -> str:
-        """Add, update, remove, or toggle autoload singletons in project.godot."""
-        return await handle_set_autoload(active_client, params)
-
-    @server.tool(
-        name="godot_get_node_signals",
-        annotations=ToolAnnotations(
-            title="Get Node Signals",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_node_signals(params: GetNodeSignalsInput) -> str:
-        """Introspect all signals and argument definitions on a node in the active scene."""
-        return await handle_get_node_signals(active_client, params)
-
-    @server.tool(
-        name="godot_get_signal_connections",
-        annotations=ToolAnnotations(
-            title="Get Signal Connections",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_signal_connections(params: GetSignalConnectionsInput) -> str:
-        """Query incoming and outgoing signal connection graphs for a target node."""
-        return await handle_get_signal_connections(active_client, params)
-
-    @server.tool(
-        name="godot_evaluate_expression",
-        annotations=ToolAnnotations(
-            title="Evaluate GDScript Expression",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def evaluate_expression(params: EvaluateExpressionInput) -> str:
-        """Safely parse and evaluate runtime GDScript math, logical expressions, or method calls."""
-        return await handle_evaluate_expression(active_client, params)
-
-    @server.tool(
-        name="godot_create_shader",
-        annotations=ToolAnnotations(
-            title="Create Custom Shader",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_shader(params: CreateShaderInput) -> str:
-        """Create a custom Godot .gdshader file and matching ShaderMaterial."""
-        return await handle_create_shader(active_client, params)
-
-    @server.tool(
-        name="godot_set_shader_param",
-        annotations=ToolAnnotations(
-            title="Set Shader Parameter",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def set_shader_param(params: SetShaderParamInput) -> str:
-        """Inspect and live-update a uniform parameter on a ShaderMaterial."""
-        return await handle_set_shader_param(active_client, params)
-
-    @server.tool(
-        name="godot_configure_animation_tree",
-        annotations=ToolAnnotations(
-            title="Configure AnimationTree",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_animation_tree(params: ConfigureAnimationTreeInput) -> str:
-        """Create or configure an AnimationTree node, state machine graph, and transition conditions."""
-        return await handle_configure_animation_tree(active_client, params)
-
-    @server.tool(
-        name="godot_get_translations",
-        annotations=ToolAnnotations(
-            title="Get Translations",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_translations(params: GetTranslationsInput) -> str:
-        """Query translation tables and active locales configured in ProjectSettings."""
-        return await handle_get_translations(active_client, params)
-
-    @server.tool(
-        name="godot_add_translation",
-        annotations=ToolAnnotations(
-            title="Add Translation",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def add_translation(params: AddTranslationInput) -> str:
-        """Register a translation file (.csv, .po, .translation) in ProjectSettings."""
-        return await handle_add_translation(active_client, params)
-
-    @server.tool(
-        name="godot_get_uid",
-        annotations=ToolAnnotations(
-            title="Get Resource UID",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_uid(params: GetUIDInput) -> str:
-        """Convert a resource path into its native Godot uid:// identifier string."""
-        return await handle_get_uid(active_client, params)
-
-    @server.tool(
-        name="godot_resolve_uid",
-        annotations=ToolAnnotations(
-            title="Resolve Resource UID",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def resolve_uid(params: ResolveUIDInput) -> str:
-        """Resolve a uid:// identifier back into its current project file path."""
-        return await handle_resolve_uid(active_client, params)
-
-    @server.tool(
-        name="godot_get_dependencies",
-        annotations=ToolAnnotations(
-            title="Get Dependencies",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_dependencies(params: GetDependenciesInput) -> str:
-        """Query the dependency list for a scene, resource, or script."""
-        return await handle_get_dependencies(active_client, params)
-
-    @server.tool(
-        name="godot_get_plugins",
-        annotations=ToolAnnotations(
-            title="Get Editor Plugins",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_plugins(params: GetPluginsInput) -> str:
-        """Discover installed editor plugins in res://addons/ and inspect active status."""
-        return await handle_get_plugins(active_client, params)
-
-    @server.tool(
-        name="godot_set_plugin_status",
-        annotations=ToolAnnotations(
-            title="Set Plugin Status",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def set_plugin_status(params: SetPluginStatusInput) -> str:
-        """Enable or disable an editor addon dynamically."""
-        return await handle_set_plugin_status(active_client, params)
-
-    @server.tool(
-        name="godot_configure_navigation_obstacle",
-        annotations=ToolAnnotations(
-            title="Configure Navigation Obstacle",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_navigation_obstacle(
-        params: ConfigureNavigationObstacleInput,
-    ) -> str:
-        """Create or configure a NavigationObstacle2D/3D node with avoidance radius, velocity, or polygon vertices."""
-        return await handle_configure_navigation_obstacle(active_client, params)
-
-    @server.tool(
-        name="godot_configure_tileset_terrain",
-        annotations=ToolAnnotations(
-            title="Configure TileSet Terrain",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_tileset_terrain(
-        params: ConfigureTileSetTerrainInput,
-    ) -> str:
-        """Create and configure TileSet terrain sets, terrain modes, and autotiling peering bit mappings."""
-        return await handle_configure_tileset_terrain(active_client, params)
-
-    @server.tool(
-        name="godot_diff_scene",
-        annotations=ToolAnnotations(
-            title="Diff Scene Tree",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def diff_scene(params: DiffSceneInput) -> str:
-        """Diff the live edited scene in memory against its saved .tscn file on disk, or compare two .tscn scene files."""
-        return await handle_diff_scene(active_client, params)
-
-    @server.tool(
-        name="godot_undo",
-        annotations=ToolAnnotations(
-            title="Undo Action",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def undo_action(params: UndoInput) -> str:
-        """Revert the last editor action on the active scene or global undo history."""
-        return await handle_undo(active_client, params)
-
-    @server.tool(
-        name="godot_redo",
-        annotations=ToolAnnotations(
-            title="Redo Action",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def redo_action(params: RedoInput) -> str:
-        """Redo the previously undone editor action on the active scene or global undo history."""
-        return await handle_redo(active_client, params)
-
-    @server.tool(
-        name="godot_get_selected_nodes",
-        annotations=ToolAnnotations(
-            title="Get Selected Nodes",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_selected_nodes(params: GetSelectedNodesInput) -> str:
-        """Query currently selected nodes in the Godot Editor SceneTree."""
-        return await handle_get_selected_nodes(active_client, params)
-
-    @server.tool(
-        name="godot_set_selected_nodes",
-        annotations=ToolAnnotations(
-            title="Set Selected Nodes",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def set_selected_nodes(params: SetSelectedNodesInput) -> str:
-        """Set active node selection in the Godot Editor SceneTree and optionally inspect the primary node."""
-        return await handle_set_selected_nodes(active_client, params)
-
-    @server.tool(
-        name="godot_audit_assets",
-        annotations=ToolAnnotations(
-            title="Audit Project Assets",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def audit_assets(params: AuditAssetsInput) -> str:
-        """Deep project-wide asset audit scanning for unreferenced orphan files and broken dependency references."""
-        return await handle_audit_assets(active_client, params)
-
-    @server.tool(
-        name="godot_clean_orphans",
-        annotations=ToolAnnotations(
-            title="Clean Orphan Assets",
-            read_only_hint=False,
-            destructive_hint=True,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def clean_orphans(params: CleanOrphansInput) -> str:
-        """Safely clean or quarantine unreferenced orphan files with dry-run verification."""
-        return await handle_clean_orphans(active_client, params)
-
-    @server.tool(
-        name="godot_get_texture_info",
-        annotations=ToolAnnotations(
-            title="Get Texture Info",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_texture_info(params: GetTextureInfoInput) -> str:
-        """Inspect dimensions, pixel format, mipmaps, and estimated VRAM footprint for a texture."""
-        return await handle_get_texture_info(active_client, params)
-
-    @server.tool(
-        name="godot_run_gut_tests",
-        annotations=ToolAnnotations(
-            title="Run GUT Tests",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def run_gut_tests(params: RunGUTTestsInput) -> str:
-        """Execute Godot Unit Test (GUT) suites or custom test runners headlessly with automated log parsing."""
-        return await handle_run_gut_tests(active_client, params)
-
-    @server.tool(
-        name="godot_generate_gut_test",
-        annotations=ToolAnnotations(
-            title="Generate GUT Test",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def generate_gut_test(params: GenerateGUTTestInput) -> str:
-        """Scaffold a complete GUT test script inheriting GutTest for target GDScript scripts or scenes."""
-        return await handle_generate_gut_test(active_client, params)
-
-    @server.tool(
-        name="godot_get_editor_layout",
-        annotations=ToolAnnotations(
-            title="Get Editor Layout",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_editor_layout(params: GetEditorLayoutInput) -> str:
-        """Query current Godot Editor workspace layout, active main screen, and open scene tabs."""
-        return await handle_get_editor_layout(active_client, params)
-
-    @server.tool(
-        name="godot_set_editor_layout",
-        annotations=ToolAnnotations(
-            title="Set Editor Layout",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def set_editor_layout(params: SetEditorLayoutInput) -> str:
-        """Configure Godot Editor workspace layout, main screen tabs, and distraction-free mode."""
-        return await handle_set_editor_layout(active_client, params)
-
-    @server.tool(
-        name="godot_reparent_node",
-        annotations=ToolAnnotations(
-            title="Reparent Node",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def reparent_node(params: ReparentNodeInput) -> str:
-        """Reparent a node to a new parent in the active scene tree while preserving global transform."""
-        return await handle_reparent_node(active_client, params)
-
-    @server.tool(
-        name="godot_duplicate_node",
-        annotations=ToolAnnotations(
-            title="Duplicate Node",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def duplicate_node(params: DuplicateNodeInput) -> str:
-        """Deep duplicate an existing node with flags for signals, groups, and scripts."""
-        return await handle_duplicate_node(active_client, params)
-
-    @server.tool(
-        name="godot_set_node_owner",
-        annotations=ToolAnnotations(
-            title="Set Node Owner",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def set_node_owner(params: SetNodeOwnerInput) -> str:
-        """Set the owner node of a target node or subtree for scene file persistence."""
-        return await handle_set_node_owner(active_client, params)
-
-    @server.tool(
-        name="godot_attach_script",
-        annotations=ToolAnnotations(
-            title="Attach Script",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def attach_script(params: AttachScriptInput) -> str:
-        """Attach a script file (.gd/.cs) to a live node or detach existing script."""
-        return await handle_attach_script(active_client, params)
-
-    @server.tool(
-        name="godot_reload_scripts",
-        annotations=ToolAnnotations(
-            title="Reload Scripts",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def reload_scripts(params: ReloadScriptsInput) -> str:
-        """Force reload GDScript resources in memory cache without restarting the editor."""
-        return await handle_reload_scripts(active_client, params)
-
-    @server.tool(
-        name="godot_get_node_script_info",
-        annotations=ToolAnnotations(
-            title="Get Node Script Info",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def get_node_script_info(params: GetNodeScriptInfoInput) -> str:
-        """Inspect attached script methods, signals, constants, and exported properties with default vs current values."""
-        return await handle_get_node_script_info(active_client, params)
-
-    @server.tool(
-        name="godot_configure_camera",
-        annotations=ToolAnnotations(
-            title="Configure Camera",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_camera(params: ConfigureCameraInput) -> str:
-        """Configure Camera2D or Camera3D settings (projection, FOV, zoom, smoothing, clipping)."""
-        return await handle_configure_camera(active_client, params)
-
-    @server.tool(
-        name="godot_configure_render_settings",
-        annotations=ToolAnnotations(
-            title="Configure Render Settings",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_render_settings(params: ConfigureRenderSettingsInput) -> str:
-        """Tune ProjectSettings rendering features (MSAA, FXAA, TAA, FSR scaling, shadow resolutions, V-Sync)."""
-        return await handle_configure_render_settings(active_client, params)
-
-    @server.tool(
-        name="godot_capture_viewport",
-        annotations=ToolAnnotations(
-            title="Capture Viewport",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def capture_viewport(params: CaptureViewportInput) -> str:
-        """Capture a high-resolution viewport frame with scaling and optional base64 image data for AI vision."""
-        return await handle_capture_viewport(active_client, params)
-
-    @server.tool(
-        name="godot_simulate_input",
-        annotations=ToolAnnotations(
-            title="Simulate Input",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def simulate_input(params: SimulateInputInput) -> str:
-        """Simulate low-level keyboard, mouse, action, and joypad input events in the running game or editor."""
-        return await handle_simulate_input(active_client, params)
-
-    @server.tool(
-        name="godot_draw_debug_shapes",
-        annotations=ToolAnnotations(
-            title="Draw Debug Shapes",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def draw_debug_shapes(params: DrawDebugShapesInput) -> str:
-        """Render temporary 2D or 3D debug shapes (lines, rays, boxes, spheres, circles, text) with auto-expiration."""
-        return await handle_draw_debug_shapes(active_client, params)
-
-    @server.tool(
-        name="godot_clear_debug_shapes",
-        annotations=ToolAnnotations(
-            title="Clear Debug Shapes",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def clear_debug_shapes(params: ClearDebugShapesInput) -> str:
-        """Clear active debug shape overlays from the viewport."""
-        return await handle_clear_debug_shapes(active_client, params)
-
-    @server.tool(
-        name="godot_find_elements",
-        annotations=ToolAnnotations(
-            title="Find Elements",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def find_elements(params: FindElementsInput) -> str:
-        """Find scene and UI elements matching selectors (text, role, type, name, group, path) for autonomous E2E testing."""
-        return await handle_find_elements(active_client, params)
-
-    @server.tool(
-        name="godot_interact_node",
-        annotations=ToolAnnotations(
-            title="Interact Node",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def interact_node(params: InteractNodeInput) -> str:
-        """Execute Playwright-like interaction primitives on scene nodes (click, type_text, focus, hover, scroll)."""
-        return await handle_interact_node(active_client, params)
-
-    @server.tool(
-        name="godot_wait_for_condition",
-        annotations=ToolAnnotations(
-            title="Wait For Condition",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def wait_for_condition(params: WaitForConditionInput) -> str:
-        """Wait for runtime state conditions (node existence, visibility, property values, expressions) with timeout."""
-        return await handle_wait_for_condition(active_client, params)
-
-    @server.tool(
-        name="godot_assert_node_state",
-        annotations=ToolAnnotations(
-            title="Assert Node State",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def assert_node_state(params: AssertNodeStateInput) -> str:
-        """Assert multiple expected properties and states against a scene node for autonomous verification."""
-        return await handle_assert_node_state(active_client, params)
-
-    @server.tool(
-        name="godot_configure_gridmap",
-        annotations=ToolAnnotations(
-            title="Configure GridMap",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_gridmap(params: ConfigureGridMapInput) -> str:
-        """Batch place, clear, and configure 3D voxel cells on GridMap nodes."""
-        return await handle_configure_gridmap(active_client, params)
-
-    @server.tool(
-        name="godot_create_curve_path",
-        annotations=ToolAnnotations(
-            title="Create Curve Path",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_curve_path(params: CreateCurvePathInput) -> str:
-        """Create 2D or 3D Bezier curve paths (Path2D/Path3D) with handles, tilt, and PathFollow attachment."""
-        return await handle_create_curve_path(active_client, params)
-
-    @server.tool(
-        name="godot_audit_orphan_nodes",
-        annotations=ToolAnnotations(
-            title="Audit Orphan Nodes",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def audit_orphan_nodes(params: AuditOrphanNodesInput) -> str:
-        """Audit unparented orphan nodes in engine memory to detect leaks."""
-        return await handle_audit_orphan_nodes(active_client, params)
-
-    @server.tool(
-        name="godot_capture_profiler_trace",
-        annotations=ToolAnnotations(
-            title="Capture Profiler Trace",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def capture_profiler_trace(params: CaptureProfilerTraceInput) -> str:
-        """Sample multi-frame CPU/GPU execution times, draw calls, and memory telemetry."""
-        return await handle_capture_profiler_trace(active_client, params)
-
-    @server.tool(
-        name="godot_inspect_vram_usage",
-        annotations=ToolAnnotations(
-            title="Inspect VRAM Usage",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def inspect_vram_usage(params: InspectVRAMUsageInput) -> str:
-        """Inspect GPU video memory allocation breakdowns across textures and buffers."""
-        return await handle_inspect_vram_usage(active_client, params)
-
-    @server.tool(
-        name="godot_configure_multiplayer_spawner",
-        annotations=ToolAnnotations(
-            title="Configure Multiplayer Spawner",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_multiplayer_spawner(
-        params: ConfigureMultiplayerSpawnerInput,
-    ) -> str:
-        """Configure MultiplayerSpawner auto-spawn paths, spawn limits, and spawnable scenes."""
-        return await handle_configure_multiplayer_spawner(active_client, params)
-
-    @server.tool(
-        name="godot_configure_multiplayer_synchronizer",
-        annotations=ToolAnnotations(
-            title="Configure Multiplayer Synchronizer",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_multiplayer_synchronizer(
-        params: ConfigureMultiplayerSynchronizerInput,
-    ) -> str:
-        """Configure MultiplayerSynchronizer property replication configs, sync intervals, and visibility."""
-        return await handle_configure_multiplayer_synchronizer(active_client, params)
-
-    @server.tool(
-        name="godot_simulate_network_conditions",
-        annotations=ToolAnnotations(
-            title="Simulate Network Conditions",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def simulate_network_conditions(
-        params: SimulateNetworkConditionsInput,
-    ) -> str:
-        """Simulate network latency, packet loss, jitter, or offline mode for multiplayer testing."""
-        return await handle_simulate_network_conditions(active_client, params)
-
-    @server.tool(
-        name="godot_scaffold_state_machine",
-        annotations=ToolAnnotations(
-            title="Scaffold State Machine",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def scaffold_state_machine(
-        params: ScaffoldStateMachineInput,
-    ) -> str:
-        """Scaffold GDScript state machine architecture files and optionally build the node hierarchy."""
-        return await handle_scaffold_state_machine(active_client, params)
-
-    @server.tool(
-        name="godot_create_dialogue_resource",
-        annotations=ToolAnnotations(
-            title="Create Dialogue Resource",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_dialogue_resource(
-        params: CreateDialogueResourceInput,
-    ) -> str:
-        """Generate structured branching dialogue trees in JSON or Godot Resource format."""
-        return await handle_create_dialogue_resource(active_client, params)
-
-    @server.tool(
-        name="godot_create_csg_shape",
-        annotations=ToolAnnotations(
-            title="Create CSG Shape",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def create_csg_shape(
-        params: CreateCSGShapeInput,
-    ) -> str:
-        """Create and compose CSG boolean primitives (Box, Cylinder, Sphere, Polygon, Torus, Combiner)."""
-        return await handle_create_csg_shape(active_client, params)
-
-    @server.tool(
-        name="godot_generate_procedural_mesh",
-        annotations=ToolAnnotations(
-            title="Generate Procedural Mesh",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def generate_procedural_mesh(
-        params: GenerateProceduralMeshInput,
-    ) -> str:
-        """Procedurally construct custom 3D ArrayMesh geometry via SurfaceTool."""
-        return await handle_generate_procedural_mesh(active_client, params)
-
-    @server.tool(
-        name="godot_inspect_skeleton",
-        annotations=ToolAnnotations(
-            title="Inspect Skeleton",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def inspect_skeleton(
-        params: InspectSkeletonInput,
-    ) -> str:
-        """Inspect bone hierarchies, parent indices, rest poses, and global transforms in Skeleton3D/Skeleton2D."""
-        return await handle_inspect_skeleton(active_client, params)
-
-    @server.tool(
-        name="godot_configure_bone_attachment",
-        annotations=ToolAnnotations(
-            title="Configure Bone Attachment",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_bone_attachment(
-        params: ConfigureBoneAttachmentInput,
-    ) -> str:
-        """Configure BoneAttachment3D nodes attached to specific bones with local transform offsets."""
-        return await handle_configure_bone_attachment(active_client, params)
-
-    @server.tool(
-        name="godot_setup_inverse_kinematics",
-        annotations=ToolAnnotations(
-            title="Setup Inverse Kinematics",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def setup_inverse_kinematics(
-        params: SetupInverseKinematicsInput,
-    ) -> str:
-        """Configure SkeletonIK3D inverse kinematics chains on Skeleton3D nodes."""
-        return await handle_setup_inverse_kinematics(active_client, params)
-
-    @server.tool(
-        name="godot_configure_physics_joint",
-        annotations=ToolAnnotations(
-            title="Configure Physics Joint",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_physics_joint(
-        params: ConfigurePhysicsJointInput,
-    ) -> str:
-        """Configure 2D or 3D physics constraint joints connecting physics bodies."""
-        return await handle_configure_physics_joint(active_client, params)
-
-    @server.tool(
-        name="godot_generate_ragdoll",
-        annotations=ToolAnnotations(
-            title="Generate Ragdoll",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def generate_ragdoll(
-        params: GenerateRagdollInput,
-    ) -> str:
-        """Generate PhysicalBone3D ragdoll simulation hierarchy from Skeleton3D."""
-        return await handle_generate_ragdoll(active_client, params)
-
-    @server.tool(
-        name="godot_configure_lightmap_gi",
-        annotations=ToolAnnotations(
-            title="Configure Global Illumination",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_lightmap_gi(
-        params: ConfigureLightmapGIInput,
-    ) -> str:
-        """Configure 3D Global Illumination nodes (LightmapGI, VoxelGI, ReflectionProbe, LightmapProbe)."""
-        return await handle_configure_lightmap_gi(active_client, params)
-
-    @server.tool(
-        name="godot_bake_lightmaps",
-        annotations=ToolAnnotations(
-            title="Bake Lightmaps",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def bake_lightmaps(
-        params: BakeLightmapsInput,
-    ) -> str:
-        """Trigger lightmap or voxel GI baking for the active scene."""
-        return await handle_bake_lightmaps(active_client, params)
-
-    @server.tool(
-        name="godot_setup_xr_rig",
-        annotations=ToolAnnotations(
-            title="Setup OpenXR Rig",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def setup_xr_rig(
-        params: SetupXRRigInput,
-    ) -> str:
-        """Scaffold XROrigin3D, XRCamera3D, and XRController3D rig with spatial tracking."""
-        return await handle_setup_xr_rig(active_client, params)
-
-    @server.tool(
-        name="godot_configure_xr_passthrough",
-        annotations=ToolAnnotations(
-            title="Configure OpenXR Passthrough",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_xr_passthrough(
-        params: ConfigureXRPassthroughInput,
-    ) -> str:
-        """Configure OpenXR passthrough mode, foveated rendering, and reference spaces."""
-        return await handle_configure_xr_passthrough(active_client, params)
-
-    @server.tool(
-        name="godot_dispatch_compute_shader",
-        annotations=ToolAnnotations(
-            title="Dispatch Compute Shader",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def dispatch_compute_shader(
-        params: DispatchComputeShaderInput,
-    ) -> str:
-        """Execute compute shader on GPU via low-level RenderingDevice API."""
-        return await handle_dispatch_compute_shader(active_client, params)
-
-    @server.tool(
-        name="godot_inspect_rendering_device",
-        annotations=ToolAnnotations(
-            title="Inspect RenderingDevice",
-            read_only_hint=True,
-            destructive_hint=False,
-            idempotent_hint=True,
-            open_world_hint=False,
-        ),
-    )
-    async def inspect_rendering_device(
-        params: InspectRenderingDeviceInput,
-    ) -> str:
-        """Query GPU RenderingDevice device name, vendor, limits, and capabilities."""
-        return await handle_inspect_rendering_device(active_client, params)
-
-    @server.tool(
-        name="godot_scatter_multimesh",
-        annotations=ToolAnnotations(
-            title="Scatter MultiMesh",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def scatter_multimesh(
-        params: ScatterMultiMeshInput,
-    ) -> str:
-        """High-performance GPU instanced scattering across a 3D bounding area."""
-        return await handle_scatter_multimesh(active_client, params)
-
-    @server.tool(
-        name="godot_configure_lod_manager",
-        annotations=ToolAnnotations(
-            title="Configure LOD Manager",
-            read_only_hint=False,
-            destructive_hint=False,
-            idempotent_hint=False,
-            open_world_hint=False,
-        ),
-    )
-    async def configure_lod_manager(
-        params: ConfigureLODManagerInput,
-    ) -> str:
-        """Configure visibility ranges, LOD distance thresholds, and cross-fade modes."""
-        return await handle_configure_lod_manager(active_client, params)
+    # Register all declarative tools
+    for tool_def in TOOL_DEFINITIONS:
+        _register_tool(server, active_client, tool_def)
 
     # --- Dynamic MCP Resources (godot://) ---
 
@@ -2307,8 +1438,56 @@ def create_server(
 
     @server.resource("godot://project/settings")
     async def resource_project_settings() -> str:
-        """Dynamic MCP resource providing full project settings JSON."""
+        """Dynamic MCP resource providing complete project.godot configuration key-value JSON."""
         res = await active_client.get_project_settings()
+        return json.dumps(res.data, indent=2)
+
+    @server.resource("godot://project/autoloads")
+    async def resource_project_autoloads() -> str:
+        """Dynamic MCP resource providing all active Autoload singletons in the project."""
+        res = await active_client.get_autoloads()
+        return json.dumps(res.data, indent=2)
+
+    @server.resource("godot://project/plugins")
+    async def resource_project_plugins() -> str:
+        """Dynamic MCP resource providing installed editor plugins in res://addons/."""
+        res = await active_client.get_plugins()
+        return json.dumps(res.data, indent=2)
+
+    @server.resource("godot://scene/tree")
+    async def resource_scene_tree() -> str:
+        """Dynamic MCP resource providing live scene tree hierarchy graph JSON."""
+        res = await active_client.list_nodes(max_depth=6, include_properties=False)
+        return json.dumps(res.data, indent=2)
+
+    @server.resource("godot://editor/selection")
+    async def resource_editor_selection() -> str:
+        """Dynamic MCP resource providing currently selected nodes in the Godot Editor."""
+        res = await active_client.get_selected_nodes()
+        return json.dumps(res.data, indent=2)
+
+    @server.resource("godot://editor/layout")
+    async def resource_editor_layout() -> str:
+        """Dynamic MCP resource providing active editor docks and main screen configuration."""
+        res = await active_client.get_editor_layout()
+        return json.dumps(res.data, indent=2)
+
+    @server.resource("godot://vram/usage")
+    async def resource_vram_usage() -> str:
+        """Dynamic MCP resource providing VRAM texture and buffer allocation breakdown."""
+        res = await active_client.inspect_vram_usage()
+        return json.dumps(res.data, indent=2)
+
+    @server.resource("godot://project/input_map")
+    async def resource_input_map() -> str:
+        """Dynamic MCP resource providing all configured input actions and key bindings."""
+        res = await active_client.get_input_actions()
+        return json.dumps(res.data, indent=2)
+
+    @server.resource("godot://project/export_presets")
+    async def resource_export_presets() -> str:
+        """Dynamic MCP resource providing export presets defined in export_presets.cfg."""
+        res = await active_client.get_export_presets()
         return json.dumps(res.data, indent=2)
 
     @server.resource("godot://scene/active/tree")
