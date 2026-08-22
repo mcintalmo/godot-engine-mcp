@@ -1318,6 +1318,56 @@ def format_result(
                     f"- **Saved Resource**: `{result.data.get('saved_resource_path')}`"
                 )
 
+        elif (
+            "skeleton_name" in result.data
+            and "bone_count" in result.data
+            and "bones" in result.data
+        ):
+            lines.append(
+                f"**Skeleton Hierarchy**: `{result.data.get('skeleton_name')}` ({result.data.get('skeleton_type')})\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('skeleton_path')}`")
+            lines.append(f"- **Total Bones**: `{result.data.get('bone_count')}`")
+            lines.append("- **Bones**:")
+            for b in result.data.get("bones", [])[:15]:
+                parent_info = (
+                    f" (parent: {b['parent_name']})" if b.get("parent_name") else ""
+                )
+                lines.append(f"  - [{b.get('index')}] `{b.get('name')}`{parent_info}")
+            if len(result.data.get("bones", [])) > 15:
+                lines.append(
+                    f"  - *... and {len(result.data.get('bones', [])) - 15} more bones*"
+                )
+
+        elif "attachment_name" in result.data and "bone_name" in result.data:
+            lines.append(
+                f"**Configured BoneAttachment3D**: `{result.data.get('attachment_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('attachment_path')}`")
+            lines.append(f"- **Skeleton**: `{result.data.get('skeleton_name')}`")
+            lines.append(
+                f"- **Target Bone**: `{result.data.get('bone_name')}` (Index: {result.data.get('bone_index')})"
+            )
+            if result.data.get("position_offset"):
+                lines.append(
+                    f"- **Position Offset**: `{result.data.get('position_offset')}`"
+                )
+
+        elif (
+            "ik_node_name" in result.data
+            and "root_bone" in result.data
+            and "tip_bone" in result.data
+        ):
+            lines.append(
+                f"**Configured SkeletonIK3D**: `{result.data.get('ik_node_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('ik_node_path')}`")
+            lines.append(f"- **Skeleton**: `{result.data.get('skeleton_name')}`")
+            lines.append(f"- **Root Bone**: `{result.data.get('root_bone')}`")
+            lines.append(f"- **Tip Bone**: `{result.data.get('tip_bone')}`")
+            lines.append(f"- **Interpolation**: `{result.data.get('interpolation')}`")
+            lines.append(f"- **Magnet Enabled**: `{result.data.get('use_magnet')}`")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

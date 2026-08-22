@@ -1925,3 +1925,64 @@ class LiveBridgeClient(GodotClient):
                 "save_to_resource_path": save_to_resource_path,
             },
         )
+
+    async def inspect_skeleton(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "inspect_skeleton",
+            {
+                "skeleton_node_path": skeleton_node_path,
+            },
+        )
+
+    async def configure_bone_attachment(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+        bone_name: str = "",
+        attachment_node_name: str = "BoneAttachment3D",
+        position_offset: list[float] | None = None,
+        rotation_offset_deg: list[float] | None = None,
+        scale_offset: list[float] | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "configure_bone_attachment",
+            {
+                "skeleton_node_path": skeleton_node_path,
+                "bone_name": bone_name,
+                "attachment_node_name": attachment_node_name,
+                "position_offset": position_offset,
+                "rotation_offset_deg": rotation_offset_deg,
+                "scale_offset": scale_offset,
+            },
+        )
+
+    async def setup_inverse_kinematics(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+        ik_node_name: str = "SkeletonIK3D",
+        root_bone: str = "",
+        tip_bone: str = "",
+        target_node_path: str | None = None,
+        interpolation: float = 1.0,
+        max_iterations: int = 10,
+        min_distance: float = 0.01,
+        use_magnet: bool = False,
+        magnet_position: list[float] | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "setup_inverse_kinematics",
+            {
+                "skeleton_node_path": skeleton_node_path,
+                "ik_node_name": ik_node_name,
+                "root_bone": root_bone,
+                "tip_bone": tip_bone,
+                "target_node_path": target_node_path,
+                "interpolation": interpolation,
+                "max_iterations": max_iterations,
+                "min_distance": min_distance,
+                "use_magnet": use_magnet,
+                "magnet_position": magnet_position,
+            },
+        )

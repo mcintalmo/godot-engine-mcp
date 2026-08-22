@@ -50,6 +50,7 @@ const ProfilingDiagnosticsOps = preload("res://addons/godot_mcp/operations/profi
 const MultiplayerOps = preload("res://addons/godot_mcp/operations/multiplayer_ops.gd")
 const GameplayScaffoldingOps = preload("res://addons/godot_mcp/operations/gameplay_scaffolding_ops.gd")
 const ProceduralGeometryOps = preload("res://addons/godot_mcp/operations/procedural_geometry_ops.gd")
+const SkeletonIKOps = preload("res://addons/godot_mcp/operations/skeleton_ik_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -101,6 +102,7 @@ var _profiling_diagnostics_ops: RefCounted
 var _multiplayer_ops: RefCounted
 var _gameplay_scaffolding_ops: RefCounted
 var _procedural_geometry_ops: RefCounted
+var _skeleton_ik_ops: RefCounted
 
 var _port: int = PORT
 
@@ -153,6 +155,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_multiplayer_ops = MultiplayerOps.new(_plugin)
 	_gameplay_scaffolding_ops = GameplayScaffoldingOps.new(_plugin)
 	_procedural_geometry_ops = ProceduralGeometryOps.new(_plugin)
+	_skeleton_ik_ops = SkeletonIKOps.new(_plugin)
+
 
 
 
@@ -471,6 +475,13 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _procedural_geometry_ops.create_csg_shape(params)
 		"generate_procedural_mesh":
 			result = _procedural_geometry_ops.generate_procedural_mesh(params)
+		"inspect_skeleton":
+			result = _skeleton_ik_ops.inspect_skeleton(params)
+		"configure_bone_attachment":
+			result = _skeleton_ik_ops.configure_bone_attachment(params)
+		"setup_inverse_kinematics":
+			result = _skeleton_ik_ops.setup_inverse_kinematics(params)
+
 
 
 

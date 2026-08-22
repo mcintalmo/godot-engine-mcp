@@ -1260,3 +1260,41 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Procedurally construct custom 3D ArrayMesh geometry via SurfaceTool."""
         ...
+
+    @abstractmethod
+    async def inspect_skeleton(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+    ) -> StandardResult:
+        """Inspect bone hierarchies, rest poses, and global transforms in Skeleton3D/Skeleton2D."""
+        ...
+
+    @abstractmethod
+    async def configure_bone_attachment(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+        bone_name: str = "",
+        attachment_node_name: str = "BoneAttachment3D",
+        position_offset: list[float] | None = None,
+        rotation_offset_deg: list[float] | None = None,
+        scale_offset: list[float] | None = None,
+    ) -> StandardResult:
+        """Configure BoneAttachment3D nodes attached to specific bones with local transform offsets."""
+        ...
+
+    @abstractmethod
+    async def setup_inverse_kinematics(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+        ik_node_name: str = "SkeletonIK3D",
+        root_bone: str = "",
+        tip_bone: str = "",
+        target_node_path: str | None = None,
+        interpolation: float = 1.0,
+        max_iterations: int = 10,
+        min_distance: float = 0.01,
+        use_magnet: bool = False,
+        magnet_position: list[float] | None = None,
+    ) -> StandardResult:
+        """Configure SkeletonIK3D inverse kinematics chains on Skeleton3D nodes."""
+        ...

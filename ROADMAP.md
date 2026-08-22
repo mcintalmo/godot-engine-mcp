@@ -148,6 +148,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **CSG Boolean Geometry Builder (`godot_create_csg_shape`)**: Create and compose CSG boolean primitives (Box, Cylinder, Sphere, Polygon, Torus, Combiner) with Union, Intersection, and Subtraction operations for level blockout.
 - [x] **SurfaceTool Procedural Mesh Generator (`godot_generate_procedural_mesh`)**: Construct custom 3D `ArrayMesh` geometry (terrain grids, pyramids, prisms, custom vertex buffers) with automated normals, tangents, and asset persistence.
 
+### Phase 26: 3D Skeletons, Bone Attachments & Inverse Kinematics
+- [x] **Skeleton Hierarchy & Pose Inspector (`godot_inspect_skeleton`)**: Inspect bone names, parent indices, rest poses, and global transforms in `Skeleton3D` and `Skeleton2D` rigs.
+- [x] **Bone Socket & Equipment Attachment (`godot_configure_bone_attachment`)**: Create and configure `BoneAttachment3D` nodes attached to specific bones with local transform offsets.
+- [x] **Inverse Kinematics Solver Setup (`godot_setup_inverse_kinematics`)**: Configure `SkeletonIK3D` solvers with root/tip bones, targets, interpolation, and magnet constraints.
+
+
 
 
 

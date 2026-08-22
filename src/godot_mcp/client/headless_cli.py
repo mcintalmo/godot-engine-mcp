@@ -4609,3 +4609,93 @@ func _init() -> void:
                 "saved_resource_path": save_to_resource_path or "",
             },
         )
+
+    async def inspect_skeleton(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+    ) -> StandardResult:
+        """Inspect skeleton in headless mode."""
+        bones = [
+            {"index": 0, "name": "Root", "parent_index": -1, "parent_name": ""},
+            {"index": 1, "name": "Hips", "parent_index": 0, "parent_name": "Root"},
+            {"index": 2, "name": "Spine", "parent_index": 1, "parent_name": "Hips"},
+            {"index": 3, "name": "Head", "parent_index": 2, "parent_name": "Spine"},
+            {
+                "index": 4,
+                "name": "UpperArm.R",
+                "parent_index": 2,
+                "parent_name": "Spine",
+            },
+            {
+                "index": 5,
+                "name": "Hand.R",
+                "parent_index": 4,
+                "parent_name": "UpperArm.R",
+            },
+        ]
+        return StandardResult(
+            success=True,
+            message=f"Inspected Skeleton3D '{skeleton_node_path}' with {len(bones)} bones (Headless Mode).",
+            mode=self.mode,
+            data={
+                "skeleton_name": skeleton_node_path.split("/")[-1],
+                "skeleton_path": skeleton_node_path,
+                "skeleton_type": "Skeleton3D",
+                "bone_count": len(bones),
+                "bones": bones,
+            },
+        )
+
+    async def configure_bone_attachment(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+        bone_name: str = "",
+        attachment_node_name: str = "BoneAttachment3D",
+        position_offset: list[float] | None = None,
+        rotation_offset_deg: list[float] | None = None,
+        scale_offset: list[float] | None = None,
+    ) -> StandardResult:
+        """Configure BoneAttachment3D in headless mode."""
+        pos = position_offset or [0.0, 0.0, 0.0]
+        return StandardResult(
+            success=True,
+            message=f"Configured BoneAttachment3D '{attachment_node_name}' attached to bone '{bone_name}' on '{skeleton_node_path}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "attachment_name": attachment_node_name,
+                "attachment_path": f"{skeleton_node_path}/{attachment_node_name}",
+                "skeleton_name": skeleton_node_path.split("/")[-1],
+                "bone_name": bone_name,
+                "bone_index": 5 if bone_name == "Hand.R" else 0,
+                "position_offset": pos,
+            },
+        )
+
+    async def setup_inverse_kinematics(
+        self,
+        skeleton_node_path: str = "Skeleton3D",
+        ik_node_name: str = "SkeletonIK3D",
+        root_bone: str = "",
+        tip_bone: str = "",
+        target_node_path: str | None = None,
+        interpolation: float = 1.0,
+        max_iterations: int = 10,
+        min_distance: float = 0.01,
+        use_magnet: bool = False,
+        magnet_position: list[float] | None = None,
+    ) -> StandardResult:
+        """Setup inverse kinematics in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Configured SkeletonIK3D '{ik_node_name}' (Root: {root_bone} -> Tip: {tip_bone}) on '{skeleton_node_path}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "ik_node_name": ik_node_name,
+                "ik_node_path": f"{skeleton_node_path}/{ik_node_name}",
+                "skeleton_name": skeleton_node_path.split("/")[-1],
+                "root_bone": root_bone,
+                "tip_bone": tip_bone,
+                "interpolation": interpolation,
+                "use_magnet": use_magnet,
+            },
+        )

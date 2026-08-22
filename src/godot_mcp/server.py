@@ -183,6 +183,11 @@ from godot_mcp.models.signal_wire import (
     GetNodeSignalsInput,
     GetSignalConnectionsInput,
 )
+from godot_mcp.models.skeleton_ik import (
+    ConfigureBoneAttachmentInput,
+    InspectSkeletonInput,
+    SetupInverseKinematicsInput,
+)
 from godot_mcp.models.theme import (
     ApplyThemeOverrideInput,
     CreateThemeInput,
@@ -374,6 +379,11 @@ from godot_mcp.tools.signal_tools import (
     handle_connect_signal,
     handle_get_node_signals,
     handle_get_signal_connections,
+)
+from godot_mcp.tools.skeleton_ik_tools import (
+    handle_configure_bone_attachment,
+    handle_inspect_skeleton,
+    handle_setup_inverse_kinematics,
 )
 from godot_mcp.tools.theme_tools import (
     handle_apply_theme_override,
@@ -2032,6 +2042,54 @@ def create_server(
     ) -> str:
         """Procedurally construct custom 3D ArrayMesh geometry via SurfaceTool."""
         return await handle_generate_procedural_mesh(active_client, params)
+
+    @server.tool(
+        name="godot_inspect_skeleton",
+        annotations=ToolAnnotations(
+            title="Inspect Skeleton",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def inspect_skeleton(
+        params: InspectSkeletonInput,
+    ) -> str:
+        """Inspect bone hierarchies, parent indices, rest poses, and global transforms in Skeleton3D/Skeleton2D."""
+        return await handle_inspect_skeleton(active_client, params)
+
+    @server.tool(
+        name="godot_configure_bone_attachment",
+        annotations=ToolAnnotations(
+            title="Configure Bone Attachment",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_bone_attachment(
+        params: ConfigureBoneAttachmentInput,
+    ) -> str:
+        """Configure BoneAttachment3D nodes attached to specific bones with local transform offsets."""
+        return await handle_configure_bone_attachment(active_client, params)
+
+    @server.tool(
+        name="godot_setup_inverse_kinematics",
+        annotations=ToolAnnotations(
+            title="Setup Inverse Kinematics",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def setup_inverse_kinematics(
+        params: SetupInverseKinematicsInput,
+    ) -> str:
+        """Configure SkeletonIK3D inverse kinematics chains on Skeleton3D nodes."""
+        return await handle_setup_inverse_kinematics(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 
