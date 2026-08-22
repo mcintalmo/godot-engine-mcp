@@ -80,3 +80,7 @@ func get_metrics(params: Dictionary) -> Dictionary:
 		"message": msg,
 		"data": data
 	}
+
+func get_performance_metrics(params: Dictionary = {}) -> Dictionary:
+	return get_metrics(params)
+

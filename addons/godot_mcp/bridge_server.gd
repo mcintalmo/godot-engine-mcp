@@ -4,433 +4,73 @@ extends Node
 
 const PORT = 3118
 
-const SceneOps = preload("res://addons/godot_mcp/operations/scene_ops.gd")
-const ProjectOps = preload("res://addons/godot_mcp/operations/project_ops.gd")
-const ScreenshotOps = preload("res://addons/godot_mcp/operations/screenshot_ops.gd")
-const ReflectionOps = preload("res://addons/godot_mcp/operations/reflection_ops.gd")
-const MaterialOps = preload("res://addons/godot_mcp/operations/material_ops.gd")
-const AssetOps = preload("res://addons/godot_mcp/operations/asset_ops.gd")
-const AnimationOps = preload("res://addons/godot_mcp/operations/animation_ops.gd")
-const TileMapOps = preload("res://addons/godot_mcp/operations/tilemap_ops.gd")
-const NavigationOps = preload("res://addons/godot_mcp/operations/navigation_ops.gd")
-const PerformanceOps = preload("res://addons/godot_mcp/operations/performance_ops.gd")
-const ThemeOps = preload("res://addons/godot_mcp/operations/theme_ops.gd")
-const AudioOps = preload("res://addons/godot_mcp/operations/audio_ops.gd")
-const PlayOps = preload("res://addons/godot_mcp/operations/play_ops.gd")
-const PhysicsOps = preload("res://addons/godot_mcp/operations/physics_ops.gd")
-const InputOps = preload("res://addons/godot_mcp/operations/input_ops.gd")
-const EnvironmentOps = preload("res://addons/godot_mcp/operations/environment_ops.gd")
-const EditorOps = preload("res://addons/godot_mcp/operations/editor_ops.gd")
-const DCCOps = preload("res://addons/godot_mcp/operations/dcc_ops.gd")
-const ParticleOps = preload("res://addons/godot_mcp/operations/particle_ops.gd")
-const BuildOps = preload("res://addons/godot_mcp/operations/build_ops.gd")
-const AutoloadOps = preload("res://addons/godot_mcp/operations/autoload_ops.gd")
-const SignalOps = preload("res://addons/godot_mcp/operations/signal_ops.gd")
-const EvalOps = preload("res://addons/godot_mcp/operations/eval_ops.gd")
-const ShaderOps = preload("res://addons/godot_mcp/operations/shader_ops.gd")
-const AnimTreeOps = preload("res://addons/godot_mcp/operations/anim_tree_ops.gd")
-const LocalizationOps = preload("res://addons/godot_mcp/operations/localization_ops.gd")
-const UIDOps = preload("res://addons/godot_mcp/operations/uid_ops.gd")
-const PluginOps = preload("res://addons/godot_mcp/operations/plugin_ops.gd")
-const NavObstacleOps = preload("res://addons/godot_mcp/operations/nav_obstacle_ops.gd")
-const TilesetTerrainOps = preload("res://addons/godot_mcp/operations/tileset_terrain_ops.gd")
-const SceneDiffOps = preload("res://addons/godot_mcp/operations/scene_diff_ops.gd")
-const EditorHistoryOps = preload("res://addons/godot_mcp/operations/editor_history_ops.gd")
-const EditorSelectionOps = preload("res://addons/godot_mcp/operations/editor_selection_ops.gd")
-const AssetAuditOps = preload("res://addons/godot_mcp/operations/asset_audit_ops.gd")
-const GUTTestOps = preload("res://addons/godot_mcp/operations/gut_test_ops.gd")
-const EditorLayoutOps = preload("res://addons/godot_mcp/operations/editor_layout_ops.gd")
-const SceneHierarchyOps = preload("res://addons/godot_mcp/operations/scene_hierarchy_ops.gd")
-const ScriptLifecycleOps = preload("res://addons/godot_mcp/operations/script_lifecycle_ops.gd")
-const CameraRenderingOps = preload("res://addons/godot_mcp/operations/camera_rendering_ops.gd")
-const InputSimulationOps = preload("res://addons/godot_mcp/operations/input_simulation_ops.gd")
-const E2EAutomationOps = preload("res://addons/godot_mcp/operations/e2e_automation_ops.gd")
-const GridMapPathOps = preload("res://addons/godot_mcp/operations/gridmap_path_ops.gd")
-const ProfilingDiagnosticsOps = preload("res://addons/godot_mcp/operations/profiling_diagnostics_ops.gd")
-const MultiplayerOps = preload("res://addons/godot_mcp/operations/multiplayer_ops.gd")
-const GameplayScaffoldingOps = preload("res://addons/godot_mcp/operations/gameplay_scaffolding_ops.gd")
-const ProceduralGeometryOps = preload("res://addons/godot_mcp/operations/procedural_geometry_ops.gd")
-const SkeletonIKOps = preload("res://addons/godot_mcp/operations/skeleton_ik_ops.gd")
-const PhysicsConstraintsOps = preload("res://addons/godot_mcp/operations/physics_constraints_ops.gd")
-const LightmapGIOps = preload("res://addons/godot_mcp/operations/lightmap_gi_ops.gd")
-const OpenXROps = preload("res://addons/godot_mcp/operations/openxr_ops.gd")
-const RenderingDeviceOps = preload("res://addons/godot_mcp/operations/rendering_device_ops.gd")
-const MultiMeshScatterOps = preload("res://addons/godot_mcp/operations/multimesh_scatter_ops.gd")
+const OPERATION_CLASSES: Array = [
+	preload("res://addons/godot_mcp/operations/scene_ops.gd"),
+	preload("res://addons/godot_mcp/operations/project_ops.gd"),
+	preload("res://addons/godot_mcp/operations/screenshot_ops.gd"),
+	preload("res://addons/godot_mcp/operations/reflection_ops.gd"),
+	preload("res://addons/godot_mcp/operations/material_ops.gd"),
+	preload("res://addons/godot_mcp/operations/asset_ops.gd"),
+	preload("res://addons/godot_mcp/operations/animation_ops.gd"),
+	preload("res://addons/godot_mcp/operations/tilemap_ops.gd"),
+	preload("res://addons/godot_mcp/operations/navigation_ops.gd"),
+	preload("res://addons/godot_mcp/operations/performance_ops.gd"),
+	preload("res://addons/godot_mcp/operations/theme_ops.gd"),
+	preload("res://addons/godot_mcp/operations/audio_ops.gd"),
+	preload("res://addons/godot_mcp/operations/play_ops.gd"),
+	preload("res://addons/godot_mcp/operations/physics_ops.gd"),
+	preload("res://addons/godot_mcp/operations/input_ops.gd"),
+	preload("res://addons/godot_mcp/operations/environment_ops.gd"),
+	preload("res://addons/godot_mcp/operations/editor_ops.gd"),
+	preload("res://addons/godot_mcp/operations/dcc_ops.gd"),
+	preload("res://addons/godot_mcp/operations/particle_ops.gd"),
+	preload("res://addons/godot_mcp/operations/build_ops.gd"),
+	preload("res://addons/godot_mcp/operations/autoload_ops.gd"),
+	preload("res://addons/godot_mcp/operations/signal_ops.gd"),
+	preload("res://addons/godot_mcp/operations/eval_ops.gd"),
+	preload("res://addons/godot_mcp/operations/shader_ops.gd"),
+	preload("res://addons/godot_mcp/operations/anim_tree_ops.gd"),
+	preload("res://addons/godot_mcp/operations/localization_ops.gd"),
+	preload("res://addons/godot_mcp/operations/uid_ops.gd"),
+	preload("res://addons/godot_mcp/operations/plugin_ops.gd"),
+	preload("res://addons/godot_mcp/operations/nav_obstacle_ops.gd"),
+	preload("res://addons/godot_mcp/operations/tileset_terrain_ops.gd"),
+	preload("res://addons/godot_mcp/operations/scene_diff_ops.gd"),
+	preload("res://addons/godot_mcp/operations/editor_history_ops.gd"),
+	preload("res://addons/godot_mcp/operations/editor_selection_ops.gd"),
+	preload("res://addons/godot_mcp/operations/asset_audit_ops.gd"),
+	preload("res://addons/godot_mcp/operations/gut_test_ops.gd"),
+	preload("res://addons/godot_mcp/operations/editor_layout_ops.gd"),
+	preload("res://addons/godot_mcp/operations/scene_hierarchy_ops.gd"),
+	preload("res://addons/godot_mcp/operations/script_lifecycle_ops.gd"),
+	preload("res://addons/godot_mcp/operations/camera_rendering_ops.gd"),
+	preload("res://addons/godot_mcp/operations/input_simulation_ops.gd"),
+	preload("res://addons/godot_mcp/operations/e2e_automation_ops.gd"),
+	preload("res://addons/godot_mcp/operations/gridmap_path_ops.gd"),
+	preload("res://addons/godot_mcp/operations/profiling_diagnostics_ops.gd"),
+	preload("res://addons/godot_mcp/operations/multiplayer_ops.gd"),
+	preload("res://addons/godot_mcp/operations/gameplay_scaffolding_ops.gd"),
+	preload("res://addons/godot_mcp/operations/procedural_geometry_ops.gd"),
+	preload("res://addons/godot_mcp/operations/skeleton_ik_ops.gd"),
+	preload("res://addons/godot_mcp/operations/physics_constraints_ops.gd"),
+	preload("res://addons/godot_mcp/operations/lightmap_gi_ops.gd"),
+	preload("res://addons/godot_mcp/operations/openxr_ops.gd"),
+	preload("res://addons/godot_mcp/operations/rendering_device_ops.gd"),
+	preload("res://addons/godot_mcp/operations/multimesh_scatter_ops.gd"),
+]
 
 var _plugin: Node
+var _port: int = PORT
 var _tcp_server: TCPServer = TCPServer.new()
 var _peers: Array[WebSocketPeer] = []
-
-var _scene_ops: RefCounted
-var _project_ops: RefCounted
-var _screenshot_ops: RefCounted
-var _reflection_ops: RefCounted
-var _material_ops: RefCounted
-var _asset_ops: RefCounted
-var _animation_ops: RefCounted
-var _tilemap_ops: RefCounted
-var _navigation_ops: RefCounted
-var _performance_ops: RefCounted
-var _theme_ops: RefCounted
-var _audio_ops: RefCounted
-var _play_ops: RefCounted
-var _physics_ops: RefCounted
-var _input_ops: RefCounted
-var _environment_ops: RefCounted
-var _editor_ops: RefCounted
-var _dcc_ops: RefCounted
-var _particle_ops: RefCounted
-var _build_ops: RefCounted
-var _autoload_ops: RefCounted
-var _signal_ops: RefCounted
-var _eval_ops: RefCounted
-var _shader_ops: RefCounted
-var _anim_tree_ops: RefCounted
-var _localization_ops: RefCounted
-var _uid_ops: RefCounted
-var _plugin_ops: RefCounted
-var _nav_obstacle_ops: RefCounted
-var _tileset_terrain_ops: RefCounted
-var _scene_diff_ops: RefCounted
-var _editor_history_ops: RefCounted
-var _editor_selection_ops: RefCounted
-var _asset_audit_ops: RefCounted
-var _gut_test_ops: RefCounted
-var _editor_layout_ops: RefCounted
-var _scene_hierarchy_ops: RefCounted
-var _script_lifecycle_ops: RefCounted
-var _camera_rendering_ops: RefCounted
-var _input_simulation_ops: RefCounted
-var _e2e_automation_ops: RefCounted
-var _gridmap_path_ops: RefCounted
-var _profiling_diagnostics_ops: RefCounted
-var _multiplayer_ops: RefCounted
-var _gameplay_scaffolding_ops: RefCounted
-var _procedural_geometry_ops: RefCounted
-var _skeleton_ik_ops: RefCounted
-var _physics_constraints_ops: RefCounted
-var _lightmap_gi_ops: RefCounted
-var _openxr_ops: RefCounted
-var _rendering_device_ops: RefCounted
-var _multimesh_scatter_ops: RefCounted
-
-var _port: int = PORT
+var _ops_modules: Array[RefCounted] = []
 
 func _init(plugin: Node = null, port: int = PORT) -> void:
 	_plugin = plugin
 	_port = port
-	_scene_ops = SceneOps.new(_plugin)
-	_project_ops = ProjectOps.new(_plugin)
-	_screenshot_ops = ScreenshotOps.new(_plugin)
-	_reflection_ops = ReflectionOps.new(_plugin)
-	_material_ops = MaterialOps.new(_plugin)
-	_asset_ops = AssetOps.new(_plugin)
-	_animation_ops = AnimationOps.new(_plugin)
-	_tilemap_ops = TileMapOps.new(_plugin)
-	_navigation_ops = NavigationOps.new(_plugin)
-	_performance_ops = PerformanceOps.new(_plugin)
-	_theme_ops = ThemeOps.new(_plugin)
-	_audio_ops = AudioOps.new(_plugin)
-	_play_ops = PlayOps.new(_plugin)
-	_physics_ops = PhysicsOps.new(_plugin)
-	_input_ops = InputOps.new(_plugin)
-	_environment_ops = EnvironmentOps.new(_plugin)
-	_editor_ops = EditorOps.new(_plugin)
-	_dcc_ops = DCCOps.new(_plugin)
-	_particle_ops = ParticleOps.new(_plugin)
-	_build_ops = BuildOps.new(_plugin)
-	_autoload_ops = AutoloadOps.new(_plugin)
-	_signal_ops = SignalOps.new(_plugin)
-	_eval_ops = EvalOps.new(_plugin)
-	_shader_ops = ShaderOps.new(_plugin)
-	_anim_tree_ops = AnimTreeOps.new(_plugin)
-	_localization_ops = LocalizationOps.new(_plugin)
-	_uid_ops = UIDOps.new(_plugin)
-	_plugin_ops = PluginOps.new(_plugin)
-	_nav_obstacle_ops = NavObstacleOps.new(_plugin)
-	_tileset_terrain_ops = TilesetTerrainOps.new(_plugin)
-	_scene_diff_ops = SceneDiffOps.new(_plugin)
-	_editor_history_ops = EditorHistoryOps.new(_plugin)
-	_editor_selection_ops = EditorSelectionOps.new(_plugin)
-	_asset_audit_ops = AssetAuditOps.new(_plugin)
-	_gut_test_ops = GUTTestOps.new(_plugin)
-	_editor_layout_ops = EditorLayoutOps.new(_plugin)
-	_scene_hierarchy_ops = SceneHierarchyOps.new(_plugin)
-	_script_lifecycle_ops = ScriptLifecycleOps.new(_plugin)
-	_camera_rendering_ops = CameraRenderingRenderingOps.new(_plugin) if false else CameraRenderingOps.new(_plugin)
-	_input_simulation_ops = InputSimulationOps.new(_plugin)
-	_e2e_automation_ops = E2EAutomationOps.new(_plugin)
-	_gridmap_path_ops = GridMapPathOps.new(_plugin)
-	_profiling_diagnostics_ops = ProfilingDiagnosticsOps.new(_plugin)
-	_multiplayer_ops = MultiplayerOps.new(_plugin)
-	_gameplay_scaffolding_ops = GameplayScaffoldingOps.new(_plugin)
-	_procedural_geometry_ops = ProceduralGeometryOps.new(_plugin)
-	_skeleton_ik_ops = SkeletonIKOps.new(_plugin)
-	_physics_constraints_ops = PhysicsConstraintsOps.new(_plugin)
-	_lightmap_gi_ops = LightmapGIOps.new(_plugin)
-	_openxr_ops = OpenXROps.new(_plugin)
-	_rendering_device_ops = RenderingDeviceOps.new(_plugin)
-	_multimesh_scatter_ops = MultiMeshScatterOps.new(_plugin)
-
-
-var _port: int = PORT
-
-func _init(plugin: Node = null, port: int = PORT) -> void:
-	_plugin = plugin
-	_port = port
-	_scene_ops = SceneOps.new(_plugin)
-	_project_ops = ProjectOps.new(_plugin)
-	_screenshot_ops = ScreenshotOps.new(_plugin)
-	_reflection_ops = ReflectionOps.new(_plugin)
-	_material_ops = MaterialOps.new(_plugin)
-	_asset_ops = AssetOps.new(_plugin)
-	_animation_ops = AnimationOps.new(_plugin)
-	_tilemap_ops = TileMapOps.new(_plugin)
-	_navigation_ops = NavigationOps.new(_plugin)
-	_performance_ops = PerformanceOps.new(_plugin)
-	_theme_ops = ThemeOps.new(_plugin)
-	_audio_ops = AudioOps.new(_plugin)
-	_play_ops = PlayOps.new(_plugin)
-	_physics_ops = PhysicsOps.new(_plugin)
-	_input_ops = InputOps.new(_plugin)
-	_environment_ops = EnvironmentOps.new(_plugin)
-	_editor_ops = EditorOps.new(_plugin)
-	_dcc_ops = DCCOps.new(_plugin)
-	_particle_ops = ParticleOps.new(_plugin)
-	_build_ops = BuildOps.new(_plugin)
-	_autoload_ops = AutoloadOps.new(_plugin)
-	_signal_ops = SignalOps.new(_plugin)
-	_eval_ops = EvalOps.new(_plugin)
-	_shader_ops = ShaderOps.new(_plugin)
-	_anim_tree_ops = AnimTreeOps.new(_plugin)
-	_localization_ops = LocalizationOps.new(_plugin)
-	_uid_ops = UIDOps.new(_plugin)
-	_plugin_ops = PluginOps.new(_plugin)
-	_nav_obstacle_ops = NavObstacleOps.new(_plugin)
-	_tileset_terrain_ops = TilesetTerrainOps.new(_plugin)
-	_scene_diff_ops = SceneDiffOps.new(_plugin)
-	_editor_history_ops = EditorHistoryOps.new(_plugin)
-	_editor_selection_ops = EditorSelectionOps.new(_plugin)
-	_asset_audit_ops = AssetAuditOps.new(_plugin)
-	_gut_test_ops = GUTTestOps.new(_plugin)
-	_editor_layout_ops = EditorLayoutOps.new(_plugin)
-	_scene_hierarchy_ops = SceneHierarchyOps.new(_plugin)
-	_script_lifecycle_ops = ScriptLifecycleOps.new(_plugin)
-	_camera_rendering_ops = CameraRenderingRenderingOps.new(_plugin) if false else CameraRenderingOps.new(_plugin)
-	_input_simulation_ops = InputSimulationOps.new(_plugin)
-	_e2e_automation_ops = E2EAutomationOps.new(_plugin)
-	_gridmap_path_ops = GridMapPathOps.new(_plugin)
-	_profiling_diagnostics_ops = ProfilingDiagnosticsOps.new(_plugin)
-	_multiplayer_ops = MultiplayerOps.new(_plugin)
-	_gameplay_scaffolding_ops = GameplayScaffoldingOps.new(_plugin)
-	_procedural_geometry_ops = ProceduralGeometryOps.new(_plugin)
-	_skeleton_ik_ops = SkeletonIKOps.new(_plugin)
-	_physics_constraints_ops = PhysicsConstraintsOps.new(_plugin)
-	_lightmap_gi_ops = LightmapGIOps.new(_plugin)
-	_openxr_ops = OpenXROps.new(_plugin)
-	_rendering_device_ops = RenderingDeviceOps.new(_plugin)
-
-
-var _port: int = PORT
-
-func _init(plugin: Node = null, port: int = PORT) -> void:
-	_plugin = plugin
-	_port = port
-	_scene_ops = SceneOps.new(_plugin)
-	_project_ops = ProjectOps.new(_plugin)
-	_screenshot_ops = ScreenshotOps.new(_plugin)
-	_reflection_ops = ReflectionOps.new(_plugin)
-	_material_ops = MaterialOps.new(_plugin)
-	_asset_ops = AssetOps.new(_plugin)
-	_animation_ops = AnimationOps.new(_plugin)
-	_tilemap_ops = TileMapOps.new(_plugin)
-	_navigation_ops = NavigationOps.new(_plugin)
-	_performance_ops = PerformanceOps.new(_plugin)
-	_theme_ops = ThemeOps.new(_plugin)
-	_audio_ops = AudioOps.new(_plugin)
-	_play_ops = PlayOps.new(_plugin)
-	_physics_ops = PhysicsOps.new(_plugin)
-	_input_ops = InputOps.new(_plugin)
-	_environment_ops = EnvironmentOps.new(_plugin)
-	_editor_ops = EditorOps.new(_plugin)
-	_dcc_ops = DCCOps.new(_plugin)
-	_particle_ops = ParticleOps.new(_plugin)
-	_build_ops = BuildOps.new(_plugin)
-	_autoload_ops = AutoloadOps.new(_plugin)
-	_signal_ops = SignalOps.new(_plugin)
-	_eval_ops = EvalOps.new(_plugin)
-	_shader_ops = ShaderOps.new(_plugin)
-	_anim_tree_ops = AnimTreeOps.new(_plugin)
-	_localization_ops = LocalizationOps.new(_plugin)
-	_uid_ops = UIDOps.new(_plugin)
-	_plugin_ops = PluginOps.new(_plugin)
-	_nav_obstacle_ops = NavObstacleOps.new(_plugin)
-	_tileset_terrain_ops = TilesetTerrainOps.new(_plugin)
-	_scene_diff_ops = SceneDiffOps.new(_plugin)
-	_editor_history_ops = EditorHistoryOps.new(_plugin)
-	_editor_selection_ops = EditorSelectionOps.new(_plugin)
-	_asset_audit_ops = AssetAuditOps.new(_plugin)
-	_gut_test_ops = GUTTestOps.new(_plugin)
-	_editor_layout_ops = EditorLayoutOps.new(_plugin)
-	_scene_hierarchy_ops = SceneHierarchyOps.new(_plugin)
-	_script_lifecycle_ops = ScriptLifecycleOps.new(_plugin)
-	_camera_rendering_ops = CameraRenderingRenderingOps.new(_plugin) if false else CameraRenderingOps.new(_plugin)
-	_input_simulation_ops = InputSimulationOps.new(_plugin)
-	_e2e_automation_ops = E2EAutomationOps.new(_plugin)
-	_gridmap_path_ops = GridMapPathOps.new(_plugin)
-	_profiling_diagnostics_ops = ProfilingDiagnosticsOps.new(_plugin)
-	_multiplayer_ops = MultiplayerOps.new(_plugin)
-	_gameplay_scaffolding_ops = GameplayScaffoldingOps.new(_plugin)
-	_procedural_geometry_ops = ProceduralGeometryOps.new(_plugin)
-	_skeleton_ik_ops = SkeletonIKOps.new(_plugin)
-	_physics_constraints_ops = PhysicsConstraintsOps.new(_plugin)
-	_lightmap_gi_ops = LightmapGIOps.new(_plugin)
-	_openxr_ops = OpenXROps.new(_plugin)
-
-
-var _port: int = PORT
-
-func _init(plugin: Node = null, port: int = PORT) -> void:
-	_plugin = plugin
-	_port = port
-	_scene_ops = SceneOps.new(_plugin)
-	_project_ops = ProjectOps.new(_plugin)
-	_screenshot_ops = ScreenshotOps.new(_plugin)
-	_reflection_ops = ReflectionOps.new(_plugin)
-	_material_ops = MaterialOps.new(_plugin)
-	_asset_ops = AssetOps.new(_plugin)
-	_animation_ops = AnimationOps.new(_plugin)
-	_tilemap_ops = TileMapOps.new(_plugin)
-	_navigation_ops = NavigationOps.new(_plugin)
-	_performance_ops = PerformanceOps.new(_plugin)
-	_theme_ops = ThemeOps.new(_plugin)
-	_audio_ops = AudioOps.new(_plugin)
-	_play_ops = PlayOps.new(_plugin)
-	_physics_ops = PhysicsOps.new(_plugin)
-	_input_ops = InputOps.new(_plugin)
-	_environment_ops = EnvironmentOps.new(_plugin)
-	_editor_ops = EditorOps.new(_plugin)
-	_dcc_ops = DCCOps.new(_plugin)
-	_particle_ops = ParticleOps.new(_plugin)
-	_build_ops = BuildOps.new(_plugin)
-	_autoload_ops = AutoloadOps.new(_plugin)
-	_signal_ops = SignalOps.new(_plugin)
-	_eval_ops = EvalOps.new(_plugin)
-	_shader_ops = ShaderOps.new(_plugin)
-	_anim_tree_ops = AnimTreeOps.new(_plugin)
-	_localization_ops = LocalizationOps.new(_plugin)
-	_uid_ops = UIDOps.new(_plugin)
-	_plugin_ops = PluginOps.new(_plugin)
-	_nav_obstacle_ops = NavObstacleOps.new(_plugin)
-	_tileset_terrain_ops = TilesetTerrainOps.new(_plugin)
-	_scene_diff_ops = SceneDiffOps.new(_plugin)
-	_editor_history_ops = EditorHistoryOps.new(_plugin)
-	_editor_selection_ops = EditorSelectionOps.new(_plugin)
-	_asset_audit_ops = AssetAuditOps.new(_plugin)
-	_gut_test_ops = GUTTestOps.new(_plugin)
-	_editor_layout_ops = EditorLayoutOps.new(_plugin)
-	_scene_hierarchy_ops = SceneHierarchyOps.new(_plugin)
-	_script_lifecycle_ops = ScriptLifecycleOps.new(_plugin)
-	_camera_rendering_ops = CameraRenderingOps.new(_plugin)
-	_input_simulation_ops = InputSimulationOps.new(_plugin)
-	_e2e_automation_ops = E2EAutomationOps.new(_plugin)
-	_gridmap_path_ops = GridMapPathOps.new(_plugin)
-	_profiling_diagnostics_ops = ProfilingDiagnosticsOps.new(_plugin)
-	_multiplayer_ops = MultiplayerOps.new(_plugin)
-	_gameplay_scaffolding_ops = GameplayScaffoldingOps.new(_plugin)
-	_procedural_geometry_ops = ProceduralGeometryOps.new(_plugin)
-	_skeleton_ik_ops = SkeletonIKOps.new(_plugin)
-	_physics_constraints_ops = PhysicsConstraintsOps.new(_plugin)
-	_lightmap_gi_ops = LightmapGIOps.new(_plugin)
-
-
-var _port: int = PORT
-
-func _init(plugin: Node = null, port: int = PORT) -> void:
-	_plugin = plugin
-	_port = port
-	_scene_ops = SceneOps.new(_plugin)
-	_project_ops = ProjectOps.new(_plugin)
-	_screenshot_ops = ScreenshotOps.new(_plugin)
-	_reflection_ops = ReflectionOps.new(_plugin)
-	_material_ops = MaterialOps.new(_plugin)
-	_asset_ops = AssetOps.new(_plugin)
-	_animation_ops = AnimationOps.new(_plugin)
-	_tilemap_ops = TileMapOps.new(_plugin)
-	_navigation_ops = NavigationOps.new(_plugin)
-	_performance_ops = PerformanceOps.new(_plugin)
-	_theme_ops = ThemeOps.new(_plugin)
-	_audio_ops = AudioOps.new(_plugin)
-	_play_ops = PlayOps.new(_plugin)
-	_physics_ops = PhysicsOps.new(_plugin)
-	_input_ops = InputOps.new(_plugin)
-	_environment_ops = EnvironmentOps.new(_plugin)
-	_editor_ops = EditorOps.new(_plugin)
-	_dcc_ops = DCCOps.new(_plugin)
-	_particle_ops = ParticleOps.new(_plugin)
-	_build_ops = BuildOps.new(_plugin)
-	_autoload_ops = AutoloadOps.new(_plugin)
-	_signal_ops = SignalOps.new(_plugin)
-	_eval_ops = EvalOps.new(_plugin)
-	_shader_ops = ShaderOps.new(_plugin)
-	_anim_tree_ops = AnimTreeOps.new(_plugin)
-	_localization_ops = LocalizationOps.new(_plugin)
-	_uid_ops = UIDOps.new(_plugin)
-	_plugin_ops = PluginOps.new(_plugin)
-	_nav_obstacle_ops = NavObstacleOps.new(_plugin)
-	_tileset_terrain_ops = TilesetTerrainOps.new(_plugin)
-	_scene_diff_ops = SceneDiffOps.new(_plugin)
-	_editor_history_ops = EditorHistoryOps.new(_plugin)
-	_editor_selection_ops = EditorSelectionOps.new(_plugin)
-	_asset_audit_ops = AssetAuditOps.new(_plugin)
-	_gut_test_ops = GUTTestOps.new(_plugin)
-	_editor_layout_ops = EditorLayoutOps.new(_plugin)
-	_scene_hierarchy_ops = SceneHierarchyOps.new(_plugin)
-	_script_lifecycle_ops = ScriptLifecycleOps.new(_plugin)
-	_camera_rendering_ops = CameraRenderingOps.new(_plugin)
-	_input_simulation_ops = InputSimulationOps.new(_plugin)
-	_e2e_automation_ops = E2EAutomationOps.new(_plugin)
-	_gridmap_path_ops = GridMapPathOps.new(_plugin)
-	_profiling_diagnostics_ops = ProfilingDiagnosticsOps.new(_plugin)
-	_multiplayer_ops = MultiplayerOps.new(_plugin)
-	_gameplay_scaffolding_ops = GameplayScaffoldingOps.new(_plugin)
-	_procedural_geometry_ops = ProceduralGeometryOps.new(_plugin)
-	_skeleton_ik_ops = SkeletonIKOps.new(_plugin)
-	_physics_constraints_ops = PhysicsConstraintsOps.new(_plugin)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	_ops_modules.clear()
+	for op_cls in OPERATION_CLASSES:
+		_ops_modules.append(op_cls.new(_plugin))
 
 func start() -> void:
 	var err = _tcp_server.listen(_port, "127.0.0.1")
@@ -450,360 +90,86 @@ func _process(_delta: float) -> void:
 	if not _tcp_server.is_listening():
 		return
 
-	# Accept incoming TCP connections
 	while _tcp_server.is_connection_available():
-		var tcp_conn = _tcp_server.take_connection()
-		if tcp_conn:
+		var conn = _tcp_server.take_connection()
+		if conn:
 			var ws_peer = WebSocketPeer.new()
-			var err = ws_peer.accept_stream(tcp_conn)
-			if err == OK:
-				_peers.append(ws_peer)
+			ws_peer.accept_stream(conn)
+			_peers.append(ws_peer)
 
-	# Poll connected peers
-	var to_remove: Array[WebSocketPeer] = []
-	for peer in _peers:
+	var i = _peers.size() - 1
+	while i >= 0:
+		var peer = _peers[i]
 		peer.poll()
 		var state = peer.get_ready_state()
+
 		if state == WebSocketPeer.STATE_OPEN:
 			while peer.get_available_packet_count() > 0:
-				var pkt = peer.get_packet()
-				var text = pkt.get_string_from_utf8()
-				_handle_message(peer, text)
+				var packet = peer.get_packet()
+				var text = packet.get_string_from_utf8()
+				var response = _handle_raw_request(text)
+				peer.send_text(response)
 		elif state == WebSocketPeer.STATE_CLOSED:
-			to_remove.append(peer)
+			_peers.remove_at(i)
 
-	for p in to_remove:
-		_peers.erase(p)
+		i -= 1
 
-func _handle_message(peer: WebSocketPeer, text: String) -> void:
+func _handle_raw_request(raw_json: String) -> String:
 	var json = JSON.new()
-	var parse_err = json.parse(text)
-	if parse_err != OK:
-		_send_error(peer, null, -32700, "Parse error: Invalid JSON")
-		return
+	var err = json.parse(raw_json)
+	if err != OK:
+		return JSON.stringify({
+			"jsonrpc": "2.0",
+			"id": null,
+			"error": {
+				"code": -32700,
+				"message": "Parse error: invalid JSON."
+			}
+		})
 
-	var req = json.data
-	if not req is Dictionary:
-		_send_error(peer, null, -32600, "Invalid Request")
-		return
+	var data = json.data
+	if typeof(data) != TYPE_DICTIONARY:
+		return JSON.stringify({
+			"jsonrpc": "2.0",
+			"id": null,
+			"error": {
+				"code": -32600,
+				"message": "Invalid Request: expected JSON-RPC 2.0 object."
+			}
+		})
 
-	var req_id = req.get("id")
-	var method: String = req.get("method", "")
-	var params: Dictionary = req.get("params", {})
+	var req = data as Dictionary
+	var req_id = req.get("id", null)
+	var method = req.get("method", "")
+	var params = req.get("params", {})
 
+	if typeof(params) != TYPE_DICTIONARY:
+		params = {}
+
+	var result = _dispatch_rpc(method, params)
+
+	if result.has("error") and typeof(result["error"]) == TYPE_DICTIONARY:
+		return JSON.stringify({
+			"jsonrpc": "2.0",
+			"id": req_id,
+			"error": result["error"]
+		})
+
+	return JSON.stringify({
+		"jsonrpc": "2.0",
+		"id": req_id,
+		"result": result
+	})
+
+func _dispatch_rpc(method: String, params: Dictionary) -> Dictionary:
 	if method == "ping":
-		_send_result(peer, req_id, {"pong": true, "engine": "godot"})
-		return
+		return {"pong": true}
 
-	var result: Dictionary = {}
-	match method:
-		"get_version":
-			result = _project_ops.get_version()
-		"get_project_settings":
-			result = _project_ops.get_project_settings(params)
-		"set_project_setting":
-			result = _project_ops.set_project_setting(params)
-		"restart_editor":
-			result = _project_ops.restart_editor(params)
+	for op in _ops_modules:
+		if op.has_method(method):
+			return op.call(method, params)
 
-		"list_nodes":
-			result = _scene_ops.list_nodes(params)
-		"get_node":
-			result = _scene_ops.get_node_info(params)
-		"create_node":
-			result = _scene_ops.create_node(params)
-		"modify_node":
-			result = _scene_ops.modify_node(params)
-		"delete_node":
-			result = _scene_ops.delete_node(params)
-		"connect_signal":
-			result = _scene_ops.connect_signal(params)
-		"instantiate_scene":
-			result = _scene_ops.instantiate_scene(params)
-		"save_scene":
-			result = _scene_ops.save_scene(params)
-		"open_scene":
-			result = _scene_ops.open_scene(params)
-		"create_scene":
-			result = _scene_ops.create_scene(params)
-		"take_screenshot":
-			result = _screenshot_ops.take_screenshot(params)
-
-		"get_class_info":
-			result = _reflection_ops.get_class_info(params)
-		"get_documentation":
-			result = _reflection_ops.get_documentation(params)
-		"validate_shader":
-			result = _reflection_ops.validate_shader(params)
-		"create_material":
-			result = _material_ops.create_material(params)
-		"reimport_asset":
-			result = _asset_ops.reimport_asset(params)
-		"create_collision_polygon":
-			result = _asset_ops.create_collision_polygon(params)
-		"create_animation":
-			result = _animation_ops.create_animation(params)
-		"set_tilemap_cells":
-			result = _tilemap_ops.set_cells(params)
-		"get_tilemap_cells":
-			result = _tilemap_ops.get_cells(params)
-		"create_tilemap_layer":
-			result = _tilemap_ops.create_tilemap_layer(params)
-		"bake_navmesh":
-			result = _navigation_ops.bake_navmesh(params)
-		"create_navigation_region":
-			result = _navigation_ops.create_navigation_region(params)
-		"get_performance_metrics":
-			result = _performance_ops.get_metrics(params)
-		"create_theme":
-			result = _theme_ops.create_theme(params)
-		"apply_theme_override":
-			result = _theme_ops.apply_theme_override(params)
-		"get_audio_layout":
-			result = _audio_ops.get_audio_layout(params)
-		"configure_audio_bus":
-			result = _audio_ops.configure_audio_bus(params)
-		"set_bus_effect":
-			result = _audio_ops.set_bus_effect(params)
-		"play_scene":
-			result = _play_ops.play_scene(params)
-		"stop_scene":
-			result = _play_ops.stop_scene(params)
-		"get_play_state":
-			result = _play_ops.get_play_state(params)
-		"set_play_state":
-			result = _play_ops.set_play_state(params)
-		"cast_ray_3d":
-			result = _physics_ops.cast_ray_3d(params)
-		"cast_shape_3d":
-			result = _physics_ops.cast_shape_3d(params)
-		"get_body_physics_state_3d":
-			result = _physics_ops.get_body_physics_state_3d(params)
-		"set_physics_debug_mode":
-			result = _physics_ops.set_physics_debug_mode(params)
-		"get_input_actions":
-			result = _input_ops.get_input_actions(params)
-		"configure_input_action":
-			result = _input_ops.configure_input_action(params)
-		"configure_environment":
-			result = _environment_ops.configure_environment(params)
-		"set_editor_selection":
-			result = _editor_ops.set_editor_selection(params)
-		"focus_node":
-			result = _editor_ops.focus_node(params)
-		"instantiate_model":
-			result = _dcc_ops.instantiate_model(params)
-		"configure_gltf_import":
-			result = _dcc_ops.configure_gltf_import(params)
-		"configure_particles":
-			result = _particle_ops.configure_particles(params)
-		"get_export_presets":
-			result = _build_ops.get_export_presets(params)
-		"get_autoloads":
-			result = _autoload_ops.get_autoloads(params)
-		"set_autoload":
-			result = _autoload_ops.set_autoload(params)
-		"get_node_signals":
-			result = _signal_ops.get_node_signals(params)
-		"connect_signal":
-			result = _signal_ops.connect_signal(params)
-		"get_signal_connections":
-			result = _signal_ops.get_signal_connections(params)
-		"evaluate_expression":
-			result = _eval_ops.evaluate_expression(params)
-		"create_shader":
-			result = _shader_ops.create_shader(params)
-		"set_shader_param":
-			result = _shader_ops.set_shader_param(params)
-		"configure_animation_tree":
-			result = _anim_tree_ops.configure_animation_tree(params)
-		"get_translations":
-			result = _localization_ops.get_translations(params)
-		"add_translation":
-			result = _localization_ops.add_translation(params)
-		"get_uid":
-			result = _uid_ops.get_uid(params)
-		"resolve_uid":
-			result = _uid_ops.resolve_uid(params)
-		"get_dependencies":
-			result = _uid_ops.get_dependencies(params)
-		"get_plugins":
-			result = _plugin_ops.get_plugins(params)
-		"set_plugin_status":
-			result = _plugin_ops.set_plugin_status(params)
-		"configure_navigation_obstacle":
-			result = _nav_obstacle_ops.configure_navigation_obstacle(params)
-		"configure_tileset_terrain":
-			result = _tileset_terrain_ops.configure_tileset_terrain(params)
-		"diff_scene":
-			result = _scene_diff_ops.diff_scene(params)
-		"undo_action":
-			result = _editor_history_ops.undo_action(params)
-		"redo_action":
-			result = _editor_history_ops.redo_action(params)
-		"get_selected_nodes":
-			result = _editor_selection_ops.get_selected_nodes(params)
-		"set_selected_nodes":
-			result = _editor_selection_ops.set_selected_nodes(params)
-		"audit_assets":
-			result = _asset_audit_ops.audit_assets(params)
-		"clean_orphans":
-			result = _asset_audit_ops.clean_orphans(params)
-		"get_texture_info":
-			result = _asset_audit_ops.get_texture_info(params)
-		"run_gut_tests":
-			result = _gut_test_ops.run_gut_tests(params)
-		"generate_gut_test":
-			result = _gut_test_ops.generate_gut_test(params)
-		"get_editor_layout":
-			result = _editor_layout_ops.get_editor_layout(params)
-		"set_editor_layout":
-			result = _editor_layout_ops.set_editor_layout(params)
-		"reparent_node":
-			result = _scene_hierarchy_ops.reparent_node(params)
-		"duplicate_node":
-			result = _scene_hierarchy_ops.duplicate_node(params)
-		"instantiate_scene":
-			result = _scene_hierarchy_ops.instantiate_scene(params)
-		"set_node_owner":
-			result = _scene_hierarchy_ops.set_node_owner(params)
-		"attach_script":
-			result = _script_lifecycle_ops.attach_script(params)
-		"reload_scripts":
-			result = _script_lifecycle_ops.reload_scripts(params)
-		"get_node_script_info":
-			result = _script_lifecycle_ops.get_node_script_info(params)
-		"configure_camera":
-			result = _camera_rendering_ops.configure_camera(params)
-		"configure_render_settings":
-			result = _camera_rendering_ops.configure_render_settings(params)
-		"capture_viewport":
-			result = _camera_rendering_ops.capture_viewport(params)
-		"simulate_input":
-			result = _input_simulation_ops.simulate_input(params)
-		"draw_debug_shapes":
-			result = _input_simulation_ops.draw_debug_shapes(params)
-		"clear_debug_shapes":
-			result = _input_simulation_ops.clear_debug_shapes(params)
-		"find_elements":
-			result = _e2e_automation_ops.find_elements(params)
-		"interact_node":
-			result = _e2e_automation_ops.interact_node(params)
-		"wait_for_condition":
-			result = _e2e_automation_ops.wait_for_condition(params)
-		"assert_node_state":
-			result = _e2e_automation_ops.assert_node_state(params)
-		"configure_gridmap":
-			result = _gridmap_path_ops.configure_gridmap(params)
-		"create_curve_path":
-			result = _gridmap_path_ops.create_curve_path(params)
-		"audit_orphan_nodes":
-			result = _profiling_diagnostics_ops.audit_orphan_nodes(params)
-		"capture_profiler_trace":
-			result = _profiling_diagnostics_ops.capture_profiler_trace(params)
-		"inspect_vram_usage":
-			result = _profiling_diagnostics_ops.inspect_vram_usage(params)
-		"configure_multiplayer_spawner":
-			result = _multiplayer_ops.configure_multiplayer_spawner(params)
-		"configure_multiplayer_synchronizer":
-			result = _multiplayer_ops.configure_multiplayer_synchronizer(params)
-		"simulate_network_conditions":
-			result = _multiplayer_ops.simulate_network_conditions(params)
-		"scaffold_state_machine":
-			result = _gameplay_scaffolding_ops.scaffold_state_machine(params)
-		"create_dialogue_resource":
-			result = _gameplay_scaffolding_ops.create_dialogue_resource(params)
-		"create_csg_shape":
-			result = _procedural_geometry_ops.create_csg_shape(params)
-		"generate_procedural_mesh":
-			result = _procedural_geometry_ops.generate_procedural_mesh(params)
-		"inspect_skeleton":
-			result = _skeleton_ik_ops.inspect_skeleton(params)
-		"configure_bone_attachment":
-			result = _skeleton_ik_ops.configure_bone_attachment(params)
-		"setup_inverse_kinematics":
-			result = _skeleton_ik_ops.setup_inverse_kinematics(params)
-		"configure_physics_joint":
-			result = _physics_constraints_ops.configure_physics_joint(params)
-		"generate_ragdoll":
-			result = _physics_constraints_ops.generate_ragdoll(params)
-		"configure_lightmap_gi":
-			result = _lightmap_gi_ops.configure_lightmap_gi(params)
-		"bake_lightmaps":
-			result = _lightmap_gi_ops.bake_lightmaps(params)
-		"setup_xr_rig":
-			result = _openxr_ops.setup_xr_rig(params)
-		"configure_xr_passthrough":
-			result = _openxr_ops.configure_xr_passthrough(params)
-		"dispatch_compute_shader":
-			result = _rendering_device_ops.dispatch_compute_shader(params)
-		"inspect_rendering_device":
-			result = _rendering_device_ops.inspect_rendering_device(params)
-		"scatter_multimesh":
-			result = _multimesh_scatter_ops.scatter_multimesh(params)
-		"configure_lod_manager":
-			result = _multimesh_scatter_ops.configure_lod_manager(params)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		_:
-			_send_error(peer, req_id, -32601, "Method not found: %s" % method)
-			return
-
-	_send_result(peer, req_id, result)
-
-func _send_result(peer: WebSocketPeer, req_id: Variant, result_data: Dictionary) -> void:
-	var resp = {
-		"jsonrpc": "2.0",
-		"id": req_id,
-		"result": result_data
+	return {
+		"success": false,
+		"message": "Method '%s' not found on Godot bridge." % method
 	}
-	peer.send_text(JSON.stringify(resp))
-
-func _send_error(peer: WebSocketPeer, req_id: Variant, code: int, message: String) -> void:
-	var resp = {
-		"jsonrpc": "2.0",
-		"id": req_id,
-		"error": {
-			"code": code,
-			"message": message
-		}
-	}
-	peer.send_text(JSON.stringify(resp))

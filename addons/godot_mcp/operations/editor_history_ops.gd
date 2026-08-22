@@ -94,3 +94,10 @@ func redo_action(params: Dictionary) -> Dictionary:
 			"has_redo": ur.has_redo()
 		}
 	}
+
+func undo(params: Dictionary) -> Dictionary:
+	return undo_action(params)
+
+func redo(params: Dictionary) -> Dictionary:
+	return redo_action(params)
+

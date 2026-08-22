@@ -218,3 +218,10 @@ func create_tilemap_layer(params: Dictionary) -> Dictionary:
 			"tile_set_attached": tile_set_path if tile_set_path != "" else None
 		}
 	}
+
+func set_tilemap_cells(params: Dictionary) -> Dictionary:
+	return set_cells(params)
+
+func get_tilemap_cells(params: Dictionary) -> Dictionary:
+	return get_cells(params)
+

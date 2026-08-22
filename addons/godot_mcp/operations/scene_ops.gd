@@ -515,6 +515,10 @@ func create_scene(params: Dictionary) -> Dictionary:
 		"root_type": root_type
 	}
 
+func get_node(params: Dictionary) -> Dictionary:
+	return get_node_info(params)
+
+
 
 
 

@@ -8,7 +8,7 @@ func _init(plugin: Node = null) -> void:
 	_plugin = plugin
 
 
-func get_version() -> Dictionary:
+func get_version(params: Dictionary = {}) -> Dictionary:
 	var v_info = Engine.get_version_info()
 	var active_scene: Variant = null
 	if _plugin and _plugin.has_method("get_editor_interface"):
