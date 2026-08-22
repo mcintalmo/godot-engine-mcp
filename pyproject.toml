@@ -72,3 +72,6 @@ include = ["src", "tests"]
 testpaths = ["tests"]
 pythonpath = ["src", "."]
 asyncio_mode = "auto"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/godot_mcp"]
