@@ -2,15 +2,15 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.gameplay_scaffolding import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.gameplay_scaffolding import (
     CreateDialogueResourceInput,
     DialogueNode,
     DialogueOption,
     ScaffoldStateMachineInput,
 )
-from godot_mcp.tools.gameplay_scaffolding_tools import (
+from godot_engine_mcp.tools.gameplay_scaffolding_tools import (
     handle_create_dialogue_resource,
     handle_scaffold_state_machine,
 )

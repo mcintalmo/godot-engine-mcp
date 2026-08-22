@@ -2,23 +2,23 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.anim_tree import ConfigureAnimationTreeInput
-from godot_mcp.models.localization import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.anim_tree import ConfigureAnimationTreeInput
+from godot_engine_mcp.models.localization import (
     AddTranslationInput,
     GetTranslationsInput,
 )
-from godot_mcp.models.shader import (
+from godot_engine_mcp.models.shader import (
     CreateShaderInput,
     SetShaderParamInput,
 )
-from godot_mcp.tools.anim_tree_tools import handle_configure_animation_tree
-from godot_mcp.tools.localization_tools import (
+from godot_engine_mcp.tools.anim_tree_tools import handle_configure_animation_tree
+from godot_engine_mcp.tools.localization_tools import (
     handle_add_translation,
     handle_get_translations,
 )
-from godot_mcp.tools.shader_tools import (
+from godot_engine_mcp.tools.shader_tools import (
     handle_create_shader,
     handle_set_shader_param,
 )

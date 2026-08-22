@@ -2,24 +2,24 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.autoload import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.autoload import (
     GetAutoloadsInput,
     SetAutoloadInput,
 )
-from godot_mcp.models.runtime_eval import EvaluateExpressionInput
-from godot_mcp.models.signal_wire import (
+from godot_engine_mcp.models.runtime_eval import EvaluateExpressionInput
+from godot_engine_mcp.models.signal_wire import (
     ConnectSignalInput,
     GetNodeSignalsInput,
     GetSignalConnectionsInput,
 )
-from godot_mcp.tools.autoload_tools import (
+from godot_engine_mcp.tools.autoload_tools import (
     handle_get_autoloads,
     handle_set_autoload,
 )
-from godot_mcp.tools.eval_tools import handle_evaluate_expression
-from godot_mcp.tools.signal_tools import (
+from godot_engine_mcp.tools.eval_tools import handle_evaluate_expression
+from godot_engine_mcp.tools.signal_tools import (
     handle_connect_signal,
     handle_get_node_signals,
     handle_get_signal_connections,

@@ -2,22 +2,22 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.plugin_mgr import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.plugin_mgr import (
     GetPluginsInput,
     SetPluginStatusInput,
 )
-from godot_mcp.models.uid_dep import (
+from godot_engine_mcp.models.uid_dep import (
     GetDependenciesInput,
     GetUIDInput,
     ResolveUIDInput,
 )
-from godot_mcp.tools.plugin_tools import (
+from godot_engine_mcp.tools.plugin_tools import (
     handle_get_plugins,
     handle_set_plugin_status,
 )
-from godot_mcp.tools.uid_tools import (
+from godot_engine_mcp.tools.uid_tools import (
     handle_get_dependencies,
     handle_get_uid,
     handle_resolve_uid,

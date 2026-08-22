@@ -2,13 +2,13 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.openxr import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.openxr import (
     ConfigureXRPassthroughInput,
     SetupXRRigInput,
 )
-from godot_mcp.tools.openxr_tools import (
+from godot_engine_mcp.tools.openxr_tools import (
     handle_configure_xr_passthrough,
     handle_setup_xr_rig,
 )

@@ -3,7 +3,7 @@ from typing import Any, cast
 import pytest
 from mcp.types import GetPromptResult, TextContent
 
-from godot_mcp.server import create_server
+from godot_engine_mcp.server import create_server
 from tests.test_tools import MockGodotClient
 
 

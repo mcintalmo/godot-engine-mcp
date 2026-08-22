@@ -4,9 +4,9 @@ import pytest
 from mcp.server import MCPServer
 from mcp.types import CallToolResult
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.server import create_server
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.server import create_server
 
 
 @pytest.mark.asyncio

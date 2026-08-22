@@ -2,16 +2,16 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.play import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.play import (
     GetPlayStateInput,
     PlaySceneInput,
     PlaySceneMode,
     SetPlayStateInput,
     StopSceneInput,
 )
-from godot_mcp.tools.play_tools import (
+from godot_engine_mcp.tools.play_tools import (
     handle_get_play_state,
     handle_play_scene,
     handle_set_play_state,

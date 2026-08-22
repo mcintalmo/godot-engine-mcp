@@ -2,15 +2,15 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.input_simulation import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.input_simulation import (
     ClearDebugShapesInput,
     DebugShape,
     DrawDebugShapesInput,
     SimulateInputInput,
 )
-from godot_mcp.tools.input_simulation_tools import (
+from godot_engine_mcp.tools.input_simulation_tools import (
     handle_clear_debug_shapes,
     handle_draw_debug_shapes,
     handle_simulate_input,

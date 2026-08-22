@@ -2,9 +2,9 @@
 
 import pytest
 
-from godot_mcp.client.live_bridge import LiveBridgeClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.common import EngineMode
+from godot_engine_mcp.client.live_bridge import LiveBridgeClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.common import EngineMode
 
 
 @pytest.mark.asyncio

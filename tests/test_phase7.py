@@ -2,31 +2,31 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.dcc_asset import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.dcc_asset import (
     CollisionGenerationMode,
     ConfigureGLTFImportInput,
     InstantiateModelInput,
 )
-from godot_mcp.models.export_build import (
+from godot_engine_mcp.models.export_build import (
     ExportProjectInput,
     GetExportPresetsInput,
 )
-from godot_mcp.models.particles import (
+from godot_engine_mcp.models.particles import (
     ConfigureParticlesInput,
     ParticleEmissionShape,
     ParticleEngineType,
 )
-from godot_mcp.tools.build_tools import (
+from godot_engine_mcp.tools.build_tools import (
     handle_export_project,
     handle_get_export_presets,
 )
-from godot_mcp.tools.dcc_tools import (
+from godot_engine_mcp.tools.dcc_tools import (
     handle_configure_gltf_import,
     handle_instantiate_model,
 )
-from godot_mcp.tools.particle_tools import handle_configure_particles
+from godot_engine_mcp.tools.particle_tools import handle_configure_particles
 from tests.test_tools import MockGodotClient
 
 

@@ -2,14 +2,14 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.script_lifecycle import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.script_lifecycle import (
     AttachScriptInput,
     GetNodeScriptInfoInput,
     ReloadScriptsInput,
 )
-from godot_mcp.tools.script_lifecycle_tools import (
+from godot_engine_mcp.tools.script_lifecycle_tools import (
     handle_attach_script,
     handle_get_node_script_info,
     handle_reload_scripts,

@@ -5,14 +5,14 @@ from pathlib import Path
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.performance import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.performance import (
     GetPerformanceMetricsInput,
     MetricCategory,
 )
-from godot_mcp.server import create_server
-from godot_mcp.tools.performance_tools import handle_get_performance_metrics
+from godot_engine_mcp.server import create_server
+from godot_engine_mcp.tools.performance_tools import handle_get_performance_metrics
 from tests.test_tools import MockGodotClient
 
 

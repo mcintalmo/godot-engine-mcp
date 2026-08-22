@@ -2,14 +2,14 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.scene_hierarchy import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.scene_hierarchy import (
     DuplicateNodeInput,
     ReparentNodeInput,
     SetNodeOwnerInput,
 )
-from godot_mcp.tools.scene_hierarchy_tools import (
+from godot_engine_mcp.tools.scene_hierarchy_tools import (
     handle_duplicate_node,
     handle_reparent_node,
     handle_set_node_owner,

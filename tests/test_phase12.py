@@ -2,18 +2,18 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.editor_history import RedoInput, UndoInput
-from godot_mcp.models.editor_selection import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.editor_history import RedoInput, UndoInput
+from godot_engine_mcp.models.editor_selection import (
     GetSelectedNodesInput,
     SetSelectedNodesInput,
 )
-from godot_mcp.tools.editor_history_tools import (
+from godot_engine_mcp.tools.editor_history_tools import (
     handle_redo,
     handle_undo,
 )
-from godot_mcp.tools.editor_selection_tools import (
+from godot_engine_mcp.tools.editor_selection_tools import (
     handle_get_selected_nodes,
     handle_set_selected_nodes,
 )

@@ -2,30 +2,30 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.editor_focus import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.editor_focus import (
     FocusNodeInput,
     SetEditorSelectionInput,
 )
-from godot_mcp.models.environment import (
+from godot_engine_mcp.models.environment import (
     BackgroundMode,
     ConfigureEnvironmentInput,
     SkyType,
     TonemapMode,
 )
-from godot_mcp.models.input_map import (
+from godot_engine_mcp.models.input_map import (
     ConfigureInputActionInput,
     GetInputActionsInput,
     InputEventConfig,
     InputEventType,
 )
-from godot_mcp.tools.editor_tools import (
+from godot_engine_mcp.tools.editor_tools import (
     handle_focus_node,
     handle_set_editor_selection,
 )
-from godot_mcp.tools.environment_tools import handle_configure_environment
-from godot_mcp.tools.input_tools import (
+from godot_engine_mcp.tools.environment_tools import handle_configure_environment
+from godot_engine_mcp.tools.input_tools import (
     handle_configure_input_action,
     handle_get_input_actions,
 )

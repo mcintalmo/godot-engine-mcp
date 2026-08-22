@@ -2,14 +2,14 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.camera_rendering import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.camera_rendering import (
     CaptureViewportInput,
     ConfigureCameraInput,
     ConfigureRenderSettingsInput,
 )
-from godot_mcp.tools.camera_rendering_tools import (
+from godot_engine_mcp.tools.camera_rendering_tools import (
     handle_capture_viewport,
     handle_configure_camera,
     handle_configure_render_settings,

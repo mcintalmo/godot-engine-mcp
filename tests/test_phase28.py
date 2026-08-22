@@ -2,13 +2,13 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.lightmap_gi import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.lightmap_gi import (
     BakeLightmapsInput,
     ConfigureLightmapGIInput,
 )
-from godot_mcp.tools.lightmap_gi_tools import (
+from godot_engine_mcp.tools.lightmap_gi_tools import (
     handle_bake_lightmaps,
     handle_configure_lightmap_gi,
 )

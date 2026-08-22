@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from godot_mcp.config import GodotConfig
+from godot_engine_mcp.config import GodotConfig
 
 
 def test_parse_version_string_standard() -> None:

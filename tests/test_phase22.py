@@ -2,14 +2,14 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.profiling_diagnostics import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.profiling_diagnostics import (
     AuditOrphanNodesInput,
     CaptureProfilerTraceInput,
     InspectVRAMUsageInput,
 )
-from godot_mcp.tools.profiling_diagnostics_tools import (
+from godot_engine_mcp.tools.profiling_diagnostics_tools import (
     handle_audit_orphan_nodes,
     handle_capture_profiler_trace,
     handle_inspect_vram_usage,

@@ -2,13 +2,13 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.gut_test import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.gut_test import (
     GenerateGUTTestInput,
     RunGUTTestsInput,
 )
-from godot_mcp.tools.gut_test_tools import (
+from godot_engine_mcp.tools.gut_test_tools import (
     handle_generate_gut_test,
     handle_run_gut_tests,
 )

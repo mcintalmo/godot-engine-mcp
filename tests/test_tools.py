@@ -4,26 +4,26 @@ from typing import Any
 
 import pytest
 
-from godot_mcp.client.base import GodotClient
-from godot_mcp.models.common import EngineMode, ResponseFormat, StandardResult
-from godot_mcp.models.debug import (
+from godot_engine_mcp.client.base import GodotClient
+from godot_engine_mcp.models.common import EngineMode, ResponseFormat, StandardResult
+from godot_engine_mcp.models.debug import (
     RunProjectInput,
     RunTestsInput,
     TakeScreenshotInput,
 )
-from godot_mcp.models.material import CreateMaterialInput, MaterialType
-from godot_mcp.models.project import (
+from godot_engine_mcp.models.material import CreateMaterialInput, MaterialType
+from godot_engine_mcp.models.project import (
     GetProjectSettingsInput,
     GetVersionInput,
     ListProjectFilesInput,
     SetProjectSettingInput,
 )
-from godot_mcp.models.reflection import (
+from godot_engine_mcp.models.reflection import (
     GetClassInfoInput,
     GetDocumentationInput,
     ValidateShaderInput,
 )
-from godot_mcp.models.scene import (
+from godot_engine_mcp.models.scene import (
     CreateNodeInput,
     CreateSceneInput,
     DeleteNodeInput,
@@ -34,29 +34,29 @@ from godot_mcp.models.scene import (
     OpenSceneInput,
     SaveSceneInput,
 )
-from godot_mcp.models.script import (
+from godot_engine_mcp.models.script import (
     CreateScriptInput,
     ValidateScriptInput,
 )
-from godot_mcp.models.signal_wire import ConnectSignalInput
-from godot_mcp.tools.debug_tools import (
+from godot_engine_mcp.models.signal_wire import ConnectSignalInput
+from godot_engine_mcp.tools.debug_tools import (
     handle_run_project,
     handle_run_tests,
     handle_take_screenshot,
 )
-from godot_mcp.tools.material_tools import handle_create_material
-from godot_mcp.tools.project_tools import (
+from godot_engine_mcp.tools.material_tools import handle_create_material
+from godot_engine_mcp.tools.project_tools import (
     handle_get_project_settings,
     handle_get_version,
     handle_list_project_files,
     handle_set_project_setting,
 )
-from godot_mcp.tools.reflection_tools import (
+from godot_engine_mcp.tools.reflection_tools import (
     handle_get_class_info,
     handle_get_documentation,
     handle_validate_shader,
 )
-from godot_mcp.tools.scene_tools import (
+from godot_engine_mcp.tools.scene_tools import (
     handle_create_node,
     handle_create_scene,
     handle_delete_node,
@@ -67,11 +67,11 @@ from godot_mcp.tools.scene_tools import (
     handle_open_scene,
     handle_save_scene,
 )
-from godot_mcp.tools.script_tools import (
+from godot_engine_mcp.tools.script_tools import (
     handle_create_script,
     handle_validate_script,
 )
-from godot_mcp.tools.signal_tools import handle_connect_signal
+from godot_engine_mcp.tools.signal_tools import handle_connect_signal
 
 
 class MockGodotClient(GodotClient):

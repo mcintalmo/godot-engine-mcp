@@ -2,13 +2,13 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.multimesh_scatter import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.multimesh_scatter import (
     ConfigureLODManagerInput,
     ScatterMultiMeshInput,
 )
-from godot_mcp.tools.multimesh_scatter_tools import (
+from godot_engine_mcp.tools.multimesh_scatter_tools import (
     handle_configure_lod_manager,
     handle_scatter_multimesh,
 )

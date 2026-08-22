@@ -4,15 +4,15 @@ from pathlib import Path
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.asset import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.asset import (
     CreateCollisionPolygonInput,
     ImportPreset,
     PolygonType,
     ReimportAssetInput,
 )
-from godot_mcp.tools.asset_tools import (
+from godot_engine_mcp.tools.asset_tools import (
     handle_create_collision_polygon,
     handle_reimport_asset,
 )

@@ -2,16 +2,16 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.physics import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.physics import (
     CastRay3DInput,
     CastShape3DInput,
     GetBodyPhysicsState3DInput,
     SetPhysicsDebugModeInput,
     ShapeType,
 )
-from godot_mcp.tools.physics_tools import (
+from godot_engine_mcp.tools.physics_tools import (
     handle_cast_ray_3d,
     handle_cast_shape_3d,
     handle_get_body_physics_state_3d,

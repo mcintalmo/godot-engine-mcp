@@ -2,14 +2,18 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.nav_obstacle import ConfigureNavigationObstacleInput
-from godot_mcp.models.scene_diff import DiffSceneInput
-from godot_mcp.models.tileset_terrain import ConfigureTileSetTerrainInput
-from godot_mcp.tools.nav_obstacle_tools import handle_configure_navigation_obstacle
-from godot_mcp.tools.scene_diff_tools import handle_diff_scene
-from godot_mcp.tools.tileset_terrain_tools import handle_configure_tileset_terrain
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.nav_obstacle import ConfigureNavigationObstacleInput
+from godot_engine_mcp.models.scene_diff import DiffSceneInput
+from godot_engine_mcp.models.tileset_terrain import ConfigureTileSetTerrainInput
+from godot_engine_mcp.tools.nav_obstacle_tools import (
+    handle_configure_navigation_obstacle,
+)
+from godot_engine_mcp.tools.scene_diff_tools import handle_diff_scene
+from godot_engine_mcp.tools.tileset_terrain_tools import (
+    handle_configure_tileset_terrain,
+)
 from tests.test_tools import MockGodotClient
 
 

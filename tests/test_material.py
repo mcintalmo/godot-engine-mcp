@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.material import CreateMaterialInput, MaterialType
-from godot_mcp.tools.material_tools import handle_create_material
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.material import CreateMaterialInput, MaterialType
+from godot_engine_mcp.tools.material_tools import handle_create_material
 
 
 @pytest.mark.asyncio

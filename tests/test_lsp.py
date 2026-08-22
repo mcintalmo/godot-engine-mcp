@@ -4,14 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from godot_mcp.client.lsp_client import GodotLSPClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.lsp import (
+from godot_engine_mcp.client.lsp_client import GodotLSPClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.lsp import (
     LSPQueryInput,
     LSPQueryType,
     LSPRenameInput,
 )
-from godot_mcp.tools.lsp_tools import (
+from godot_engine_mcp.tools.lsp_tools import (
     handle_lsp_query,
     handle_lsp_rename,
 )

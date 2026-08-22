@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from godot_mcp.config import GodotConfig
+from godot_engine_mcp.config import GodotConfig
 
 
 @pytest.fixture

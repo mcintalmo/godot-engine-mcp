@@ -2,14 +2,14 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.skeleton_ik import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.skeleton_ik import (
     ConfigureBoneAttachmentInput,
     InspectSkeletonInput,
     SetupInverseKinematicsInput,
 )
-from godot_mcp.tools.skeleton_ik_tools import (
+from godot_engine_mcp.tools.skeleton_ik_tools import (
     handle_configure_bone_attachment,
     handle_inspect_skeleton,
     handle_setup_inverse_kinematics,

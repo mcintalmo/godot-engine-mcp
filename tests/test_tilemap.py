@@ -2,15 +2,15 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.tilemap import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.tilemap import (
     CreateTileMapLayerInput,
     GetTileMapCellsInput,
     SetTileMapCellsInput,
     TileCell,
 )
-from godot_mcp.tools.tilemap_tools import (
+from godot_engine_mcp.tools.tilemap_tools import (
     handle_create_tilemap_layer,
     handle_get_tilemap_cells,
     handle_set_tilemap_cells,

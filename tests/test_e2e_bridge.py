@@ -9,9 +9,9 @@ from mcp.types import CallToolResult
 from websockets.asyncio.server import ServerConnection, serve
 from websockets.exceptions import ConnectionClosed
 
-from godot_mcp.client.manager import ClientManager
-from godot_mcp.config import GodotConfig
-from godot_mcp.server import create_server
+from godot_engine_mcp.client.manager import ClientManager
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.server import create_server
 
 
 class MockGodotEditorBridgeServer:

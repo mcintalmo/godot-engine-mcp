@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from godot_mcp.cli import app
+from godot_engine_mcp.cli import app
 
 runner = CliRunner()
 

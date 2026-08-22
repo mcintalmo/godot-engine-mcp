@@ -3,13 +3,13 @@
 import pytest
 from pydantic import ValidationError
 
-from godot_mcp.models.common import EngineMode, ResponseFormat, StandardResult
-from godot_mcp.models.scene import (
+from godot_engine_mcp.models.common import EngineMode, ResponseFormat, StandardResult
+from godot_engine_mcp.models.scene import (
     ConnectSignalInput,
     CreateNodeInput,
     ModifyNodeInput,
 )
-from godot_mcp.tools.formatters import format_result
+from godot_engine_mcp.tools.formatters import format_result
 
 
 def test_create_node_input_validation() -> None:

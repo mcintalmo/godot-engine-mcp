@@ -2,15 +2,15 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.gridmap_path import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.gridmap_path import (
     ConfigureGridMapInput,
     CreateCurvePathInput,
     CurvePoint,
     GridMapCell,
 )
-from godot_mcp.tools.gridmap_path_tools import (
+from godot_engine_mcp.tools.gridmap_path_tools import (
     handle_configure_gridmap,
     handle_create_curve_path,
 )

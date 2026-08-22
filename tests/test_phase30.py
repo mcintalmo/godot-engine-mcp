@@ -2,14 +2,14 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.rendering_device import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.rendering_device import (
     BufferBinding,
     DispatchComputeShaderInput,
     InspectRenderingDeviceInput,
 )
-from godot_mcp.tools.rendering_device_tools import (
+from godot_engine_mcp.tools.rendering_device_tools import (
     handle_dispatch_compute_shader,
     handle_inspect_rendering_device,
 )

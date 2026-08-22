@@ -2,15 +2,15 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.multiplayer import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.multiplayer import (
     ConfigureMultiplayerSpawnerInput,
     ConfigureMultiplayerSynchronizerInput,
     ReplicationPropertyConfig,
     SimulateNetworkConditionsInput,
 )
-from godot_mcp.tools.multiplayer_tools import (
+from godot_engine_mcp.tools.multiplayer_tools import (
     handle_configure_multiplayer_spawner,
     handle_configure_multiplayer_synchronizer,
     handle_simulate_network_conditions,

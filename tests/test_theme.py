@@ -4,15 +4,15 @@ from pathlib import Path
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.theme import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.theme import (
     ApplyThemeOverrideInput,
     CreateThemeInput,
     StyleBoxFlatConfig,
     ThemeOverrideType,
 )
-from godot_mcp.tools.theme_tools import (
+from godot_engine_mcp.tools.theme_tools import (
     handle_apply_theme_override,
     handle_create_theme,
 )

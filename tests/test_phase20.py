@@ -2,15 +2,15 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.e2e_automation import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.e2e_automation import (
     AssertNodeStateInput,
     FindElementsInput,
     InteractNodeInput,
     WaitForConditionInput,
 )
-from godot_mcp.tools.e2e_automation_tools import (
+from godot_engine_mcp.tools.e2e_automation_tools import (
     handle_assert_node_state,
     handle_find_elements,
     handle_interact_node,

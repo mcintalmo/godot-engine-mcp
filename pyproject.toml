@@ -41,8 +41,8 @@ Repository = "https://github.com/mcintalmo/godot-engine-mcp"
 Issues = "https://github.com/mcintalmo/godot-engine-mcp/issues"
 
 [project.scripts]
-godot-engine-mcp = "godot_mcp.cli:app"
-godot-mcp = "godot_mcp.cli:app"
+godot-engine-mcp = "godot_engine_mcp.cli:app"
+godot-mcp = "godot_engine_mcp.cli:app"
 
 [build-system]
 requires = ["hatchling"]
@@ -74,4 +74,4 @@ pythonpath = ["src", "."]
 asyncio_mode = "auto"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/godot_mcp"]
+packages = ["src/godot_engine_mcp"]

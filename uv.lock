@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.14"
 
 [options]
-exclude-newer = "2026-08-15T05:54:50.14129Z"
+exclude-newer = "2026-08-15T16:31:31.120274Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -496,7 +496,7 @@ wheels = [
 ]
 
 [[package]]
-name = "godot-mcp"
+name = "godot-engine-mcp"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

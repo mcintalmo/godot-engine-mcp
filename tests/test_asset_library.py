@@ -8,17 +8,17 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from godot_mcp.client.asset_library_service import GodotAssetLibraryService
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.asset_library import (
+from godot_engine_mcp.client.asset_library_service import GodotAssetLibraryService
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.asset_library import (
     AssetSort,
     GetAssetDetailsInput,
     InstallAssetPackageInput,
     SearchAssetLibraryInput,
 )
-from godot_mcp.models.common import ResponseFormat
-from godot_mcp.tools.asset_library_tools import (
+from godot_engine_mcp.models.common import ResponseFormat
+from godot_engine_mcp.tools.asset_library_tools import (
     handle_get_asset_details,
     handle_install_asset_package,
     handle_search_asset_library,
@@ -197,7 +197,7 @@ async def test_headless_client_asset_library() -> None:
 
     # Search with mocked network
     with patch(
-        "godot_mcp.client.asset_library_service.GodotAssetLibraryService.search_assets"
+        "godot_engine_mcp.client.asset_library_service.GodotAssetLibraryService.search_assets"
     ) as mock_search:
         mock_search.return_value = {
             "query": "jolt",

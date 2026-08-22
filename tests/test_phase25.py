@@ -2,13 +2,13 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.procedural_geometry import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.procedural_geometry import (
     CreateCSGShapeInput,
     GenerateProceduralMeshInput,
 )
-from godot_mcp.tools.procedural_geometry_tools import (
+from godot_engine_mcp.tools.procedural_geometry_tools import (
     handle_create_csg_shape,
     handle_generate_procedural_mesh,
 )

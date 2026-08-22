@@ -4,14 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.navigation import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.navigation import (
     BakeNavMeshInput,
     CreateNavigationRegionInput,
     NavDimension,
 )
-from godot_mcp.tools.navigation_tools import (
+from godot_engine_mcp.tools.navigation_tools import (
     handle_bake_navmesh,
     handle_create_navigation_region,
 )

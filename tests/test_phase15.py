@@ -2,13 +2,13 @@
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.editor_layout import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.editor_layout import (
     GetEditorLayoutInput,
     SetEditorLayoutInput,
 )
-from godot_mcp.tools.editor_layout_tools import (
+from godot_engine_mcp.tools.editor_layout_tools import (
     handle_get_editor_layout,
     handle_set_editor_layout,
 )

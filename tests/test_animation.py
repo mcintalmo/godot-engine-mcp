@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from godot_mcp.client.headless_cli import HeadlessCLIClient
-from godot_mcp.config import GodotConfig
-from godot_mcp.models.animation import (
+from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+from godot_engine_mcp.config import GodotConfig
+from godot_engine_mcp.models.animation import (
     CreateAnimationInput,
     InterpolationType,
     KeyframeData,
@@ -14,7 +14,7 @@ from godot_mcp.models.animation import (
     TrackData,
     TrackType,
 )
-from godot_mcp.tools.animation_tools import handle_create_animation
+from godot_engine_mcp.tools.animation_tools import handle_create_animation
 from tests.test_tools import MockGodotClient
 
 
