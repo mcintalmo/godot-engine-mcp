@@ -2476,6 +2476,66 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def audit_orphan_nodes(
+        self,
+        print_orphans_to_stdout: bool = False,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Orphan node audit: 0 orphan nodes detected (HEALTHY).",
+            mode=self.mode,
+            data={
+                "orphan_node_count": 0,
+                "active_node_count": 42,
+                "total_object_count": 128,
+                "total_resource_count": 56,
+                "leak_status": "HEALTHY",
+                "printed_to_stdout": print_orphans_to_stdout,
+            },
+        )
+
+    async def capture_profiler_trace(
+        self,
+        frames_to_sample: int = 10,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Captured profiler trace across {frames_to_sample} frames: 16.67 ms/frame (60.0 FPS).",
+            mode=self.mode,
+            data={
+                "frames_sampled": frames_to_sample,
+                "fps": 60.0,
+                "process_time_ms": 4.25,
+                "physics_time_ms": 2.15,
+                "navigation_time_ms": 0.35,
+                "total_frame_ms": 6.75,
+                "draw_calls": 35,
+                "primitives_count": 12500,
+                "objects_in_frame": 85,
+                "memory_static_bytes": 35000000,
+                "memory_static_mb": 33.37,
+                "memory_static_max_mb": 42.15,
+            },
+        )
+
+    async def inspect_vram_usage(
+        self,
+        detailed: bool = True,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message="Inspected GPU VRAM usage: 128.50 MB total (Texture: 85.20 MB, Buffer: 43.30 MB).",
+            mode=self.mode,
+            data={
+                "texture_memory_bytes": 89338675,
+                "texture_memory_mb": 85.20,
+                "buffer_memory_bytes": 45403340,
+                "buffer_memory_mb": 43.30,
+                "total_vram_bytes": 134742015,
+                "total_vram_mb": 128.50,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

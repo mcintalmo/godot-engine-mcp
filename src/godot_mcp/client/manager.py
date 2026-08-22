@@ -1473,3 +1473,30 @@ class ClientManager(GodotClient):
             add_path_follow=add_path_follow,
             path_follow_name=path_follow_name,
         )
+
+    async def audit_orphan_nodes(
+        self,
+        print_orphans_to_stdout: bool = False,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.audit_orphan_nodes(
+            print_orphans_to_stdout=print_orphans_to_stdout,
+        )
+
+    async def capture_profiler_trace(
+        self,
+        frames_to_sample: int = 10,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.capture_profiler_trace(
+            frames_to_sample=frames_to_sample,
+        )
+
+    async def inspect_vram_usage(
+        self,
+        detailed: bool = True,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.inspect_vram_usage(
+            detailed=detailed,
+        )

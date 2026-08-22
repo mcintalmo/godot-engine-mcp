@@ -46,6 +46,7 @@ const CameraRenderingOps = preload("res://addons/godot_mcp/operations/camera_ren
 const InputSimulationOps = preload("res://addons/godot_mcp/operations/input_simulation_ops.gd")
 const E2EAutomationOps = preload("res://addons/godot_mcp/operations/e2e_automation_ops.gd")
 const GridMapPathOps = preload("res://addons/godot_mcp/operations/gridmap_path_ops.gd")
+const ProfilingDiagnosticsOps = preload("res://addons/godot_mcp/operations/profiling_diagnostics_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -93,6 +94,7 @@ var _camera_rendering_ops: RefCounted
 var _input_simulation_ops: RefCounted
 var _e2e_automation_ops: RefCounted
 var _gridmap_path_ops: RefCounted
+var _profiling_diagnostics_ops: RefCounted
 
 var _port: int = PORT
 
@@ -141,6 +143,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_input_simulation_ops = InputSimulationOps.new(_plugin)
 	_e2e_automation_ops = E2EAutomationOps.new(_plugin)
 	_gridmap_path_ops = GridMapPathOps.new(_plugin)
+	_profiling_diagnostics_ops = ProfilingDiagnosticsOps.new(_plugin)
+
 
 
 
@@ -435,6 +439,13 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _gridmap_path_ops.configure_gridmap(params)
 		"create_curve_path":
 			result = _gridmap_path_ops.create_curve_path(params)
+		"audit_orphan_nodes":
+			result = _profiling_diagnostics_ops.audit_orphan_nodes(params)
+		"capture_profiler_trace":
+			result = _profiling_diagnostics_ops.capture_profiler_trace(params)
+		"inspect_vram_usage":
+			result = _profiling_diagnostics_ops.inspect_vram_usage(params)
+
 
 
 

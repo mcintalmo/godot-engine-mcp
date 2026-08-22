@@ -1167,6 +1167,62 @@ def format_result(
                 f"- **Attached PathFollow Node**: `{result.data.get('has_path_follow')}`"
             )
 
+        elif "orphan_node_count" in result.data and "leak_status" in result.data:
+            status = result.data.get("leak_status", "UNKNOWN")
+            lines.append(f"**Orphan Node Memory Leak Audit [{status}]**\n")
+            lines.append(
+                f"- **Orphan Nodes**: `{result.data.get('orphan_node_count', 0)}`"
+            )
+            lines.append(
+                f"- **Active Tree Nodes**: `{result.data.get('active_node_count', 0)}`"
+            )
+            lines.append(
+                f"- **Total Objects in Memory**: `{result.data.get('total_object_count', 0)}`"
+            )
+            lines.append(
+                f"- **Total Resources**: `{result.data.get('total_resource_count', 0)}`"
+            )
+
+        elif (
+            "frames_sampled" in result.data
+            and "fps" in result.data
+            and "total_frame_ms" in result.data
+        ):
+            lines.append(
+                f"**Performance Profiler Trace** ({result.data.get('frames_sampled')} frames sampled)\n"
+            )
+            lines.append(
+                f"- **Framerate**: `{result.data.get('fps', 0.0):.1f} FPS` (`{result.data.get('total_frame_ms', 0.0):.2f} ms/frame`)"
+            )
+            lines.append(
+                f"- **Process Loop**: `{result.data.get('process_time_ms', 0.0):.2f} ms`"
+            )
+            lines.append(
+                f"- **Physics Loop**: `{result.data.get('physics_time_ms', 0.0):.2f} ms`"
+            )
+            lines.append(
+                f"- **Navigation Loop**: `{result.data.get('navigation_time_ms', 0.0):.2f} ms`"
+            )
+            lines.append(f"- **Draw Calls**: `{result.data.get('draw_calls', 0)}`")
+            lines.append(
+                f"- **Primitives Rendered**: `{result.data.get('primitives_count', 0)}`"
+            )
+            lines.append(
+                f"- **Static Memory**: `{result.data.get('memory_static_mb', 0.0):.2f} MB` (Peak: `{result.data.get('memory_static_max_mb', 0.0):.2f} MB`)"
+            )
+
+        elif "texture_memory_mb" in result.data and "total_vram_mb" in result.data:
+            lines.append("**GPU VRAM Memory Telemetry**\n")
+            lines.append(
+                f"- **Total VRAM Allocated**: `{result.data.get('total_vram_mb', 0.0):.2f} MB`"
+            )
+            lines.append(
+                f"- **Texture Memory**: `{result.data.get('texture_memory_mb', 0.0):.2f} MB`"
+            )
+            lines.append(
+                f"- **Buffer & Vertex Memory**: `{result.data.get('buffer_memory_mb', 0.0):.2f} MB`"
+            )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

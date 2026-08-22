@@ -130,6 +130,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **3D Voxel GridMap Engine (`godot_configure_gridmap`)**: Batch placement, clearing, mesh library assignment, cell sizing, orientations, and collision layer setup.
 - [x] **Procedural Bezier Curve Geometry (`godot_create_curve_path`)**: Create 2D/3D bezier curves (Path2D/Path3D) with tangent handles, tilt angles, closed loop paths, and automatic child PathFollow attachments.
 
+### Phase 22: Deep Profiling & Memory Leak Diagnostics
+- [x] **Orphan Node Leak Detection (`godot_audit_orphan_nodes`)**: Deep inspection of unparented orphan nodes in memory (`Performance.RENDER_ORPHAN_NODES_IN_OBJECTS`) and active object lifecycle metrics.
+- [x] **Multi-Frame Performance Profiler Trace (`godot_capture_profiler_trace`)**: Sampling engine measuring CPU process, physics process, navigation, draw calls, and memory telemetry.
+- [x] **GPU VRAM Allocation Analyzer (`godot_inspect_vram_usage`)**: Video memory analyzer detailing texture memory, buffer memory, and active GPU budgets via `RenderingServer`.
+
+
 
 
 

@@ -118,6 +118,11 @@ from godot_mcp.models.plugin_mgr import (
     GetPluginsInput,
     SetPluginStatusInput,
 )
+from godot_mcp.models.profiling_diagnostics import (
+    AuditOrphanNodesInput,
+    CaptureProfilerTraceInput,
+    InspectVRAMUsageInput,
+)
 from godot_mcp.models.project import (
     GetProjectSettingsInput,
     GetVersionInput,
@@ -292,6 +297,11 @@ from godot_mcp.tools.play_tools import (
 from godot_mcp.tools.plugin_tools import (
     handle_get_plugins,
     handle_set_plugin_status,
+)
+from godot_mcp.tools.profiling_diagnostics_tools import (
+    handle_audit_orphan_nodes,
+    handle_capture_profiler_trace,
+    handle_inspect_vram_usage,
 )
 from godot_mcp.tools.project_tools import (
     handle_get_project_settings,
@@ -1842,6 +1852,48 @@ def create_server(
     async def create_curve_path(params: CreateCurvePathInput) -> str:
         """Create 2D or 3D Bezier curve paths (Path2D/Path3D) with handles, tilt, and PathFollow attachment."""
         return await handle_create_curve_path(active_client, params)
+
+    @server.tool(
+        name="godot_audit_orphan_nodes",
+        annotations=ToolAnnotations(
+            title="Audit Orphan Nodes",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def audit_orphan_nodes(params: AuditOrphanNodesInput) -> str:
+        """Audit unparented orphan nodes in engine memory to detect leaks."""
+        return await handle_audit_orphan_nodes(active_client, params)
+
+    @server.tool(
+        name="godot_capture_profiler_trace",
+        annotations=ToolAnnotations(
+            title="Capture Profiler Trace",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def capture_profiler_trace(params: CaptureProfilerTraceInput) -> str:
+        """Sample multi-frame CPU/GPU execution times, draw calls, and memory telemetry."""
+        return await handle_capture_profiler_trace(active_client, params)
+
+    @server.tool(
+        name="godot_inspect_vram_usage",
+        annotations=ToolAnnotations(
+            title="Inspect VRAM Usage",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def inspect_vram_usage(params: InspectVRAMUsageInput) -> str:
+        """Inspect GPU video memory allocation breakdowns across textures and buffers."""
+        return await handle_inspect_vram_usage(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

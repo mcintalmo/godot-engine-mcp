@@ -1141,3 +1141,27 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Create 2D or 3D Bezier curve paths and attach PathFollow nodes."""
         ...
+
+    @abstractmethod
+    async def audit_orphan_nodes(
+        self,
+        print_orphans_to_stdout: bool = False,
+    ) -> StandardResult:
+        """Audit unparented orphan nodes in engine memory to detect leaks."""
+        ...
+
+    @abstractmethod
+    async def capture_profiler_trace(
+        self,
+        frames_to_sample: int = 10,
+    ) -> StandardResult:
+        """Sample multi-frame CPU/GPU execution times and draw metrics."""
+        ...
+
+    @abstractmethod
+    async def inspect_vram_usage(
+        self,
+        detailed: bool = True,
+    ) -> StandardResult:
+        """Inspect GPU video memory allocation breakdowns."""
+        ...
