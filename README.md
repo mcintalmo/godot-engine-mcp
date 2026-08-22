@@ -54,6 +54,7 @@ Godot MCP operates across three complementary layers:
 All tools adhere to MCP best practices, providing clear docstrings, Pydantic v2 validation, dual formatting (`markdown` and `json`), and explicit tool annotations (`read_only_hint`, `destructive_hint`, `idempotent_hint`, `open_world_hint`).
 
 ### Project & Version Management
+
 - `godot_get_version`: Probes engine version, build type, active project, and connection mode.
 - `godot_get_project_settings`: Queries configuration settings from `project.godot`.
 - `godot_set_project_setting`: Writes or updates configuration values in `project.godot`.
@@ -71,6 +72,7 @@ All tools adhere to MCP best practices, providing clear docstrings, Pydantic v2 
 - `godot_export_project`: Triggers automated headless project builds via Godot CLI.
 
 ### Scene Graph, Nodes & Hierarchy Mutation
+
 - `godot_list_nodes`: Traverses the active scene tree with configurable depth and property filtering.
 - `godot_get_node`: Inspects node properties, attached scripts, transforms, groups, and signals.
 - `godot_create_node`: Adds a node of any Godot class with initial properties and script binding.
@@ -89,6 +91,7 @@ All tools adhere to MCP best practices, providing clear docstrings, Pydantic v2 
 - `godot_diff_scene`: Compares two scene files (`.tscn`) and generates structural diffs.
 
 ### Scripting, Reflection & Semantic LSP
+
 - `godot_validate_script`: Checks GDScript code or files for syntax errors and compilation diagnostics.
 - `godot_create_script`: Generates GDScript files with template code and class inheritance.
 - `godot_attach_script`: Attaches or detaches a GDScript to/from an active node.
@@ -101,6 +104,7 @@ All tools adhere to MCP best practices, providing clear docstrings, Pydantic v2 
 - `godot_lsp_rename`: Performs cross-file semantic symbol renaming.
 
 ### 3D Physics, Collisions, Skeletons & Constraints
+
 - `godot_cast_ray_3d`: Performs 3D raycast queries against `PhysicsDirectSpaceState3D`.
 - `godot_cast_shape_3d`: Performs 3D shapecasts (sweep tests) in physics space.
 - `godot_get_body_physics_state_3d`: Inspects transform, linear/angular velocity, and contact telemetry.
@@ -113,6 +117,7 @@ All tools adhere to MCP best practices, providing clear docstrings, Pydantic v2 
 - `godot_generate_ragdoll`: Automatically constructs `PhysicalBone3D` hierarchies from `Skeleton3D`.
 
 ### Materials, VFX & Spatial Rendering
+
 - `godot_validate_shader`: Compiles and checks Godot Shader Language code for errors.
 - `godot_create_material`: Instantiates `StandardMaterial3D`, `ORMMaterial3D`, or `ShaderMaterial`.
 - `godot_create_shader`: Generates custom shaders (`.gdshader`) with starter boilerplate.
@@ -132,6 +137,7 @@ All tools adhere to MCP best practices, providing clear docstrings, Pydantic v2 
 - `godot_configure_lod_manager`: Configures visibility ranges, distance thresholds, and cross-fade modes.
 
 ### World Building, TileMaps, GridMaps & Navigation
+
 - `godot_create_tilemap_layer`: Adds a `TileMapLayer` node with `TileSet` binding.
 - `godot_set_tilemap_cells`: Places or clears tiles on a `TileMapLayer` coordinate grid.
 - `godot_get_tilemap_cells`: Reads placed cell coordinates and atlas coordinates from `TileMapLayer`.
@@ -143,6 +149,7 @@ All tools adhere to MCP best practices, providing clear docstrings, Pydantic v2 
 - `godot_create_curve_path`: Constructs `Path2D` or `Path3D` curves with control points.
 
 ### UI Automation & E2E Testing ("Playwright for Godot")
+
 - `godot_find_elements`: Locates UI elements by text, name, class, group, or accessibility role.
 - `godot_interact_node`: Performs `click`, `type_text`, `drag_to`, or `scroll` on a located node.
 - `godot_wait_for_condition`: Auto-waits for node appearance, property thresholds, or signal emissions.
@@ -152,6 +159,7 @@ All tools adhere to MCP best practices, providing clear docstrings, Pydantic v2 
 - `godot_clear_debug_shapes`: Removes all active runtime debug drawing shapes.
 
 ### Audio, Diagnostics & Profiling
+
 - `godot_configure_audio_bus`: Adds, renames, mutes, solos, or routes `AudioServer` buses.
 - `godot_set_bus_effect`: Adds or adjusts real-time audio effects on an audio bus.
 - `godot_get_audio_layout`: Queries complete `AudioServer` bus hierarchy and effect chains.
@@ -164,6 +172,7 @@ All tools adhere to MCP best practices, providing clear docstrings, Pydantic v2 
 - `godot_get_texture_info`: Queries dimensions, format, VRAM compression, and mipmaps.
 
 ### Gameplay Scaffolding & Testing
+
 - `godot_scaffold_state_machine`: Constructs modular hierarchical finite state machine nodes.
 - `godot_create_dialogue_resource`: Generates branching dialogue JSON / Resource files.
 - `godot_create_csg_shape`: Constructs Constructive Solid Geometry (`CSGBox`, `CSGSphere`, etc.).
@@ -181,7 +190,7 @@ All tools adhere to MCP best practices, providing clear docstrings, Pydantic v2 
 Godot MCP provides dynamic, self-updating URI resources for live AI context:
 
 | Resource URI | Description |
-|---|---|
+| --- | --- |
 | `godot://project/settings` | Complete `project.godot` configuration key-value dictionary JSON. |
 | `godot://scene/active/tree` | Live scene tree hierarchy of the active editor scene. |
 | `godot://performance/metrics` | Real-time performance telemetry (FPS, process times, VRAM, draw calls). |
@@ -211,6 +220,7 @@ Pre-engineered guided workflows for common game development tasks:
 ## Quick Start
 
 ### 1. Requirements
+
 - Python 3.14+ managed with `uv`
 - Godot Engine 4.7+ (or 4.7.1+)
 
@@ -240,6 +250,7 @@ uv run godot-mcp probe
 ## Client Configuration
 
 ### Claude Desktop
+
 Add to `claude_desktop_config.json`:
 
 ```json
@@ -263,6 +274,7 @@ Add to `claude_desktop_config.json`:
 ```
 
 ### Cursor / Windsurf
+
 Add to `.cursor/mcp.json` or `~/.codeium/windsurf/mcp_config.json`:
 
 ```json
@@ -282,6 +294,7 @@ Add to `.cursor/mcp.json` or `~/.codeium/windsurf/mcp_config.json`:
 ```
 
 ### Gemini Antigravity IDE
+
 Add to `.gemini/antigravity-ide/mcp_config.json`:
 
 ```json
