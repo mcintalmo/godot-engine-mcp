@@ -1065,3 +1065,50 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Clear active debug shapes from viewport overlays."""
         ...
+
+    @abstractmethod
+    async def find_elements(
+        self,
+        selector_type: str = "text",
+        query: str = "",
+        root_path: str | None = None,
+        max_results: int = 50,
+    ) -> StandardResult:
+        """Find elements in the scene hierarchy matching selector queries."""
+        ...
+
+    @abstractmethod
+    async def interact_node(
+        self,
+        node_path: str,
+        action: str = "click",
+        text: str | None = None,
+        clear_before_type: bool = True,
+        drag_to_position: list[float] | None = None,
+        scroll_delta: list[float] | None = None,
+    ) -> StandardResult:
+        """Execute high-level Playwright-like interaction primitives on scene nodes."""
+        ...
+
+    @abstractmethod
+    async def wait_for_condition(
+        self,
+        condition_type: str = "node_exists",
+        node_path: str | None = None,
+        property_name: str | None = None,
+        expected_value: Any = None,
+        expression: str | None = None,
+        timeout_ms: int = 5000,
+        poll_interval_ms: int = 100,
+    ) -> StandardResult:
+        """Wait for runtime state conditions or expressions to evaluate to true."""
+        ...
+
+    @abstractmethod
+    async def assert_node_state(
+        self,
+        node_path: str,
+        assertions: dict[str, Any],
+    ) -> StandardResult:
+        """Assert multiple expected properties and states against a scene node."""
+        ...

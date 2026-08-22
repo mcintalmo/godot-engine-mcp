@@ -1621,3 +1621,77 @@ class LiveBridgeClient(GodotClient):
             "clear_debug_shapes",
             {"category": category or ""},
         )
+
+    async def find_elements(
+        self,
+        selector_type: str = "text",
+        query: str = "",
+        root_path: str | None = None,
+        max_results: int = 50,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "find_elements",
+            {
+                "selector_type": selector_type,
+                "query": query,
+                "root_path": root_path or "",
+                "max_results": max_results,
+            },
+        )
+
+    async def interact_node(
+        self,
+        node_path: str,
+        action: str = "click",
+        text: str | None = None,
+        clear_before_type: bool = True,
+        drag_to_position: list[float] | None = None,
+        scroll_delta: list[float] | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "interact_node",
+            {
+                "node_path": node_path,
+                "action": action,
+                "text": text or "",
+                "clear_before_type": clear_before_type,
+                "drag_to_position": drag_to_position or [],
+                "scroll_delta": scroll_delta or [],
+            },
+        )
+
+    async def wait_for_condition(
+        self,
+        condition_type: str = "node_exists",
+        node_path: str | None = None,
+        property_name: str | None = None,
+        expected_value: Any = None,
+        expression: str | None = None,
+        timeout_ms: int = 5000,
+        poll_interval_ms: int = 100,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "wait_for_condition",
+            {
+                "condition_type": condition_type,
+                "node_path": node_path or "",
+                "property_name": property_name or "",
+                "expected_value": expected_value,
+                "expression": expression or "",
+                "timeout_ms": timeout_ms,
+                "poll_interval_ms": poll_interval_ms,
+            },
+        )
+
+    async def assert_node_state(
+        self,
+        node_path: str,
+        assertions: dict[str, Any],
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "assert_node_state",
+            {
+                "node_path": node_path,
+                "assertions": assertions,
+            },
+        )

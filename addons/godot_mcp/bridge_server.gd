@@ -44,6 +44,7 @@ const SceneHierarchyOps = preload("res://addons/godot_mcp/operations/scene_hiera
 const ScriptLifecycleOps = preload("res://addons/godot_mcp/operations/script_lifecycle_ops.gd")
 const CameraRenderingOps = preload("res://addons/godot_mcp/operations/camera_rendering_ops.gd")
 const InputSimulationOps = preload("res://addons/godot_mcp/operations/input_simulation_ops.gd")
+const E2EAutomationOps = preload("res://addons/godot_mcp/operations/e2e_automation_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -89,6 +90,7 @@ var _scene_hierarchy_ops: RefCounted
 var _script_lifecycle_ops: RefCounted
 var _camera_rendering_ops: RefCounted
 var _input_simulation_ops: RefCounted
+var _e2e_automation_ops: RefCounted
 
 var _port: int = PORT
 
@@ -135,6 +137,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_script_lifecycle_ops = ScriptLifecycleOps.new(_plugin)
 	_camera_rendering_ops = CameraRenderingOps.new(_plugin)
 	_input_simulation_ops = InputSimulationOps.new(_plugin)
+	_e2e_automation_ops = E2EAutomationOps.new(_plugin)
+
 
 
 
@@ -415,6 +419,15 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _input_simulation_ops.draw_debug_shapes(params)
 		"clear_debug_shapes":
 			result = _input_simulation_ops.clear_debug_shapes(params)
+		"find_elements":
+			result = _e2e_automation_ops.find_elements(params)
+		"interact_node":
+			result = _e2e_automation_ops.interact_node(params)
+		"wait_for_condition":
+			result = _e2e_automation_ops.wait_for_condition(params)
+		"assert_node_state":
+			result = _e2e_automation_ops.assert_node_state(params)
+
 
 
 

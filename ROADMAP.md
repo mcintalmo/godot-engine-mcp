@@ -120,6 +120,13 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Viewport Debug Shape Renderer (`godot_draw_debug_shapes`)**: Render temporary 2D and 3D shapes (lines, rays, boxes, spheres, circles, rects, text) with expiration timers and color tinting.
 - [x] **Debug Overlay Management (`godot_clear_debug_shapes`)**: Programmatically purge active debug shapes and overlays.
 
+### Phase 20: "Playwright for Godot" Autonomous E2E Testing & UI Automation Engine
+- [x] **Scene Element Discovery Engine (`godot_find_elements`)**: Query UI and scene hierarchy via text, role, class, node name, group, or property match with screen coordinate resolution.
+- [x] **High-Level UI Interaction Primitives (`godot_interact_node`)**: Automated click, double-click, text typing, focus grabbing, hovering, and scrolling with native UI signal emissions.
+- [x] **Autonomous State Transition Waiting (`godot_wait_for_condition`)**: Polling/waiting engine for node existence, visibility, property equals, and arbitrary boolean expressions with configurable timeout.
+- [x] **Multi-Property State Assertions (`godot_assert_node_state`)**: Structured assertion runner comparing expected vs actual runtime states for autonomous CI/E2E test validation.
+
+
 
 
 

@@ -1093,6 +1093,45 @@ def format_result(
                 f"- **Remaining Overlays**: `{result.data.get('remaining_active')}`"
             )
 
+        elif "matches_count" in result.data and "elements" in result.data:
+            lines.append(
+                f"**Matched {result.data.get('matches_count')} Elements** for selector `[{result.data.get('selector_type')}='{result.data.get('query')}']`:\n"
+            )
+            for el in result.data.get("elements", []):
+                lines.append(
+                    f"- `{el.get('name')}` (`{el.get('class')}`) -> Path: `{el.get('path')}` (Text: `{el.get('text')}`, Visible: `{el.get('visible')}`)"
+                )
+
+        elif (
+            "node_name" in result.data
+            and "action" in result.data
+            and "details" in result.data
+        ):
+            lines.append(
+                f"**Node Interaction Completed**: `{result.data.get('action')}` on `{result.data.get('node_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('node_path')}`")
+            lines.append(f"- **Details**: `{result.data.get('details')}`")
+
+        elif "condition_type" in result.data and "satisfied" in result.data:
+            lines.append(
+                f"**Wait Condition Evaluation** [{result.data.get('condition_type')}]:\n"
+            )
+            lines.append(f"- **Satisfied**: `{result.data.get('satisfied')}`")
+            lines.append(f"- **Details**: `{result.data.get('details')}`")
+            lines.append(f"- **Actual Value**: `{result.data.get('actual_value')}`")
+
+        elif "all_passed" in result.data and "assertions" in result.data:
+            status = "PASSED" if result.data.get("all_passed") else "FAILED"
+            lines.append(
+                f"**Node State Assertions [{status}]** for `{result.data.get('node_name')}` (`{result.data.get('node_path')}`):\n"
+            )
+            for a in result.data.get("assertions", []):
+                sym = "[PASS]" if a.get("passed") else "[FAIL]"
+                lines.append(
+                    f"- {sym} `{a.get('property')}`: Expected `{a.get('expected')}`, Actual `{a.get('actual')}`"
+                )
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

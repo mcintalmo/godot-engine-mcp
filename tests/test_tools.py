@@ -2307,6 +2307,115 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def find_elements(
+        self,
+        selector_type: str = "text",
+        query: str = "",
+        root_path: str | None = None,
+        max_results: int = 50,
+    ) -> StandardResult:
+        dummy_elements = [
+            {
+                "name": "StartButton",
+                "path": "UI/StartButton",
+                "class": "Button",
+                "text": query if selector_type == "text" else "Start Game",
+                "visible": True,
+                "screen_rect": [100.0, 200.0, 150.0, 40.0],
+                "center_position": [175.0, 220.0],
+                "disabled": False,
+            }
+        ]
+        return StandardResult(
+            success=True,
+            message=f"Found 1 matching elements for selector [{selector_type}='{query}'].",
+            mode=self.mode,
+            data={
+                "selector_type": selector_type,
+                "query": query,
+                "matches_count": len(dummy_elements),
+                "elements": dummy_elements,
+            },
+        )
+
+    async def interact_node(
+        self,
+        node_path: str,
+        action: str = "click",
+        text: str | None = None,
+        clear_before_type: bool = True,
+        drag_to_position: list[float] | None = None,
+        scroll_delta: list[float] | None = None,
+    ) -> StandardResult:
+        node_name = node_path.split("/")[-1]
+        details = f"Action '{action}' executed"
+        if action == "type_text":
+            details = f"Typed '{text or ''}' into node"
+        elif action == "click":
+            details = "Emitted 'pressed' signal on Button"
+        return StandardResult(
+            success=True,
+            message=f"Executed '{action}' on node '{node_name}': {details}.",
+            mode=self.mode,
+            data={
+                "node_name": node_name,
+                "node_path": node_path,
+                "action": action,
+                "details": details,
+            },
+        )
+
+    async def wait_for_condition(
+        self,
+        condition_type: str = "node_exists",
+        node_path: str | None = None,
+        property_name: str | None = None,
+        expected_value: Any = None,
+        expression: str | None = None,
+        timeout_ms: int = 5000,
+        poll_interval_ms: int = 100,
+    ) -> StandardResult:
+        details = f"Condition [{condition_type}] satisfied"
+        return StandardResult(
+            success=True,
+            message=f"Condition check [{condition_type}]: {details} (Satisfied: True).",
+            mode=self.mode,
+            data={
+                "condition_type": condition_type,
+                "satisfied": True,
+                "actual_value": expected_value if expected_value is not None else True,
+                "details": details,
+            },
+        )
+
+    async def assert_node_state(
+        self,
+        node_path: str,
+        assertions: dict[str, Any],
+    ) -> StandardResult:
+        node_name = node_path.split("/")[-1]
+        res_list = []
+        for k, v in assertions.items():
+            res_list.append(
+                {
+                    "property": k,
+                    "expected": v,
+                    "actual": v,
+                    "passed": True,
+                }
+            )
+        return StandardResult(
+            success=True,
+            message=f"Assertions on node '{node_name}': ALL PASSED ({len(res_list)}/{len(res_list)} passed).",
+            mode=self.mode,
+            data={
+                "node_name": node_name,
+                "node_path": node_path,
+                "all_passed": True,
+                "assertions": res_list,
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

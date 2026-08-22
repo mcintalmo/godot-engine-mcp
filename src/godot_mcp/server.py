@@ -42,6 +42,12 @@ from godot_mcp.models.debug import (
     RunTestsInput,
     TakeScreenshotInput,
 )
+from godot_mcp.models.e2e_automation import (
+    AssertNodeStateInput,
+    FindElementsInput,
+    InteractNodeInput,
+    WaitForConditionInput,
+)
 from godot_mcp.models.editor_focus import (
     FocusNodeInput,
     SetEditorSelectionInput,
@@ -207,6 +213,12 @@ from godot_mcp.tools.debug_tools import (
     handle_run_project,
     handle_run_tests,
     handle_take_screenshot,
+)
+from godot_mcp.tools.e2e_automation_tools import (
+    handle_assert_node_state,
+    handle_find_elements,
+    handle_interact_node,
+    handle_wait_for_condition,
 )
 from godot_mcp.tools.editor_history_tools import (
     handle_redo,
@@ -1738,6 +1750,62 @@ def create_server(
     async def clear_debug_shapes(params: ClearDebugShapesInput) -> str:
         """Clear active debug shape overlays from the viewport."""
         return await handle_clear_debug_shapes(active_client, params)
+
+    @server.tool(
+        name="godot_find_elements",
+        annotations=ToolAnnotations(
+            title="Find Elements",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def find_elements(params: FindElementsInput) -> str:
+        """Find scene and UI elements matching selectors (text, role, type, name, group, path) for autonomous E2E testing."""
+        return await handle_find_elements(active_client, params)
+
+    @server.tool(
+        name="godot_interact_node",
+        annotations=ToolAnnotations(
+            title="Interact Node",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def interact_node(params: InteractNodeInput) -> str:
+        """Execute Playwright-like interaction primitives on scene nodes (click, type_text, focus, hover, scroll)."""
+        return await handle_interact_node(active_client, params)
+
+    @server.tool(
+        name="godot_wait_for_condition",
+        annotations=ToolAnnotations(
+            title="Wait For Condition",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def wait_for_condition(params: WaitForConditionInput) -> str:
+        """Wait for runtime state conditions (node existence, visibility, property values, expressions) with timeout."""
+        return await handle_wait_for_condition(active_client, params)
+
+    @server.tool(
+        name="godot_assert_node_state",
+        annotations=ToolAnnotations(
+            title="Assert Node State",
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def assert_node_state(params: AssertNodeStateInput) -> str:
+        """Assert multiple expected properties and states against a scene node for autonomous verification."""
+        return await handle_assert_node_state(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

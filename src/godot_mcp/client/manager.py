@@ -1363,3 +1363,69 @@ class ClientManager(GodotClient):
         return await client.clear_debug_shapes(
             category=category,
         )
+
+    async def find_elements(
+        self,
+        selector_type: str = "text",
+        query: str = "",
+        root_path: str | None = None,
+        max_results: int = 50,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.find_elements(
+            selector_type=selector_type,
+            query=query,
+            root_path=root_path,
+            max_results=max_results,
+        )
+
+    async def interact_node(
+        self,
+        node_path: str,
+        action: str = "click",
+        text: str | None = None,
+        clear_before_type: bool = True,
+        drag_to_position: list[float] | None = None,
+        scroll_delta: list[float] | None = None,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.interact_node(
+            node_path=node_path,
+            action=action,
+            text=text,
+            clear_before_type=clear_before_type,
+            drag_to_position=drag_to_position,
+            scroll_delta=scroll_delta,
+        )
+
+    async def wait_for_condition(
+        self,
+        condition_type: str = "node_exists",
+        node_path: str | None = None,
+        property_name: str | None = None,
+        expected_value: Any = None,
+        expression: str | None = None,
+        timeout_ms: int = 5000,
+        poll_interval_ms: int = 100,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.wait_for_condition(
+            condition_type=condition_type,
+            node_path=node_path,
+            property_name=property_name,
+            expected_value=expected_value,
+            expression=expression,
+            timeout_ms=timeout_ms,
+            poll_interval_ms=poll_interval_ms,
+        )
+
+    async def assert_node_state(
+        self,
+        node_path: str,
+        assertions: dict[str, Any],
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.assert_node_state(
+            node_path=node_path,
+            assertions=assertions,
+        )
