@@ -3065,6 +3065,81 @@ class MockGodotClient(GodotClient):
             },
         )
 
+    async def search_asset_library(
+        self,
+        query: str | None = None,
+        category: str | None = None,
+        godot_version: str | None = None,
+        sort_by: str = "updated",
+        max_results: int = 10,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Found 1 assets matching '{query or '*'}' from Godot Asset Library.",
+            mode=self.mode,
+            data={
+                "query": query or "",
+                "category": category or "all",
+                "godot_version": godot_version or "4.x",
+                "total_items": 1,
+                "assets": [
+                    {
+                        "asset_id": "1234",
+                        "title": "Phantom Camera",
+                        "author": "Marcus",
+                        "version": "0.7.2",
+                        "godot_version": "4.3",
+                        "category": "3D Tools",
+                        "cost": "MIT",
+                        "download_url": "https://example.com/phantom_camera.zip",
+                        "description": "Dynamic camera control plugin for 2D and 3D scenes.",
+                    }
+                ],
+            },
+        )
+
+    async def get_asset_details(
+        self,
+        asset_id: str,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Retrieved details for asset 'Phantom Camera' (ID: {asset_id}).",
+            mode=self.mode,
+            data={
+                "asset_id": asset_id,
+                "title": "Phantom Camera",
+                "author": "Marcus",
+                "version": "0.7.2",
+                "godot_version": "4.3",
+                "category": "3D Tools",
+                "cost": "MIT",
+                "download_url": "https://example.com/phantom_camera.zip",
+                "browse_url": "https://godotengine.org/asset-library/asset/1234",
+                "description": "Full-featured dynamic camera solution.",
+            },
+        )
+
+    async def install_asset_package(
+        self,
+        asset_id: str | None = None,
+        download_url: str | None = None,
+        target_dir: str = "res://addons",
+        auto_enable_plugin: bool = True,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Successfully installed 'Phantom Camera' (12 files into {target_dir}). Auto-enabled plugins: res://addons/phantom_camera/plugin.cfg",
+            mode=self.mode,
+            data={
+                "download_url": download_url
+                or "https://example.com/phantom_camera.zip",
+                "target_dir": target_dir,
+                "files_extracted": 12,
+                "enabled_plugins": ["res://addons/phantom_camera/plugin.cfg"],
+            },
+        )
+
 
 @pytest.mark.asyncio
 async def test_all_scene_tools() -> None:

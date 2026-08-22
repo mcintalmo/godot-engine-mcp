@@ -23,6 +23,11 @@ from godot_mcp.models.asset_audit import (
     CleanOrphansInput,
     GetTextureInfoInput,
 )
+from godot_mcp.models.asset_library import (
+    GetAssetDetailsInput,
+    InstallAssetPackageInput,
+    SearchAssetLibraryInput,
+)
 from godot_mcp.models.audio import (
     ConfigureAudioBusInput,
     GetAudioLayoutInput,
@@ -227,6 +232,11 @@ from godot_mcp.tools.asset_audit_tools import (
     handle_audit_assets,
     handle_clean_orphans,
     handle_get_texture_info,
+)
+from godot_mcp.tools.asset_library_tools import (
+    handle_get_asset_details,
+    handle_install_asset_package,
+    handle_search_asset_library,
 )
 from godot_mcp.tools.asset_tools import (
     handle_create_collision_polygon,
@@ -1380,6 +1390,31 @@ TOOL_DEFINITIONS: list[ToolDef] = [
         GetSignalConnectionsInput,
         handle_get_signal_connections,
         read_only=True,
+    ),
+    # Godot Asset Library Integration
+    ToolDef(
+        "godot_search_asset_library",
+        "Search Godot Asset Library",
+        "Search the official Godot Asset Library for plugins, shaders, templates, and tools.",
+        SearchAssetLibraryInput,
+        handle_search_asset_library,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_get_asset_details",
+        "Get Asset Details",
+        "Retrieve full details, previews, description, and download metadata for an asset from the Godot Asset Library.",
+        GetAssetDetailsInput,
+        handle_get_asset_details,
+        read_only=True,
+    ),
+    ToolDef(
+        "godot_install_asset_package",
+        "Install Asset Package",
+        "Download and install a community asset or plugin package into the active project, with auto-plugin registration.",
+        InstallAssetPackageInput,
+        handle_install_asset_package,
+        idempotent=True,
     ),
 ]
 

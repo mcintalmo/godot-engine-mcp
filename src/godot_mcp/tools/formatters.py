@@ -1590,6 +1590,49 @@ def format_result(
             for err in result.data.get("errors", []):
                 lines.append(f"- `{err}`")
 
+        elif "assets" in result.data and isinstance(result.data["assets"], list):
+            assets = result.data["assets"]
+            lines.append(f"\n**Matching Assets ({len(assets)})**:")
+            for a in assets:
+                aid = a.get("asset_id", "")
+                title = a.get("title", "Untitled")
+                author = a.get("author", "Unknown")
+                ver = a.get("version", "")
+                cat = a.get("category", "")
+                gver = a.get("godot_version", "")
+                desc = a.get("description", "")
+                short_desc = (desc[:120] + "...") if len(desc) > 120 else desc
+                lines.append(f"- **{title}** (ID: `{aid}`, v{ver}) by *{author}*")
+                lines.append(f"  - Category: `{cat}` | Godot: `{gver}`")
+                if short_desc:
+                    lines.append(f"  - *{short_desc}*")
+
+        elif "browse_url" in result.data and "asset_id" in result.data:
+            lines.append(f"\n**Asset**: {result.data.get('title', 'Unknown')}")
+            lines.append(f"- **ID**: `{result.data.get('asset_id')}`")
+            lines.append(f"- **Author**: {result.data.get('author')}")
+            lines.append(
+                f"- **Version**: `{result.data.get('version')}` (Godot `{result.data.get('godot_version')}`)"
+            )
+            lines.append(f"- **Category**: `{result.data.get('category')}`")
+            lines.append(f"- **Cost/License**: {result.data.get('cost')}")
+            if result.data.get("download_url"):
+                lines.append(f"- **Download URL**: {result.data.get('download_url')}")
+            if result.data.get("browse_url"):
+                lines.append(f"- **Browse URL**: {result.data.get('browse_url')}")
+            if result.data.get("description"):
+                lines.append(f"\n**Description**:\n{result.data.get('description')}")
+
+        elif "files_extracted" in result.data:
+            lines.append(
+                f"\n- **Files Extracted**: `{result.data.get('files_extracted')}`"
+            )
+            lines.append(f"- **Target Path**: `{result.data.get('target_dir')}`")
+            if result.data.get("enabled_plugins"):
+                lines.append(
+                    f"- **Enabled Plugins**: `{', '.join(result.data['enabled_plugins'])}`"
+                )
+
         else:
             lines.append("```json")
             lines.append(json.dumps(result.data, indent=2))

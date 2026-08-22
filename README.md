@@ -71,6 +71,12 @@ All tools adhere to MCP best practices, providing clear docstrings, Pydantic v2 
 - `godot_get_export_presets`: Queries export targets configured in `export_presets.cfg`.
 - `godot_export_project`: Triggers automated headless project builds via Godot CLI.
 
+### Official Godot Asset Library Integration
+
+- `godot_search_asset_library`: Searches the official Godot Asset Library for plugins, shaders, templates, and tools.
+- `godot_get_asset_details`: Retrieves full metadata, descriptions, previews, and download links for an asset ID.
+- `godot_install_asset_package`: Downloads and extracts community ZIP packages into `res://addons/` with automated plugin activation in `project.godot`.
+
 ### Scene Graph, Nodes & Hierarchy Mutation
 
 - `godot_list_nodes`: Traverses the active scene tree with configurable depth and property filtering.

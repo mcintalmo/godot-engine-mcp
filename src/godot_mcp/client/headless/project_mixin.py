@@ -5,6 +5,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
+import httpx
+
 from godot_mcp.client.headless.base import BaseHeadlessClient
 from godot_mcp.models.common import EngineMode, StandardResult
 
@@ -681,3 +683,131 @@ class ProjectHeadlessMixin(BaseHeadlessClient):
                 "context_node": node_path or "/root/Scene",
             },
         )
+
+    async def search_asset_library(
+        self,
+        query: str | None = None,
+        category: str | None = None,
+        godot_version: str | None = None,
+        sort_by: str = "updated",
+        max_results: int = 10,
+    ) -> StandardResult:
+        """Search the official Godot Asset Library for plugins, shaders, and tools."""
+        from godot_mcp.client.asset_library_service import GodotAssetLibraryService
+
+        service = GodotAssetLibraryService()
+        try:
+            res = await service.search_assets(
+                query=query,
+                category=category,
+                godot_version=godot_version,
+                sort=sort_by,
+                max_results=max_results,
+            )
+            count = len(res.get("assets", []))
+            return StandardResult(
+                success=True,
+                message=f"Found {count} assets matching '{query or '*'}' from Godot Asset Library.",
+                mode=self.mode,
+                data=res,
+            )
+        except (httpx.HTTPError, OSError, ValueError, KeyError) as ex:
+            logger.warning("Asset library search error: %s", ex)
+            return StandardResult(
+                success=False,
+                message=f"Asset Library query failed: {ex}",
+                mode=self.mode,
+                error_code="ASSET_LIB_ERROR",
+                data={"query": query, "category": category, "assets": []},
+            )
+
+    async def get_asset_details(
+        self,
+        asset_id: str,
+    ) -> StandardResult:
+        """Retrieve full details, previews, and download metadata for an asset from the Godot Asset Library."""
+        from godot_mcp.client.asset_library_service import GodotAssetLibraryService
+
+        service = GodotAssetLibraryService()
+        try:
+            res = await service.get_asset_details(asset_id=asset_id)
+            return StandardResult(
+                success=True,
+                message=f"Retrieved details for asset '{res.get('title', asset_id)}' (ID: {asset_id}).",
+                mode=self.mode,
+                data=res,
+            )
+        except (httpx.HTTPError, OSError, ValueError, KeyError) as ex:
+            logger.warning("Asset library detail error for %s: %s", asset_id, ex)
+            return StandardResult(
+                success=False,
+                message=f"Failed to retrieve asset details for ID '{asset_id}': {ex}",
+                mode=self.mode,
+                error_code="ASSET_NOT_FOUND",
+                data={"asset_id": asset_id},
+            )
+
+    async def install_asset_package(
+        self,
+        asset_id: str | None = None,
+        download_url: str | None = None,
+        target_dir: str = "res://addons",
+        auto_enable_plugin: bool = True,
+    ) -> StandardResult:
+        """Download and install a community asset or plugin package into the active project."""
+        from godot_mcp.client.asset_library_service import GodotAssetLibraryService
+
+        service = GodotAssetLibraryService()
+        target_path = self._resolve_res_path(target_dir) or Path(target_dir)
+        project_root = (
+            Path(self.config.project_path) if self.config.project_path else Path.cwd()
+        )
+
+        final_url = download_url
+        asset_title = asset_id or "Custom Package"
+
+        try:
+            if not final_url and asset_id:
+                details = await service.get_asset_details(asset_id)
+                final_url = details.get("download_url")
+                asset_title = details.get("title", asset_id)
+
+            if not final_url:
+                return StandardResult(
+                    success=False,
+                    message="No download_url found or provided for package installation.",
+                    mode=self.mode,
+                    error_code="INVALID_PARAMS",
+                )
+
+            res = await service.download_and_extract(
+                download_url=final_url,
+                target_dir=target_path,
+                project_root=project_root,
+                auto_enable_plugin=auto_enable_plugin,
+            )
+            files_count = res.get("files_extracted", 0)
+            enabled = res.get("enabled_plugins", [])
+            msg = f"Successfully installed '{asset_title}' ({files_count} files into {target_dir})."
+            if enabled:
+                msg += f" Auto-enabled plugins: {', '.join(enabled)}"
+
+            return StandardResult(
+                success=True,
+                message=msg,
+                mode=self.mode,
+                data=res,
+            )
+        except (httpx.HTTPError, OSError, ValueError, KeyError) as ex:
+            logger.warning("Failed to install asset package: %s", ex)
+            return StandardResult(
+                success=False,
+                message=f"Failed to install asset package: {ex}",
+                mode=self.mode,
+                error_code="INSTALL_FAILED",
+                data={
+                    "asset_id": asset_id,
+                    "download_url": download_url,
+                    "target_dir": target_dir,
+                },
+            )

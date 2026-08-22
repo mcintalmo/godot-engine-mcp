@@ -1426,3 +1426,34 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Configure visibility ranges, LOD distance thresholds, and cross-fade modes."""
         ...
+
+    @abstractmethod
+    async def search_asset_library(
+        self,
+        query: str | None = None,
+        category: str | None = None,
+        godot_version: str | None = None,
+        sort_by: str = "updated",
+        max_results: int = 10,
+    ) -> StandardResult:
+        """Search the official Godot Asset Library for plugins, shaders, and tools."""
+        ...
+
+    @abstractmethod
+    async def get_asset_details(
+        self,
+        asset_id: str,
+    ) -> StandardResult:
+        """Retrieve full details, previews, and download metadata for an asset from the Godot Asset Library."""
+        ...
+
+    @abstractmethod
+    async def install_asset_package(
+        self,
+        asset_id: str | None = None,
+        download_url: str | None = None,
+        target_dir: str = "res://addons",
+        auto_enable_plugin: bool = True,
+    ) -> StandardResult:
+        """Download and install a community asset or plugin package into the active project."""
+        ...
