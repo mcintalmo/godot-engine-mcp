@@ -221,28 +221,33 @@ Pre-engineered guided workflows for common game development tasks:
 
 ### 1. Requirements
 
-- Python 3.14+ managed with `uv`
+- Python 3.14+ managed with [uv](https://docs.astral.sh/uv/)
 - Godot Engine 4.7+ (or 4.7.1+)
 
-### 2. Installation
+### 2. Setup a Godot Project
+
+You can install the `godot_mcp` editor addon directly using `uvx` without needing to clone the repository:
+
+```bash
+# Install and auto-enable the addon in your Godot project:
+uvx --from git+https://github.com/mcintalmo/godot-mcp godot-mcp install-addon /path/to/your/godot/project
+
+# Check connection status:
+uvx --from git+https://github.com/mcintalmo/godot-mcp godot-mcp probe
+```
+
+Or if developing locally from source:
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/godot-mcp.git
+git clone https://github.com/mcintalmo/godot-mcp.git
 cd godot-mcp
 
 # Sync dependencies with uv
 uv sync
-```
 
-### 3. Setup a Godot Project
-
-```bash
-# Install and auto-enable the addon in your Godot project:
+# Install addon to project
 uv run godot-mcp install-addon /path/to/your/godot/project
-
-# Check connection status:
-uv run godot-mcp probe
 ```
 
 ---
@@ -253,6 +258,27 @@ uv run godot-mcp probe
 
 Add to `claude_desktop_config.json`:
 
+#### Option A: Direct via GitHub (Recommended)
+```json
+{
+  "mcpServers": {
+    "godot": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/mcintalmo/godot-mcp",
+        "godot-mcp"
+      ],
+      "env": {
+        "GODOT_PATH": "/Applications/Godot.app/Contents/MacOS/Godot",
+        "GODOT_PROJECT_PATH": "/path/to/your/godot/project"
+      }
+    }
+  }
+}
+```
+
+#### Option B: From Local Clone
 ```json
 {
   "mcpServers": {
@@ -281,13 +307,16 @@ Add to `.cursor/mcp.json` or `~/.codeium/windsurf/mcp_config.json`:
 {
   "mcpServers": {
     "godot": {
-      "command": "uv",
+      "command": "uvx",
       "args": [
-        "--directory",
-        "/path/to/godot-mcp",
-        "run",
+        "--from",
+        "git+https://github.com/mcintalmo/godot-mcp",
         "godot-mcp"
-      ]
+      ],
+      "env": {
+        "GODOT_PATH": "/Applications/Godot.app/Contents/MacOS/Godot",
+        "GODOT_PROJECT_PATH": "/path/to/your/godot/project"
+      }
     }
   }
 }
@@ -301,13 +330,16 @@ Add to `.gemini/antigravity-ide/mcp_config.json`:
 {
   "mcpServers": {
     "godot": {
-      "command": "uv",
+      "command": "uvx",
       "args": [
-        "--directory",
-        "/path/to/godot-mcp",
-        "run",
+        "--from",
+        "git+https://github.com/mcintalmo/godot-mcp",
         "godot-mcp"
-      ]
+      ],
+      "env": {
+        "GODOT_PATH": "/Applications/Godot.app/Contents/MacOS/Godot",
+        "GODOT_PROJECT_PATH": "/path/to/your/godot/project"
+      }
     }
   }
 }

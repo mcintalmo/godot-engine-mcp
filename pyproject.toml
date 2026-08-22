@@ -35,6 +35,11 @@ dependencies = [
     "websockets>=17.0.1",
 ]
 
+[project.urls]
+Homepage = "https://github.com/mcintalmo/godot-mcp"
+Repository = "https://github.com/mcintalmo/godot-mcp"
+Issues = "https://github.com/mcintalmo/godot-mcp/issues"
+
 [project.scripts]
 godot-mcp = "godot_mcp.cli:app"
 
