@@ -157,6 +157,11 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **2D/3D Constraint Joint Configurator (`godot_configure_physics_joint`)**: Programmatic setup of mechanical joints (Pin, Hinge, Slider, ConeTwist, 6DOF, DampedSpring) between physics bodies.
 - [x] **Procedural Ragdoll Simulation Generator (`godot_generate_ragdoll`)**: Automatically construct `PhysicalBone3D` ragdoll simulation hierarchies from `Skeleton3D` rigs with collision shapes and masses.
 
+### Phase 28: Global Illumination & Baked Lighting
+- [x] **Global Illumination & Probe Configurator (`godot_configure_lightmap_gi`)**: Configure 3D global illumination pipelines (`LightmapGI`, `VoxelGI`, `ReflectionProbe`, and `LightmapProbe` arrays) for realistic indirect bounces, specular reflections, and ambient cubemaps.
+- [x] **Lightmap & GI Baker (`godot_bake_lightmaps`)**: Trigger and monitor asynchronous lightmap baking with custom denoisers (JNLM/OIDN), bounce iterations, and quality profiles.
+
+
 
 
 

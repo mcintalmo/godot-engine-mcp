@@ -4753,3 +4753,55 @@ func _init() -> void:
                 "mass_per_bone": mass_per_bone,
             },
         )
+
+    async def configure_lightmap_gi(
+        self,
+        gi_type: str = "lightmap_gi",
+        node_name: str = "LightmapGI",
+        parent_path: str = ".",
+        quality: str = "medium",
+        bounces: int = 3,
+        use_denoiser: bool = True,
+        denoiser_name: str = "jnlm",
+        size: list[float] | None = None,
+        origin_offset: list[float] | None = None,
+        interior: bool = False,
+    ) -> StandardResult:
+        """Configure GI node in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Configured {gi_type.upper()} node '{node_name}' under '{parent_path}' (Headless Mode).",
+            mode=self.mode,
+            data={
+                "gi_name": node_name,
+                "gi_path": f"{parent_path}/{node_name}"
+                if parent_path != "."
+                else node_name,
+                "gi_type": gi_type,
+                "quality": quality,
+                "bounces": bounces,
+                "use_denoiser": use_denoiser,
+                "denoiser_name": denoiser_name,
+                "interior": interior,
+            },
+        )
+
+    async def bake_lightmaps(
+        self,
+        lightmap_node_path: str = "LightmapGI",
+        bake_mode: str = "scene",
+        save_path: str | None = None,
+    ) -> StandardResult:
+        """Bake lightmaps in headless mode."""
+        return StandardResult(
+            success=True,
+            message=f"Baked lighting for node '{lightmap_node_path.split('/')[-1]}' (Scope: {bake_mode.upper()}) (Headless Mode).",
+            mode=self.mode,
+            data={
+                "gi_name": lightmap_node_path.split("/")[-1],
+                "gi_path": lightmap_node_path,
+                "bake_mode": bake_mode,
+                "status": f"Bake simulated for {lightmap_node_path}",
+                "save_path": save_path or "",
+            },
+        )

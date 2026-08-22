@@ -1404,6 +1404,35 @@ def format_result(
                     f"  - *... and {len(result.data.get('physical_bones', [])) - 10} more physical bones*"
                 )
 
+        elif "gi_name" in result.data and "gi_type" in result.data:
+            lines.append(
+                f"**Configured Global Illumination**: `{result.data.get('gi_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('gi_path')}`")
+            lines.append(f"- **GI Type**: `{result.data.get('gi_type', '').upper()}`")
+            if result.data.get("quality"):
+                lines.append(
+                    f"- **Quality**: `{result.data.get('quality', '').upper()}`"
+                )
+            if result.data.get("bounces") is not None:
+                lines.append(f"- **Bounces**: `{result.data.get('bounces')}`")
+            if result.data.get("use_denoiser") is not None:
+                lines.append(
+                    f"- **Denoiser**: `{result.data.get('denoiser_name', '').upper()}` (Enabled: `{result.data.get('use_denoiser')}`)"
+                )
+            if result.data.get("interior") is not None:
+                lines.append(
+                    f"- **Interior Environment**: `{result.data.get('interior')}`"
+                )
+
+        elif "gi_name" in result.data and "bake_mode" in result.data:
+            lines.append(f"**Lightmap Bake Summary**: `{result.data.get('gi_name')}`\n")
+            lines.append(f"- **Path**: `{result.data.get('gi_path')}`")
+            lines.append(f"- **Scope**: `{result.data.get('bake_mode', '').upper()}`")
+            lines.append(f"- **Status**: `{result.data.get('status')}`")
+            if result.data.get("save_path"):
+                lines.append(f"- **Saved Resource**: `{result.data.get('save_path')}`")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

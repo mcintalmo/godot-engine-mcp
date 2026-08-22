@@ -2032,3 +2032,47 @@ class LiveBridgeClient(GodotClient):
                 "bounce": bounce,
             },
         )
+
+    async def configure_lightmap_gi(
+        self,
+        gi_type: str = "lightmap_gi",
+        node_name: str = "LightmapGI",
+        parent_path: str = ".",
+        quality: str = "medium",
+        bounces: int = 3,
+        use_denoiser: bool = True,
+        denoiser_name: str = "jnlm",
+        size: list[float] | None = None,
+        origin_offset: list[float] | None = None,
+        interior: bool = False,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "configure_lightmap_gi",
+            {
+                "gi_type": gi_type,
+                "node_name": node_name,
+                "parent_path": parent_path,
+                "quality": quality,
+                "bounces": bounces,
+                "use_denoiser": use_denoiser,
+                "denoiser_name": denoiser_name,
+                "size": size,
+                "origin_offset": origin_offset,
+                "interior": interior,
+            },
+        )
+
+    async def bake_lightmaps(
+        self,
+        lightmap_node_path: str = "LightmapGI",
+        bake_mode: str = "scene",
+        save_path: str | None = None,
+    ) -> StandardResult:
+        return await self._send_rpc(
+            "bake_lightmaps",
+            {
+                "lightmap_node_path": lightmap_node_path,
+                "bake_mode": bake_mode,
+                "save_path": save_path,
+            },
+        )

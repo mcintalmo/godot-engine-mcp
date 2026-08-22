@@ -1326,3 +1326,30 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Generate PhysicalBone3D ragdoll simulation hierarchy from Skeleton3D."""
         ...
+
+    @abstractmethod
+    async def configure_lightmap_gi(
+        self,
+        gi_type: str = "lightmap_gi",
+        node_name: str = "LightmapGI",
+        parent_path: str = ".",
+        quality: str = "medium",
+        bounces: int = 3,
+        use_denoiser: bool = True,
+        denoiser_name: str = "jnlm",
+        size: list[float] | None = None,
+        origin_offset: list[float] | None = None,
+        interior: bool = False,
+    ) -> StandardResult:
+        """Configure 3D Global Illumination nodes (LightmapGI, VoxelGI, ReflectionProbe, LightmapProbe)."""
+        ...
+
+    @abstractmethod
+    async def bake_lightmaps(
+        self,
+        lightmap_node_path: str = "LightmapGI",
+        bake_mode: str = "scene",
+        save_path: str | None = None,
+    ) -> StandardResult:
+        """Trigger lightmap or voxel GI baking for the active scene."""
+        ...

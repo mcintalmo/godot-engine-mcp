@@ -90,6 +90,10 @@ from godot_mcp.models.input_simulation import (
     DrawDebugShapesInput,
     SimulateInputInput,
 )
+from godot_mcp.models.lightmap_gi import (
+    BakeLightmapsInput,
+    ConfigureLightmapGIInput,
+)
 from godot_mcp.models.localization import (
     AddTranslationInput,
     GetTranslationsInput,
@@ -289,6 +293,10 @@ from godot_mcp.tools.input_simulation_tools import (
 from godot_mcp.tools.input_tools import (
     handle_configure_input_action,
     handle_get_input_actions,
+)
+from godot_mcp.tools.lightmap_gi_tools import (
+    handle_bake_lightmaps,
+    handle_configure_lightmap_gi,
 )
 from godot_mcp.tools.localization_tools import (
     handle_add_translation,
@@ -2130,6 +2138,38 @@ def create_server(
     ) -> str:
         """Generate PhysicalBone3D ragdoll simulation hierarchy from Skeleton3D."""
         return await handle_generate_ragdoll(active_client, params)
+
+    @server.tool(
+        name="godot_configure_lightmap_gi",
+        annotations=ToolAnnotations(
+            title="Configure Global Illumination",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_lightmap_gi(
+        params: ConfigureLightmapGIInput,
+    ) -> str:
+        """Configure 3D Global Illumination nodes (LightmapGI, VoxelGI, ReflectionProbe, LightmapProbe)."""
+        return await handle_configure_lightmap_gi(active_client, params)
+
+    @server.tool(
+        name="godot_bake_lightmaps",
+        annotations=ToolAnnotations(
+            title="Bake Lightmaps",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def bake_lightmaps(
+        params: BakeLightmapsInput,
+    ) -> str:
+        """Trigger lightmap or voxel GI baking for the active scene."""
+        return await handle_bake_lightmaps(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 
