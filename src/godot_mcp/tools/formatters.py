@@ -1223,6 +1223,52 @@ def format_result(
                 f"- **Buffer & Vertex Memory**: `{result.data.get('buffer_memory_mb', 0.0):.2f} MB`"
             )
 
+        elif "spawner_name" in result.data and "spawnable_scene_count" in result.data:
+            lines.append(
+                f"**Configured MultiplayerSpawner**: `{result.data.get('spawner_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('spawner_path')}`")
+            lines.append(f"- **Spawn Target Path**: `{result.data.get('spawn_path')}`")
+            lines.append(f"- **Spawn Limit**: `{result.data.get('spawn_limit')}`")
+            lines.append(
+                f"- **Spawnable Scenes**: `{result.data.get('spawnable_scene_count')}`"
+            )
+            if result.data.get("changes_applied"):
+                lines.append("- **Changes**:")
+                for c in result.data.get("changes_applied", []):
+                    lines.append(f"  - `{c}`")
+
+        elif "synchronizer_name" in result.data and "total_properties" in result.data:
+            lines.append(
+                f"**Configured MultiplayerSynchronizer**: `{result.data.get('synchronizer_name')}`\n"
+            )
+            lines.append(f"- **Path**: `{result.data.get('synchronizer_path')}`")
+            lines.append(f"- **Root Path**: `{result.data.get('root_path')}`")
+            lines.append(
+                f"- **Replication Interval**: `{result.data.get('replication_interval', 0.0):.3f}s`"
+            )
+            lines.append(
+                f"- **Replicated Properties**: `{result.data.get('total_properties')}`"
+            )
+            if result.data.get("changes_applied"):
+                lines.append("- **Changes**:")
+                for c in result.data.get("changes_applied", []):
+                    lines.append(f"  - `{c}`")
+
+        elif (
+            "latency_ms" in result.data
+            and "packet_loss_percent" in result.data
+            and "status" in result.data
+        ):
+            status = result.data.get("status", "NORMAL")
+            lines.append(f"**Simulated Network Profile [{status}]**\n")
+            lines.append(f"- **Latency**: `{result.data.get('latency_ms')} ms`")
+            lines.append(
+                f"- **Packet Loss**: `{result.data.get('packet_loss_percent', 0.0):.1f}%`"
+            )
+            lines.append(f"- **Jitter**: `{result.data.get('jitter_ms')} ms`")
+            lines.append(f"- **Offline Mode**: `{result.data.get('offline_mode')}`")
+
         elif "class_name" in result.data:
             c_name = result.data.get("class_name")
 

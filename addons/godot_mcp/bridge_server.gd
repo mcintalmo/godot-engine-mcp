@@ -47,6 +47,7 @@ const InputSimulationOps = preload("res://addons/godot_mcp/operations/input_simu
 const E2EAutomationOps = preload("res://addons/godot_mcp/operations/e2e_automation_ops.gd")
 const GridMapPathOps = preload("res://addons/godot_mcp/operations/gridmap_path_ops.gd")
 const ProfilingDiagnosticsOps = preload("res://addons/godot_mcp/operations/profiling_diagnostics_ops.gd")
+const MultiplayerOps = preload("res://addons/godot_mcp/operations/multiplayer_ops.gd")
 
 var _plugin: Node
 var _tcp_server: TCPServer = TCPServer.new()
@@ -95,6 +96,7 @@ var _input_simulation_ops: RefCounted
 var _e2e_automation_ops: RefCounted
 var _gridmap_path_ops: RefCounted
 var _profiling_diagnostics_ops: RefCounted
+var _multiplayer_ops: RefCounted
 
 var _port: int = PORT
 
@@ -144,6 +146,8 @@ func _init(plugin: Node = null, port: int = PORT) -> void:
 	_e2e_automation_ops = E2EAutomationOps.new(_plugin)
 	_gridmap_path_ops = GridMapPathOps.new(_plugin)
 	_profiling_diagnostics_ops = ProfilingDiagnosticsOps.new(_plugin)
+	_multiplayer_ops = MultiplayerOps.new(_plugin)
+
 
 
 
@@ -445,6 +449,13 @@ func _handle_message(peer: WebSocketPeer, text: String) -> void:
 			result = _profiling_diagnostics_ops.capture_profiler_trace(params)
 		"inspect_vram_usage":
 			result = _profiling_diagnostics_ops.inspect_vram_usage(params)
+		"configure_multiplayer_spawner":
+			result = _multiplayer_ops.configure_multiplayer_spawner(params)
+		"configure_multiplayer_synchronizer":
+			result = _multiplayer_ops.configure_multiplayer_synchronizer(params)
+		"simulate_network_conditions":
+			result = _multiplayer_ops.simulate_network_conditions(params)
+
 
 
 

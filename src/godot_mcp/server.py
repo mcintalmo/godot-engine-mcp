@@ -95,6 +95,11 @@ from godot_mcp.models.lsp import (
     LSPRenameInput,
 )
 from godot_mcp.models.material import CreateMaterialInput
+from godot_mcp.models.multiplayer import (
+    ConfigureMultiplayerSpawnerInput,
+    ConfigureMultiplayerSynchronizerInput,
+    SimulateNetworkConditionsInput,
+)
 from godot_mcp.models.nav_obstacle import ConfigureNavigationObstacleInput
 from godot_mcp.models.navigation import (
     BakeNavMeshInput,
@@ -273,6 +278,11 @@ from godot_mcp.tools.lsp_tools import (
     handle_lsp_rename,
 )
 from godot_mcp.tools.material_tools import handle_create_material
+from godot_mcp.tools.multiplayer_tools import (
+    handle_configure_multiplayer_spawner,
+    handle_configure_multiplayer_synchronizer,
+    handle_simulate_network_conditions,
+)
 from godot_mcp.tools.nav_obstacle_tools import (
     handle_configure_navigation_obstacle,
 )
@@ -1894,6 +1904,54 @@ def create_server(
     async def inspect_vram_usage(params: InspectVRAMUsageInput) -> str:
         """Inspect GPU video memory allocation breakdowns across textures and buffers."""
         return await handle_inspect_vram_usage(active_client, params)
+
+    @server.tool(
+        name="godot_configure_multiplayer_spawner",
+        annotations=ToolAnnotations(
+            title="Configure Multiplayer Spawner",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_multiplayer_spawner(
+        params: ConfigureMultiplayerSpawnerInput,
+    ) -> str:
+        """Configure MultiplayerSpawner auto-spawn paths, spawn limits, and spawnable scenes."""
+        return await handle_configure_multiplayer_spawner(active_client, params)
+
+    @server.tool(
+        name="godot_configure_multiplayer_synchronizer",
+        annotations=ToolAnnotations(
+            title="Configure Multiplayer Synchronizer",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=False,
+        ),
+    )
+    async def configure_multiplayer_synchronizer(
+        params: ConfigureMultiplayerSynchronizerInput,
+    ) -> str:
+        """Configure MultiplayerSynchronizer property replication configs, sync intervals, and visibility."""
+        return await handle_configure_multiplayer_synchronizer(active_client, params)
+
+    @server.tool(
+        name="godot_simulate_network_conditions",
+        annotations=ToolAnnotations(
+            title="Simulate Network Conditions",
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=False,
+        ),
+    )
+    async def simulate_network_conditions(
+        params: SimulateNetworkConditionsInput,
+    ) -> str:
+        """Simulate network latency, packet loss, jitter, or offline mode for multiplayer testing."""
+        return await handle_simulate_network_conditions(active_client, params)
 
     # --- Dynamic MCP Resources (godot://) ---
 

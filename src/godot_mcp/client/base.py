@@ -1165,3 +1165,39 @@ class GodotClient(ABC):
     ) -> StandardResult:
         """Inspect GPU video memory allocation breakdowns."""
         ...
+
+    @abstractmethod
+    async def configure_multiplayer_spawner(
+        self,
+        spawner_node_path: str,
+        spawn_path: str | None = None,
+        spawn_limit: int | None = None,
+        spawnable_scenes: list[str] | None = None,
+        clear_spawnable_scenes: bool = False,
+    ) -> StandardResult:
+        """Configure MultiplayerSpawner auto-spawn paths and spawnable scene lists."""
+        ...
+
+    @abstractmethod
+    async def configure_multiplayer_synchronizer(
+        self,
+        synchronizer_node_path: str,
+        root_path: str | None = None,
+        replication_interval: float | None = None,
+        properties: list[dict[str, Any]] | None = None,
+        visibility_update_mode: str | None = None,
+        clear_properties: bool = False,
+    ) -> StandardResult:
+        """Configure MultiplayerSynchronizer property replication and intervals."""
+        ...
+
+    @abstractmethod
+    async def simulate_network_conditions(
+        self,
+        latency_ms: int = 0,
+        packet_loss_percent: float = 0.0,
+        jitter_ms: int = 0,
+        offline_mode: bool = False,
+    ) -> StandardResult:
+        """Configure simulated network latency, packet loss, jitter, or offline mode."""
+        ...

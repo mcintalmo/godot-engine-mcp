@@ -135,6 +135,12 @@ This roadmap documents the architectural gap analysis and planned feature evolut
 - [x] **Multi-Frame Performance Profiler Trace (`godot_capture_profiler_trace`)**: Sampling engine measuring CPU process, physics process, navigation, draw calls, and memory telemetry.
 - [x] **GPU VRAM Allocation Analyzer (`godot_inspect_vram_usage`)**: Video memory analyzer detailing texture memory, buffer memory, and active GPU budgets via `RenderingServer`.
 
+### Phase 23: Multiplayer Spawner & Network Synchronization
+- [x] **Multiplayer Spawner Orchestration (`godot_configure_multiplayer_spawner`)**: Configure `MultiplayerSpawner` auto-spawn paths, spawn limits, and spawnable scene lists.
+- [x] **State Replication Engine (`godot_configure_multiplayer_synchronizer`)**: Configure `MultiplayerSynchronizer` property replication tables, sync intervals, and visibility modes.
+- [x] **Adverse Netcode Simulation (`godot_simulate_network_conditions`)**: Simulate ping latency, packet loss, jitter variance, and offline modes for multiplayer testing.
+
+
 
 
 

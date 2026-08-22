@@ -1500,3 +1500,54 @@ class ClientManager(GodotClient):
         return await client.inspect_vram_usage(
             detailed=detailed,
         )
+
+    async def configure_multiplayer_spawner(
+        self,
+        spawner_node_path: str,
+        spawn_path: str | None = None,
+        spawn_limit: int | None = None,
+        spawnable_scenes: list[str] | None = None,
+        clear_spawnable_scenes: bool = False,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.configure_multiplayer_spawner(
+            spawner_node_path=spawner_node_path,
+            spawn_path=spawn_path,
+            spawn_limit=spawn_limit,
+            spawnable_scenes=spawnable_scenes,
+            clear_spawnable_scenes=clear_spawnable_scenes,
+        )
+
+    async def configure_multiplayer_synchronizer(
+        self,
+        synchronizer_node_path: str,
+        root_path: str | None = None,
+        replication_interval: float | None = None,
+        properties: list[dict[str, Any]] | None = None,
+        visibility_update_mode: str | None = None,
+        clear_properties: bool = False,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.configure_multiplayer_synchronizer(
+            synchronizer_node_path=synchronizer_node_path,
+            root_path=root_path,
+            replication_interval=replication_interval,
+            properties=properties,
+            visibility_update_mode=visibility_update_mode,
+            clear_properties=clear_properties,
+        )
+
+    async def simulate_network_conditions(
+        self,
+        latency_ms: int = 0,
+        packet_loss_percent: float = 0.0,
+        jitter_ms: int = 0,
+        offline_mode: bool = False,
+    ) -> StandardResult:
+        client = await self.get_active_client()
+        return await client.simulate_network_conditions(
+            latency_ms=latency_ms,
+            packet_loss_percent=packet_loss_percent,
+            jitter_ms=jitter_ms,
+            offline_mode=offline_mode,
+        )

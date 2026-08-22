@@ -4408,3 +4408,94 @@ func _init() -> void:
                 "total_vram_mb": 128.50,
             },
         )
+
+    async def configure_multiplayer_spawner(
+        self,
+        spawner_node_path: str,
+        spawn_path: str | None = None,
+        spawn_limit: int | None = None,
+        spawnable_scenes: list[str] | None = None,
+        clear_spawnable_scenes: bool = False,
+    ) -> StandardResult:
+        """Configure MultiplayerSpawner in headless mode."""
+        node_name = spawner_node_path.split("/")[-1]
+        scenes = spawnable_scenes or []
+        changes = []
+        if spawn_path:
+            changes.append(f"Spawn Path: {spawn_path}")
+        if spawn_limit is not None:
+            changes.append(f"Spawn Limit: {spawn_limit}")
+        if scenes:
+            changes.append(f"Added {len(scenes)} spawnable scenes")
+        return StandardResult(
+            success=True,
+            message=f"Configured MultiplayerSpawner '{node_name}': {', '.join(changes) or 'No modifications'} (Headless Mode).",
+            mode=self.mode,
+            data={
+                "spawner_name": node_name,
+                "spawner_path": spawner_node_path,
+                "spawn_path": spawn_path or "../Entities",
+                "spawn_limit": spawn_limit or 0,
+                "spawnable_scene_count": len(scenes),
+                "changes_applied": changes,
+            },
+        )
+
+    async def configure_multiplayer_synchronizer(
+        self,
+        synchronizer_node_path: str,
+        root_path: str | None = None,
+        replication_interval: float | None = None,
+        properties: list[dict[str, Any]] | None = None,
+        visibility_update_mode: str | None = None,
+        clear_properties: bool = False,
+    ) -> StandardResult:
+        """Configure MultiplayerSynchronizer in headless mode."""
+        node_name = synchronizer_node_path.split("/")[-1]
+        props = properties or []
+        changes = []
+        if root_path:
+            changes.append(f"Root Path: {root_path}")
+        if replication_interval is not None:
+            changes.append(f"Replication Interval: {replication_interval:.3f}s")
+        if props:
+            changes.append(f"Configured {len(props)} replication properties")
+        return StandardResult(
+            success=True,
+            message=f"Configured MultiplayerSynchronizer '{node_name}': {', '.join(changes) or 'No modifications'} (Headless Mode).",
+            mode=self.mode,
+            data={
+                "synchronizer_name": node_name,
+                "synchronizer_path": synchronizer_node_path,
+                "root_path": root_path or "..",
+                "replication_interval": replication_interval or 0.0,
+                "total_properties": len(props),
+                "changes_applied": changes,
+            },
+        )
+
+    async def simulate_network_conditions(
+        self,
+        latency_ms: int = 0,
+        packet_loss_percent: float = 0.0,
+        jitter_ms: int = 0,
+        offline_mode: bool = False,
+    ) -> StandardResult:
+        """Simulate network conditions in headless mode."""
+        status = (
+            "SIMULATION_ACTIVE"
+            if (latency_ms > 0 or packet_loss_percent > 0.0 or offline_mode)
+            else "NORMAL"
+        )
+        return StandardResult(
+            success=True,
+            message=f"Configured simulated network conditions: Latency {latency_ms}ms, Packet Loss {packet_loss_percent:.1f}%, Jitter {jitter_ms}ms, Offline: {offline_mode} (Headless Mode).",
+            mode=self.mode,
+            data={
+                "latency_ms": latency_ms,
+                "packet_loss_percent": packet_loss_percent,
+                "jitter_ms": jitter_ms,
+                "offline_mode": offline_mode,
+                "status": status,
+            },
+        )
