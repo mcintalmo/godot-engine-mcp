@@ -247,3 +247,28 @@ def reload(
             console.print("[red]Error:[/red] Could not reload or launch Godot Editor.")
 
     asyncio.run(_do_reload())
+
+
+@app.command(name="format")
+def format(
+    path: str = typer.Argument(
+        "res://scripts", help="Path to GDScript file or directory to format"
+    ),
+    line_length: int = typer.Option(100, "--line-length", "-l", help="Max line length"),
+) -> None:
+    """Format GDScript files using gdformat / gdtoolkit."""
+    import asyncio
+
+    from godot_engine_mcp.client.headless_cli import HeadlessCLIClient
+    from godot_engine_mcp.config import GodotConfig
+
+    config = GodotConfig()
+    client = HeadlessCLIClient(config)
+    result = asyncio.run(
+        client.format_script(script_path=path, line_length=line_length)
+    )
+    if result.success:
+        typer.secho(result.message, fg=typer.colors.GREEN)
+    else:
+        typer.secho(f"Error: {result.message}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1)

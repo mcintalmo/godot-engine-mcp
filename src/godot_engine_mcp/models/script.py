@@ -53,3 +53,20 @@ class CreateScriptInput(BaseInputModel):
         default=ResponseFormat.MARKDOWN,
         description="Response format: 'markdown' or 'json'",
     )
+
+
+class FormatScriptInput(BaseInputModel):
+    """Input for formatting GDScript files using gdformat / AST formatter."""
+
+    script_path: str = Field(
+        default="res://scripts",
+        description="Path to a GDScript file ('res://scripts/player.gd') or directory ('res://scripts')",
+    )
+    line_length: int = Field(
+        default=100,
+        description="Maximum line length for formatted GDScript (default: 100)",
+    )
+    response_format: ResponseFormat = Field(
+        default=ResponseFormat.MARKDOWN,
+        description="Response format: 'markdown' or 'json'",
+    )

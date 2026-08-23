@@ -270,3 +270,84 @@ class ScriptLSPHeadlessMixin(BaseHeadlessClient):
             character=character,
             new_name=new_name,
         )
+
+    async def format_script(
+        self,
+        script_path: str = "res://scripts",
+        line_length: int = 100,
+    ) -> StandardResult:
+        resolved = self._resolve_res_path(script_path)
+        if not resolved or not resolved.exists():
+            return StandardResult(
+                success=False,
+                message=f"Path not found: {script_path}",
+                mode=self.mode,
+                error_code="PATH_NOT_FOUND",
+                data={"path": script_path},
+            )
+
+        cmd = ["gdformat", "--line-length", str(line_length), str(resolved)]
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await proc.communicate()
+            if proc.returncode == 0:
+                return StandardResult(
+                    success=True,
+                    message=f"Successfully formatted GDScript at '{script_path}'.",
+                    mode=self.mode,
+                    data={"path": str(resolved), "output": stdout.decode("utf-8")},
+                )
+            return StandardResult(
+                success=False,
+                message=f"Formatting failed: {stderr.decode('utf-8')}",
+                mode=self.mode,
+                error_code="FORMAT_FAILED",
+            )
+        except FileNotFoundError:
+            # Fallback to uvx gdtoolkit gdformat
+            uvx_cmd = [
+                "uvx",
+                "gdtoolkit",
+                "gdformat",
+                "--line-length",
+                str(line_length),
+                str(resolved),
+            ]
+            try:
+                proc = await asyncio.create_subprocess_exec(
+                    *uvx_cmd,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                )
+                stdout, stderr = await proc.communicate()
+                if proc.returncode == 0:
+                    return StandardResult(
+                        success=True,
+                        message=f"Successfully formatted GDScript at '{script_path}' via uvx gdtoolkit.",
+                        mode=self.mode,
+                        data={"path": str(resolved), "output": stdout.decode("utf-8")},
+                    )
+                return StandardResult(
+                    success=False,
+                    message=f"Formatting failed: {stderr.decode('utf-8')}",
+                    mode=self.mode,
+                    error_code="FORMAT_FAILED",
+                )
+            except (OSError, RuntimeError) as ex:
+                return StandardResult(
+                    success=False,
+                    message=f"Could not run gdformat or uvx gdtoolkit: {ex}",
+                    mode=self.mode,
+                    error_code="TOOL_NOT_FOUND",
+                )
+        except (OSError, RuntimeError) as ex:
+            return StandardResult(
+                success=False,
+                message=f"Formatting failed: {ex}",
+                mode=self.mode,
+                error_code="FORMAT_ERROR",
+            )

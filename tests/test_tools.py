@@ -237,6 +237,18 @@ class MockGodotClient(GodotClient):
             mode=self.mode,
         )
 
+    async def format_script(
+        self,
+        script_path: str = "res://scripts",
+        line_length: int = 100,
+    ) -> StandardResult:
+        return StandardResult(
+            success=True,
+            message=f"Successfully formatted GDScript at '{script_path}'.",
+            mode=self.mode,
+            data={"path": script_path, "formatted": True},
+        )
+
     async def validate_script(
         self,
         script_path: str | None = None,

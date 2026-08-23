@@ -128,13 +128,22 @@ class GodotClient(ABC):
         ...
 
     @abstractmethod
+    async def format_script(
+        self,
+        script_path: str = "res://scripts",
+        line_length: int = 100,
+    ) -> StandardResult:
+        """Format GDScript file(s) according to style guidelines."""
+        raise NotImplementedError
+
+    @abstractmethod
     async def validate_script(
         self,
         script_path: str | None = None,
         code_content: str | None = None,
     ) -> StandardResult:
         """Validate GDScript syntax and check compilation errors."""
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     async def validate_shader(

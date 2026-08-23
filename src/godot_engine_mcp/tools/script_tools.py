@@ -3,6 +3,7 @@
 from godot_engine_mcp.client.base import GodotClient
 from godot_engine_mcp.models.script import (
     CreateScriptInput,
+    FormatScriptInput,
     ValidateScriptInput,
 )
 from godot_engine_mcp.tools.formatters import format_result
@@ -26,5 +27,14 @@ async def handle_create_script(client: GodotClient, params: CreateScriptInput) -
         content=params.content,
         inherits=params.inherits,
         attach_to_node=params.attach_to_node,
+    )
+    return format_result(result, params.response_format)
+
+
+async def handle_format_script(client: GodotClient, params: FormatScriptInput) -> str:
+    """Format GDScript source files."""
+    result = await client.format_script(
+        script_path=params.script_path,
+        line_length=params.line_length,
     )
     return format_result(result, params.response_format)
